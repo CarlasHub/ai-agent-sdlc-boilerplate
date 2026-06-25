@@ -1,0 +1,418 @@
+{
+  "enterprise_ready": true,
+  "score": 100,
+  "generated_at": "2026-06-25T17:40:36.345Z",
+  "failed_blockers": [],
+  "warnings": [
+    {
+      "name": "CODEOWNERS still needs real enterprise owner groups",
+      "status": "failed",
+      "severity": "warning",
+      "evidence": ".github/CODEOWNERS"
+    }
+  ],
+  "checks": [
+    {
+      "name": "Required file exists: AGENTS.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "AGENTS.md"
+    },
+    {
+      "name": "Required file exists: README.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "README.md"
+    },
+    {
+      "name": "Required file exists: .github/CODEOWNERS",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": ".github/CODEOWNERS"
+    },
+    {
+      "name": "Required file exists: .github/pull_request_template.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": ".github/pull_request_template.md"
+    },
+    {
+      "name": "Required file exists: .github/workflows/governance-check.yml",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": ".github/workflows/governance-check.yml"
+    },
+    {
+      "name": "Required file exists: .github/workflows/security-check.yml",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": ".github/workflows/security-check.yml"
+    },
+    {
+      "name": "Required file exists: .github/workflows/release-gate.yml",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": ".github/workflows/release-gate.yml"
+    },
+    {
+      "name": "Required file exists: docs/enterprise/source-research-brief.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/enterprise/source-research-brief.md"
+    },
+    {
+      "name": "Required file exists: docs/enterprise/target-architecture.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/enterprise/target-architecture.md"
+    },
+    {
+      "name": "Required file exists: docs/enterprise/operating-model.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/enterprise/operating-model.md"
+    },
+    {
+      "name": "Required file exists: docs/enterprise/enterprise-readiness-scorecard.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/enterprise/enterprise-readiness-scorecard.md"
+    },
+    {
+      "name": "Required file exists: docs/mappings/enterprise-control-map.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/mappings/enterprise-control-map.md"
+    },
+    {
+      "name": "Required file exists: docs/governance/09-human-approval-record.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/governance/09-human-approval-record.md"
+    },
+    {
+      "name": "Required file exists: docs/governance/10-release-gate.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/governance/10-release-gate.md"
+    },
+    {
+      "name": "Required file exists: docs/threat-model/agent-threat-model.template.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/threat-model/agent-threat-model.template.md"
+    },
+    {
+      "name": "Required file exists: scripts/serve-app.mjs",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "scripts/serve-app.mjs"
+    },
+    {
+      "name": "Required file exists: app/README.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "app/README.md"
+    },
+    {
+      "name": "Required file exists: app/index.html",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "app/index.html"
+    },
+    {
+      "name": "Required file exists: app/src/main.js",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "app/src/main.js"
+    },
+    {
+      "name": "Required file exists: app/src/styles.css",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "app/src/styles.css"
+    },
+    {
+      "name": "Required file exists: app/src/data/fictional-recruitment-map-data.js",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "app/src/data/fictional-recruitment-map-data.js"
+    },
+    {
+      "name": "Required file exists: app/src/features/project-builder/app.js",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "app/src/features/project-builder/app.js"
+    },
+    {
+      "name": "Required file exists: app/src/features/project-builder/templates.js",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "app/src/features/project-builder/templates.js"
+    },
+    {
+      "name": "Required file exists: app/src/features/project-builder/zip.js",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "app/src/features/project-builder/zip.js"
+    },
+    {
+      "name": "Required file exists: app/src/lib/dom.js",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "app/src/lib/dom.js"
+    },
+    {
+      "name": "Required file exists: app/tests/manual-test-plan.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "app/tests/manual-test-plan.md"
+    },
+    {
+      "name": "Required file exists: app/tests/accessibility-checklist.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "app/tests/accessibility-checklist.md"
+    },
+    {
+      "name": "Required file exists: app/docs/agent-handoff.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "app/docs/agent-handoff.md"
+    },
+    {
+      "name": "Required file exists: app/docs/implementation-notes.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "app/docs/implementation-notes.md"
+    },
+    {
+      "name": "Required file exists: app/docs/review-evidence.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "app/docs/review-evidence.md"
+    },
+    {
+      "name": "Package script exists: governance:init",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "package.json scripts.governance:init"
+    },
+    {
+      "name": "Package script exists: governance:check",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "package.json scripts.governance:check"
+    },
+    {
+      "name": "Package script exists: evals:check",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "package.json scripts.evals:check"
+    },
+    {
+      "name": "Package script exists: enterprise:check",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "package.json scripts.enterprise:check"
+    },
+    {
+      "name": "Package script exists: app:serve",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "package.json scripts.app:serve"
+    },
+    {
+      "name": "Package script exists: audit:new",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "package.json scripts.audit:new"
+    },
+    {
+      "name": "Package script exists: release:gate",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "package.json scripts.release:gate"
+    },
+    {
+      "name": "Package script exists: check",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "package.json scripts.check"
+    },
+    {
+      "name": "Implementation approval is recorded",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/governance/09-human-approval-record.md"
+    },
+    {
+      "name": "CI runs enterprise readiness gate",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": ".github/workflows/governance-check.yml"
+    },
+    {
+      "name": "Research source linked: https://www.saif.google/secure-ai-framework/controls",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/enterprise/source-research-brief.md"
+    },
+    {
+      "name": "Research source linked: https://www.nist.gov/itl/ai-risk-management-framework",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/enterprise/source-research-brief.md"
+    },
+    {
+      "name": "Research source linked: https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/enterprise/source-research-brief.md"
+    },
+    {
+      "name": "Research source linked: https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/enterprise/source-research-brief.md"
+    },
+    {
+      "name": "Research source linked: https://media.defense.gov/2026/Apr/30/2003922823/-1/-1/0/CAREFULADOPTIONOFAGENTICAISERVICES_FINAL.PDF",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/enterprise/source-research-brief.md"
+    },
+    {
+      "name": "Research source linked: https://google.github.io/eng-practices/",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/enterprise/source-research-brief.md"
+    },
+    {
+      "name": "Research source linked: https://sre.google/sre-book/service-level-objectives/",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/enterprise/source-research-brief.md"
+    },
+    {
+      "name": "Research source linked: https://slsa.dev/spec/v1.2/about",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/enterprise/source-research-brief.md"
+    },
+    {
+      "name": "Research source linked: https://openssf.org/scorecard/",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/enterprise/source-research-brief.md"
+    },
+    {
+      "name": "No unresolved placeholders in docs/enterprise/source-research-brief.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/enterprise/source-research-brief.md"
+    },
+    {
+      "name": "No unresolved placeholders in docs/enterprise/target-architecture.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/enterprise/target-architecture.md"
+    },
+    {
+      "name": "No unresolved placeholders in docs/enterprise/operating-model.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/enterprise/operating-model.md"
+    },
+    {
+      "name": "No unresolved placeholders in docs/enterprise/enterprise-readiness-scorecard.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/enterprise/enterprise-readiness-scorecard.md"
+    },
+    {
+      "name": "No unresolved placeholders in docs/mappings/enterprise-control-map.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/mappings/enterprise-control-map.md"
+    },
+    {
+      "name": "At least eight agent eval cases exist",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "eval count: 8"
+    },
+    {
+      "name": "Agent prompt includes governance gate: implementation-agent.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "agents/implementation-agent.md"
+    },
+    {
+      "name": "Agent prompt includes governance gate: monitoring-agent.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "agents/monitoring-agent.md"
+    },
+    {
+      "name": "Agent prompt includes governance gate: project-intake-agent.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "agents/project-intake-agent.md"
+    },
+    {
+      "name": "Agent prompt includes governance gate: red-team-agent.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "agents/red-team-agent.md"
+    },
+    {
+      "name": "Agent prompt includes governance gate: release-agent.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "agents/release-agent.md"
+    },
+    {
+      "name": "Agent prompt includes governance gate: review-agent.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "agents/review-agent.md"
+    },
+    {
+      "name": "App scaffold states fictional-data boundary",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "app/README.md"
+    },
+    {
+      "name": "App scaffold includes accessibility evidence files",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "app/tests/accessibility-checklist.md and app/docs/review-evidence.md"
+    },
+    {
+      "name": "CODEOWNERS still needs real enterprise owner groups",
+      "status": "failed",
+      "severity": "warning",
+      "evidence": ".github/CODEOWNERS"
+    },
+    {
+      "name": "Git repository metadata is not available",
+      "status": "passed",
+      "severity": "warning",
+      "evidence": ".git"
+    },
+    {
+      "name": "Release approval is not recorded",
+      "status": "passed",
+      "severity": "warning",
+      "evidence": "docs/governance/10-release-gate.md"
+    },
+    {
+      "name": "Audit events exist",
+      "status": "passed",
+      "severity": "warning",
+      "evidence": "audit events: 15"
+    }
+  ]
+}

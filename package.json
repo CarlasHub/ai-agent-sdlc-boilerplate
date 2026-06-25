@@ -1,0 +1,22 @@
+{
+  "name": "ai-agent-sdlc-enterprise-boilerplate",
+  "version": "1.0.0",
+  "description": "Governance-first AI-Agent SDLC boilerplate with intake, gates, policy templates, evaluations and audit artefacts.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "governance:init": "node scripts/init-agent.mjs",
+    "governance:check": "node scripts/validate-governance.mjs",
+    "evals:check": "node scripts/evaluate-agent.mjs",
+    "enterprise:check": "node scripts/enterprise-readiness.mjs",
+    "app:serve": "node scripts/serve-app.mjs",
+    "app:verify-zip": "node scripts/verify-generated-zip.mjs",
+    "app:verify-behavior": "node scripts/verify-app-behavior.mjs",
+    "audit:new": "node scripts/create-audit-event.mjs",
+    "release:gate": "node scripts/release-gate.mjs",
+    "check": "npm run governance:check && npm run evals:check && npm run enterprise:check && npm run app:verify-zip && npm run app:verify-behavior && npm run release:gate"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

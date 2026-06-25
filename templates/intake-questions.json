@@ -1,0 +1,334 @@
+{
+  "version": "1.0.0",
+  "questions": [
+    {
+      "key": "PROJECT_NAME",
+      "question": "Project name",
+      "required": true
+    },
+    {
+      "key": "PROJECT_OWNER",
+      "question": "Project owner name or team",
+      "required": true
+    },
+    {
+      "key": "AGENT_PURPOSE",
+      "question": "What exact job should the AI agent workflow do?",
+      "required": true
+    },
+    {
+      "key": "BUSINESS_JUSTIFICATION",
+      "question": "Why is an agent needed instead of a normal manual workflow?",
+      "required": true
+    },
+    {
+      "key": "PRIMARY_USERS",
+      "question": "Who will use or supervise this agent?",
+      "required": true
+    },
+    {
+      "key": "EXPECTED_OUTPUTS",
+      "question": "What artefacts may the agent produce?",
+      "required": true
+    },
+    {
+      "key": "OUT_OF_SCOPE",
+      "question": "What must the agent never do?",
+      "required": true
+    },
+    {
+      "key": "SUCCESS_CRITERIA",
+      "question": "How will the team know the agent workflow is successful?",
+      "required": true
+    },
+    {
+      "key": "RISK_LEVEL",
+      "question": "Risk level: low, medium, high or critical",
+      "required": true,
+      "allowed": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    {
+      "key": "RISK_RATIONALE",
+      "question": "Why is this the correct risk level?",
+      "required": true
+    },
+    {
+      "key": "HIGH_RISK_AREAS",
+      "question": "List any high-risk areas: production, personal data, secrets, financial, legal, security, regulated, infrastructure",
+      "required": true
+    },
+    {
+      "key": "REQUIRED_APPROVERS",
+      "question": "Which roles must approve this workflow before implementation?",
+      "required": true
+    },
+    {
+      "key": "RISK_REVIEW_FREQUENCY",
+      "question": "How often should risk be reviewed?",
+      "required": true,
+      "default": "monthly"
+    },
+    {
+      "key": "DATA_CLASSIFICATION",
+      "question": "Highest data class allowed: public, internal, confidential, personal-data, regulated, secrets-blocked",
+      "required": true
+    },
+    {
+      "key": "DATA_SOURCES",
+      "question": "Which data sources may the agent read?",
+      "required": true
+    },
+    {
+      "key": "PERSONAL_DATA_INVOLVED",
+      "question": "Is personal data involved? yes/no",
+      "required": true,
+      "allowed": [
+        "yes",
+        "no"
+      ]
+    },
+    {
+      "key": "SECRETS_INVOLVED",
+      "question": "Are secrets required? This should normally be no. yes/no",
+      "required": true,
+      "allowed": [
+        "yes",
+        "no"
+      ]
+    },
+    {
+      "key": "DATA_RESTRICTIONS",
+      "question": "What data must be blocked, masked or approval-gated?",
+      "required": true
+    },
+    {
+      "key": "DATA_OWNER",
+      "question": "Who owns the data access decision?",
+      "required": true
+    },
+    {
+      "key": "TOOL_ACCESS_ROWS",
+      "question": "Tool map rows. Format: | Tool | Purpose | yes/no | yes/no | yes/no | Data | Risk | Approval | Logging | Owner |",
+      "required": true
+    },
+    {
+      "key": "BLOCKED_TOOLS",
+      "question": "Which tools are explicitly blocked?",
+      "required": true
+    },
+    {
+      "key": "MCP_SERVER_ROWS",
+      "question": "MCP server rows. Use 'none currently approved' if none. Format: | Server | Purpose | Transport | Read/write | Auth | Data class | Risk | Owner | yes/no |",
+      "required": true
+    },
+    {
+      "key": "MCP_RESTRICTIONS",
+      "question": "What MCP restrictions apply?",
+      "required": true
+    },
+    {
+      "key": "READ_SOURCE_BEFORE_APPROVAL",
+      "question": "Can source code be read before implementation approval? yes/no",
+      "required": true,
+      "allowed": [
+        "yes",
+        "no"
+      ]
+    },
+    {
+      "key": "READ_SOURCE_APPROVAL_REQUIRED",
+      "question": "Does source reading require human approval? yes/no",
+      "required": true,
+      "allowed": [
+        "yes",
+        "no"
+      ]
+    },
+    {
+      "key": "WRITE_SOURCE_AFTER_APPROVAL",
+      "question": "Can source code be written after approval? yes/no",
+      "required": true,
+      "allowed": [
+        "yes",
+        "no"
+      ]
+    },
+    {
+      "key": "ADD_DEPENDENCY_AFTER_APPROVAL",
+      "question": "Can dependencies be added after approval? yes/no/security approval only",
+      "required": true
+    },
+    {
+      "key": "CREATE_PR_AFTER_APPROVAL",
+      "question": "Can the agent create draft PRs after approval? yes/no",
+      "required": true,
+      "allowed": [
+        "yes",
+        "no"
+      ]
+    },
+    {
+      "key": "PERMISSION_NOTES",
+      "question": "Any additional permission notes?",
+      "required": true
+    },
+    {
+      "key": "WORKFLOW_PATTERN",
+      "question": "Describe the modular agent workflow pattern",
+      "required": true
+    },
+    {
+      "key": "AGENT_MODULES",
+      "question": "List agent modules and responsibilities",
+      "required": true
+    },
+    {
+      "key": "HANDOFF_RULES",
+      "question": "How do agents hand work to humans or other agents?",
+      "required": true
+    },
+    {
+      "key": "FAILURE_BEHAVIOUR",
+      "question": "What should the agent do when unsure, blocked or failing?",
+      "required": true
+    },
+    {
+      "key": "ESCALATION_PATH",
+      "question": "Who is contacted when the agent cannot proceed safely?",
+      "required": true
+    },
+    {
+      "key": "PROJECT_SPECIFIC_EVALS",
+      "question": "Project-specific agent evaluation cases",
+      "required": true
+    },
+    {
+      "key": "EVAL_PASS_CRITERIA",
+      "question": "What pass criteria must evals meet?",
+      "required": true
+    },
+    {
+      "key": "APPROVER_NAME",
+      "question": "Implementation approver name. Use pending if not yet approved.",
+      "required": true,
+      "default": "pending"
+    },
+    {
+      "key": "APPROVER_ROLE",
+      "question": "Implementation approver role. Use pending if not yet approved.",
+      "required": true,
+      "default": "pending"
+    },
+    {
+      "key": "APPROVAL_DATE",
+      "question": "Approval date. Use pending if not yet approved.",
+      "required": true,
+      "default": "pending"
+    },
+    {
+      "key": "APPROVAL_SCOPE",
+      "question": "What exactly is being approved? Use pending if not yet approved.",
+      "required": true,
+      "default": "pending"
+    },
+    {
+      "key": "APPROVAL_CONDITIONS",
+      "question": "Approval conditions. Use pending if not yet approved.",
+      "required": true,
+      "default": "pending"
+    },
+    {
+      "key": "APPROVAL_NOTES",
+      "question": "Approval notes. Use pending if not yet approved.",
+      "required": true,
+      "default": "pending"
+    },
+    {
+      "key": "RELEASE_OWNER",
+      "question": "Who owns release approval?",
+      "required": true
+    },
+    {
+      "key": "ROLLBACK_PLAN",
+      "question": "What is the rollback plan?",
+      "required": true
+    },
+    {
+      "key": "RELEASE_RISKS",
+      "question": "Known release risks",
+      "required": true
+    },
+    {
+      "key": "MONITORING_OWNER",
+      "question": "Who owns monitoring?",
+      "required": true
+    },
+    {
+      "key": "MONITORING_METRICS",
+      "question": "Which metrics will be monitored?",
+      "required": true
+    },
+    {
+      "key": "LOG_LOCATION",
+      "question": "Where are audit logs stored?",
+      "required": true,
+      "default": "docs/audit/"
+    },
+    {
+      "key": "MONITORING_REVIEW_CADENCE",
+      "question": "How often are monitoring logs reviewed?",
+      "required": true,
+      "default": "weekly"
+    },
+    {
+      "key": "INCIDENT_OWNER",
+      "question": "Who owns incidents?",
+      "required": true
+    },
+    {
+      "key": "ESCALATION_CONTACTS",
+      "question": "Escalation contacts",
+      "required": true
+    },
+    {
+      "key": "DISABLE_PROCEDURE",
+      "question": "How can the agent or tool access be disabled quickly?",
+      "required": true
+    },
+    {
+      "key": "ROLLBACK_PROCEDURE",
+      "question": "Incident rollback procedure",
+      "required": true
+    },
+    {
+      "key": "EVIDENCE_PRESERVATION",
+      "question": "How will evidence be preserved after an incident?",
+      "required": true
+    },
+    {
+      "key": "POST_INCIDENT_IMPROVEMENT",
+      "question": "How are lessons added back into prompts, tests, permissions or docs?",
+      "required": true
+    },
+    {
+      "key": "PROMPT_REGISTER_ROWS",
+      "question": "Prompt register rows. Format: | Prompt | Location | Owner | Purpose | Cadence | yes/no |",
+      "required": true
+    },
+    {
+      "key": "ARTEFACT_ROWS",
+      "question": "Initial artefact provenance rows. Use 'none yet' row if none.",
+      "required": true
+    },
+    {
+      "key": "DECISION_ROWS",
+      "question": "Initial decision log rows. Use 'none yet' row if none.",
+      "required": true
+    }
+  ]
+}

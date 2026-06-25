@@ -1,0 +1,14 @@
+# Governance files require explicit owner review.
+# Replace @your-org/ai-governance and @your-org/security with real teams.
+
+/AGENTS.md @your-org/ai-governance
+/.github/workflows/ @your-org/security @your-org/platform
+/.github/copilot-instructions.md @your-org/ai-governance
+/agents/ @your-org/ai-governance
+/docs/governance/ @your-org/ai-governance
+/docs/policies/ @your-org/ai-governance @your-org/security
+/docs/threat-model/ @your-org/security
+/docs/mappings/ @your-org/ai-governance
+/evals/ @your-org/security @your-org/ai-governance
+/scripts/ @your-org/platform @your-org/security
+/templates/ @your-org/ai-governance
