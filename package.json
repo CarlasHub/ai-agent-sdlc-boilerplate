@@ -12,9 +12,10 @@
     "app:serve": "node scripts/serve-app.mjs",
     "app:verify-zip": "node scripts/verify-generated-zip.mjs",
     "app:verify-behavior": "node scripts/verify-app-behavior.mjs",
+    "security:scan": "node scripts/security-secret-scan.mjs",
     "audit:new": "node scripts/create-audit-event.mjs",
     "release:gate": "node scripts/release-gate.mjs",
-    "check": "npm run governance:check && npm run evals:check && npm run enterprise:check && npm run app:verify-zip && npm run app:verify-behavior && npm run release:gate"
+    "check": "npm run governance:check && npm run evals:check && npm run enterprise:check && npm run app:verify-zip && npm run app:verify-behavior && npm run security:scan && npm run release:gate"
   },
   "engines": {
     "node": ">=20.0.0"
