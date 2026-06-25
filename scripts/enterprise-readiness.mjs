@@ -206,6 +206,22 @@ const status = {
   checks
 };
 
+if (fs.existsSync(statusPath)) {
+  try {
+    const previousStatus = JSON.parse(fs.readFileSync(statusPath, 'utf8'));
+    const statusWithPreviousTimestamp = {
+      ...status,
+      generated_at: previousStatus.generated_at
+    };
+
+    if (JSON.stringify(statusWithPreviousTimestamp) === JSON.stringify(previousStatus)) {
+      status.generated_at = previousStatus.generated_at;
+    }
+  } catch {
+    // If existing evidence is not valid JSON, rewrite it with the current result.
+  }
+}
+
 fs.mkdirSync(path.dirname(statusPath), { recursive: true });
 fs.writeFileSync(statusPath, JSON.stringify(status, null, 2));
 
