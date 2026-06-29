@@ -348,6 +348,10 @@ function previewMarkup(config, excludedFiles = new Set()) {
   const type = selectedType(config.projectType);
   const activeFiles = includedFiles(generated, excludedFiles);
   const inactiveFiles = removedFiles(generated, excludedFiles);
+  const inclusionRatio = generated.files.length
+    ? Math.max(8, Math.round((activeFiles.length / generated.files.length) * 100))
+    : 0;
+  const timelineTicks = ['0:01', '0:02', '0:03', '0:04', '0:05', '0:06', '0:07', '0:08', '0:09'];
   const hasImplementationApproval =
     Boolean(config.approverName) &&
     Boolean(config.approverRole) &&
@@ -355,41 +359,77 @@ function previewMarkup(config, excludedFiles = new Set()) {
     config.approverRole !== 'pending';
 
   return `
-    <div class="preview-header">
+    <div class="preview-toolbar">
       <div>
-        <p class="eyebrow">WYSIWYG package</p>
-        <h2>${escapeHtml(generated.fileName)}</h2>
+        <p class="eyebrow">Preview stage</p>
+        <h2>${escapeHtml(type.label)}</h2>
       </div>
-      <span class="status-chip">${escapeHtml(type.label)}</span>
-    </div>
-
-    <div class="metrics-grid" aria-label="Generated workspace summary">
-      <div><strong>${activeFiles.length}</strong><span>included files</span></div>
-      <div><strong>16</strong><span>governance docs</span></div>
-      <div><strong>${inactiveFiles.length}</strong><span>removed files</span></div>
-    </div>
-
-    <div class="file-browser live-file-browser" aria-label="Live generated project preview" aria-live="polite">
-      <div class="file-browser-bar">
-        <span></span><span></span><span></span>
-        <strong>${escapeHtml(`${generated.root} -- watch`)}</strong>
-      </div>
-      <div class="terminal-feed">
-        <p><span>$</span> plan workspace ${escapeHtml(generated.root)}</p>
-        <p><span>></span> ${activeFiles.length} of ${generated.files.length} files included locally</p>
-        <p class="feed-note"><span>!</span> Files are optional. Removing governance or script files may make generated checks fail.</p>
-        <ul>
-          ${terminalRows(activeFiles, generated.root, activeFiles.length, 'queued', true)}
-        </ul>
-        ${activeFiles.length ? '<p class="feed-more">Use trash to exclude a file from the generated ZIP.</p>' : '<p class="feed-more is-warning">No files are currently included.</p>'}
-        ${removedRows(inactiveFiles, generated.root)}
+      <div class="stage-controls" aria-label="Preview controls">
+        <button class="icon-button" type="button" aria-label="Previous preview frame">&lt;</button>
+        <button class="icon-button" type="button" aria-label="Next preview frame">&gt;</button>
+        <span class="duration-chip">10s</span>
       </div>
     </div>
 
-    <div class="document-preview">
-      <p class="preview-label">Human approval record</p>
-      <h3>APPROVED_FOR_IMPLEMENTATION: ${hasImplementationApproval ? 'yes' : 'no'}</h3>
-      <p>${escapeHtml(config.projectName)} is generated as a ${escapeHtml(type.label)} with ${escapeHtml(config.dataClass)} data boundaries and ${escapeHtml(config.riskLevel)} risk classification.</p>
+    <div class="preview-stage">
+      <div class="stage-side-actions" aria-hidden="true">
+        <span>cursor</span>
+        <span>star</span>
+        <span>lock</span>
+        <span>idea</span>
+      </div>
+      <img class="stage-character" src="./src/assets/stage-builder.png" alt="Original cartoon project builder holding a workflow blueprint">
+      <div class="stage-hud" aria-label="Generated workspace summary">
+        <span><strong>${activeFiles.length}</strong> files</span>
+        <span><strong>16</strong> docs</span>
+        <span><strong>${inactiveFiles.length}</strong> removed</span>
+      </div>
+    </div>
+
+    <div class="timeline-panel" aria-label="Preview timeline">
+      <div class="timeline-scale" aria-hidden="true">
+        ${timelineTicks.map((tick) => `<span>${tick}</span>`).join('')}
+      </div>
+      <div class="timeline-track">
+        <span style="width: ${inclusionRatio}%"></span>
+        <i></i>
+      </div>
+      <div class="waveform" aria-hidden="true">
+        ${Array.from({ length: 42 }, (_, index) => `<span style="height: ${28 + ((index * 13) % 42)}%"></span>`).join('')}
+      </div>
+    </div>
+
+    <div class="package-preview">
+      <div class="preview-header">
+        <div>
+          <p class="eyebrow">WYSIWYG package</p>
+          <h2>${escapeHtml(generated.fileName)}</h2>
+        </div>
+        <span class="status-chip">${escapeHtml(config.riskLevel)} risk</span>
+      </div>
+
+      <div class="file-browser live-file-browser" aria-label="Live generated project preview" aria-live="polite">
+        <div class="file-browser-bar">
+          <span></span><span></span><span></span>
+          <strong>${escapeHtml(`${generated.root} -- watch`)}</strong>
+        </div>
+        <div class="terminal-feed">
+          <p><span>$</span> plan workspace ${escapeHtml(generated.root)}</p>
+          <p><span>></span> ${activeFiles.length} of ${generated.files.length} files included locally</p>
+          <p class="feed-note"><span>!</span> Files are optional. Removing governance or script files may make generated checks fail.</p>
+          <ul>
+            ${terminalRows(activeFiles, generated.root, activeFiles.length, 'queued', true)}
+          </ul>
+          ${activeFiles.length ? '<p class="feed-more">Use trash to exclude a file from the generated ZIP.</p>' : '<p class="feed-more is-warning">No files are currently included.</p>'}
+          ${removedRows(inactiveFiles, generated.root)}
+        </div>
+      </div>
+
+      <div class="document-preview">
+        <p class="preview-label">Human approval record</p>
+        <h3>APPROVED_FOR_IMPLEMENTATION: ${hasImplementationApproval ? 'yes' : 'no'}</h3>
+        <p>${escapeHtml(config.projectName)} is generated as a ${escapeHtml(type.label)} with ${escapeHtml(config.dataClass)} data boundaries and ${escapeHtml(config.riskLevel)} risk classification.</p>
+      </div>
     </div>
   `;
 }
@@ -398,42 +438,40 @@ function builderMarkup(excludedFiles = new Set()) {
   const type = selectedType(defaults.projectType);
 
   return `
-    <div class="workbench">
+    <div class="studio-shell">
+      <aside class="studio-rail" aria-label="Workspace tools">
+        <div class="rail-logo" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <nav>
+          <a href="#section-project" aria-label="Project node">T</a>
+          <a href="#section-governance" aria-label="Governance node">[]</a>
+          <a href="#section-controls" aria-label="Controls node">--</a>
+          <a href="#section-approval" aria-label="Approval node">OK</a>
+        </nav>
+        <button class="rail-add" type="button" aria-label="Add blueprint node">+</button>
+      </aside>
+
+      <div class="workbench">
       <header class="workbench-topbar">
-        <div>
-          <p class="eyebrow">Project Blueprint Starter</p>
-          <h1>Blueprint console</h1>
+        <div class="workspace-tabs" aria-label="Open workspaces">
+          <span class="workspace-tab is-active"><i></i>New Blueprint</span>
+          <span class="workspace-tab"><i></i>Governance Templates</span>
+          <span class="workspace-tab"><i></i>Untitled</span>
+          <button class="icon-button" type="button" aria-label="Open another workspace">+</button>
         </div>
         <div class="topbar-actions">
           <span class="run-state">local only</span>
+          <button class="icon-button" type="button" aria-label="Open generated code">&lt;&gt;</button>
+          <button class="icon-button" type="button" aria-label="Preview build">&gt;</button>
           <button class="primary-action top-submit" type="submit" form="project-form">
-            <span aria-hidden="true">run</span>
-            Build project
+            Export
           </button>
           <button class="ghost-action" type="button" data-action="reset">Reset</button>
         </div>
       </header>
 
       <form class="workbench-grid" id="project-form">
-        <aside class="command-rail" aria-label="Generation workflow">
-          <div class="terminal-titlebar">
-            <span></span><span></span><span></span>
-            <strong>workflow</strong>
-          </div>
-          <ol>
-            <li><strong>01</strong><span>project type</span></li>
-            <li><strong>02</strong><span>governance intake</span></li>
-            <li><strong>03</strong><span>controls</span></li>
-            <li><strong>04</strong><span>zip export</span></li>
-          </ol>
-          <div class="command-log">
-            <p><span>$</span> npm run governance:check</p>
-            <p><span>ok</span> blocks unsafe implementation</p>
-            <p><span>$</span> npm run evals:check</p>
-            <p><span>ok</span> verifies safety coverage</p>
-          </div>
-        </aside>
-
         <section class="editor-panel" aria-labelledby="builder-title">
           <div class="editor-tabs" aria-label="Builder sections">
             <a class="is-active" href="#section-project">Project</a>
@@ -442,25 +480,36 @@ function builderMarkup(excludedFiles = new Set()) {
             <a href="#section-approval">Approval</a>
           </div>
 
-          <div class="editor-section" id="section-project">
+          <div class="node-canvas">
+          <div class="editor-section node-card node-card-ideas" id="section-project">
             <div class="section-heading">
-              <p class="step-label">01 Project type</p>
-              <h2 id="builder-title">Choose the workspace your team needs.</h2>
+              <p class="step-label">01 Idea</p>
+              <h1 id="builder-title">Blueprint console</h1>
+              <p>Describe the project once. The rest of the workspace updates from this brief.</p>
+            </div>
+            <div class="field-grid">
+              ${field('projectName', 'Project name', defaults.projectName, 'text', 'Used for folder, ZIP and governance docs.')}
+              ${textArea('purpose', 'Purpose', type.defaultPurpose, 4)}
+            </div>
+          </div>
+
+          <div class="editor-section node-card node-card-references">
+            <div class="section-heading">
+              <p class="step-label">02 References</p>
+              <h2>Pick the package pattern closest to the team journey.</h2>
             </div>
             <div class="type-list">
               ${typeOptions(type.id)}
             </div>
           </div>
 
-          <div class="editor-section" id="section-governance">
+          <div class="editor-section node-card node-card-settings" id="section-governance">
             <div class="section-heading">
-              <p class="step-label">02 Governance intake</p>
-              <h2>Capture the essentials without making people fight the form.</h2>
+              <p class="step-label">03 Settings</p>
+              <h2>Set ownership, risk and data boundaries.</h2>
             </div>
             <div class="field-grid">
-              ${field('projectName', 'Project name', defaults.projectName, 'text', 'Used for folder, ZIP and governance docs.')}
               ${field('owner', 'Owner', defaults.owner, 'text', 'Named accountable owner.')}
-              ${textArea('purpose', 'Purpose', type.defaultPurpose, 3)}
               ${textArea('users', 'Users', defaults.users, 2)}
               ${selectField('riskLevel', 'Risk level', defaults.riskLevel, ['low', 'medium', 'high', 'critical'])}
               ${selectField('dataClass', 'Data class', defaults.dataClass, ['public', 'internal', 'confidential', 'personal-data', 'regulated', 'secrets-blocked'])}
@@ -469,9 +518,28 @@ function builderMarkup(excludedFiles = new Set()) {
             </div>
           </div>
 
-          <div class="editor-section" id="section-controls">
+          <div class="editor-section node-card node-card-models">
             <div class="section-heading">
-              <p class="step-label">03 Controls</p>
+              <p class="step-label">04 AI Models</p>
+              <h2>Output plan</h2>
+            </div>
+            <div class="model-grid" aria-label="Generated output plan">
+              <div>
+                <span class="model-mark model-mark-spark">+</span>
+                <strong>Governance pack</strong>
+                <small>Docs, approvals, evals and audit evidence.</small>
+              </div>
+              <div>
+                <span class="model-mark model-mark-zip">ZIP</span>
+                <strong>Local export</strong>
+                <small>No backend, secrets, paid APIs or production data.</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="editor-section node-card node-card-controls" id="section-controls">
+            <div class="section-heading">
+              <p class="step-label">05 Controls</p>
               <h2>Set boundaries the generated agents must respect.</h2>
             </div>
             <div class="field-grid">
@@ -488,9 +556,9 @@ function builderMarkup(excludedFiles = new Set()) {
             </div>
           </div>
 
-          <div class="editor-section" id="section-approval">
+          <div class="editor-section node-card node-card-approval" id="section-approval">
             <div class="section-heading">
-              <p class="step-label">04 Optional approval</p>
+              <p class="step-label">06 Optional approval</p>
               <h2>Leave blocked by default, or record a real human approval.</h2>
             </div>
             ${checkField('includeApproval', 'Include human implementation approval in the generated project.')}
@@ -503,10 +571,26 @@ function builderMarkup(excludedFiles = new Set()) {
               ${textArea('approvalNotes', 'Notes', 'Implementation may proceed after governance validation passes.', 2)}
             </div>
           </div>
+          </div>
         </section>
 
         <aside class="preview-panel" data-preview aria-label="Live generated project preview">
           ${previewMarkup(defaults, excludedFiles)}
+        </aside>
+
+        <aside class="command-rail" aria-label="Generation workflow">
+          <div class="terminal-titlebar">
+            <span></span><span></span><span></span>
+            <strong>Thoughts for 15s</strong>
+          </div>
+          <div class="code-feed" aria-label="Generated workflow code preview">
+            <ol>
+              <li><code>const blueprint = collectGovernanceInputs();</code></li>
+              <li><code>await run("npm run governance:check");</code></li>
+              <li><code>const files = generateProjectFiles(blueprint);</code></li>
+              <li><code>return createZipBlob(files);</code></li>
+            </ol>
+          </div>
         </aside>
 
         <div class="export-bar">
@@ -515,11 +599,11 @@ function builderMarkup(excludedFiles = new Set()) {
             <span>The ZIP is generated locally in this browser.</span>
           </div>
           <button class="primary-action" type="submit">
-            <span aria-hidden="true">run</span>
-            Build project
+            Export project
           </button>
         </div>
       </form>
+      </div>
     </div>
   `;
 }
@@ -590,7 +674,7 @@ function successMarkup(result) {
 
 export function createProjectBuilderApp(root) {
   const state = {
-    started: false,
+    started: true,
     lastResult: null,
     lastBlob: null,
     build: null,
@@ -733,7 +817,7 @@ export function createProjectBuilderApp(root) {
 
       if (action === 'reset' || action === 'new-project') {
         clearBuildTimer();
-        state.started = action !== 'new-project';
+        state.started = true;
         state.lastResult = null;
         state.lastBlob = null;
         state.build = null;
