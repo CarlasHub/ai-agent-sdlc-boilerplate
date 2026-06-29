@@ -399,13 +399,6 @@ function previewMarkup(config, excludedFiles = new Set()) {
       <div class="gate-row ${hasImplementationApproval ? 'is-pass' : 'is-hold'}"><strong>${hasImplementationApproval ? 'PASS' : 'HOLD'}</strong><span>${hasImplementationApproval ? 'Human implementation approval will be recorded.' : 'Implementation remains blocked until real human approval is entered.'}</span></div>
     </div>
 
-    <div class="artifact-grid" aria-label="Generated artifacts">
-      <div><strong>Governance</strong><span>Tool map, approvals, release gate, incident plan</span></div>
-      <div><strong>Agents</strong><span>Intake, implementation, review, red-team, release, monitoring</span></div>
-      <div><strong>Evaluations</strong><span>Prompt injection, forbidden actions, sensitive data, tool misuse</span></div>
-      <div><strong>Audit</strong><span>Trace templates, decision log, provenance records</span></div>
-    </div>
-
     <details class="file-browser live-file-browser" aria-label="Live generated project preview" aria-live="polite">
       <summary>
         <span>Review generated files</span>
@@ -444,10 +437,11 @@ function builderMarkup(excludedFiles = new Set()) {
     <div class="builder-shell">
       <header class="builder-header">
         <div class="builder-title-block">
-          <p class="eyebrow">AI-Agent SDLC Boilerplate</p>
-          <h1 id="builder-title">Build a governed agent starter kit.</h1>
-          <p>Configure scope, data boundaries, agent roles, eval coverage and human gates. Export a local ZIP your team can review before implementation.</p>
+          <p class="eyebrow">CarlasHub /</p>
+          <h1 id="builder-title">ai-agent-sdlc-boilerplate</h1>
+          <p>Generate a governed AI-agent starter kit with role prompts, eval coverage, audit evidence and human approval gates.</p>
           <div class="header-metrics" aria-label="Default package contents">
+            <span>Public</span>
             <span><strong>16</strong> governance docs</span>
             <span><strong>6+</strong> agent roles</span>
             <span><strong>8+</strong> eval cases</span>
@@ -455,7 +449,6 @@ function builderMarkup(excludedFiles = new Set()) {
         </div>
         <div class="header-actions">
           <span class="run-state">local export only</span>
-          <button class="icon-button" type="button" aria-label="Open generated code">&lt;&gt;</button>
           <button class="primary-action top-submit" type="submit" form="project-form">
             Export ZIP
           </button>
@@ -502,38 +495,9 @@ function builderMarkup(excludedFiles = new Set()) {
             </div>
           </section>
 
-          <section class="form-section output-plan-section">
-            <div class="section-heading">
-              <p class="step-label">03 Generated output</p>
-              <h2>What the boilerplate will create.</h2>
-            </div>
-            <div class="model-grid" aria-label="Generated output plan">
-              <div>
-                <span class="model-mark model-mark-spark">IN</span>
-                <strong>Intake agent</strong>
-                <small>Collects scope and stops before implementation.</small>
-              </div>
-              <div>
-                <span class="model-mark model-mark-zip">RV</span>
-                <strong>Review agent</strong>
-                <small>Checks correctness, safety and evidence quality.</small>
-              </div>
-              <div>
-                <span class="model-mark model-mark-release">RT</span>
-                <strong>Red-team agent</strong>
-                <small>Tests prompt injection, tool misuse and leakage.</small>
-              </div>
-              <div>
-                <span class="model-mark model-mark-local">ZIP</span>
-                <strong>Local package</strong>
-                <small>No backend, secrets, paid APIs or production data.</small>
-              </div>
-            </div>
-          </section>
-
           <section class="form-section" id="section-controls">
             <div class="section-heading">
-              <p class="step-label">04 Controls</p>
+              <p class="step-label">03 Controls</p>
               <h2>Set boundaries the generated agents must respect.</h2>
             </div>
             <div class="field-grid">
@@ -552,7 +516,7 @@ function builderMarkup(excludedFiles = new Set()) {
 
           <section class="form-section" id="section-approval">
             <div class="section-heading">
-              <p class="step-label">05 Optional approval</p>
+              <p class="step-label">04 Optional approval</p>
               <h2>Leave blocked by default, or record a real human approval.</h2>
             </div>
             ${checkField('includeApproval', 'Include human implementation approval in the generated project.')}
@@ -569,22 +533,6 @@ function builderMarkup(excludedFiles = new Set()) {
 
         <aside class="preview-panel" data-preview aria-label="Live generated project preview">
           ${previewMarkup(defaults, excludedFiles)}
-        </aside>
-
-        <aside class="command-rail" aria-label="Generation workflow">
-          <div class="terminal-titlebar">
-            <span></span><span></span><span></span>
-            <strong>Build script</strong>
-          </div>
-          <div class="code-feed" aria-label="Generated workflow code preview">
-            <ol>
-              <li><code>const intake = collectGovernanceInputs();</code></li>
-              <li><code>await gate("npm run governance:check");</code></li>
-              <li><code>const agents = createRolePrompts(intake);</code></li>
-              <li><code>const evals = createSafetyCoverage(intake);</code></li>
-              <li><code>return exportLocalBoilerplate({ agents, evals });</code></li>
-            </ol>
-          </div>
         </aside>
 
         <div class="export-bar">
