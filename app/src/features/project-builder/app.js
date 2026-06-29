@@ -351,51 +351,101 @@ function previewMarkup(config, excludedFiles = new Set()) {
   const inclusionRatio = generated.files.length
     ? Math.max(8, Math.round((activeFiles.length / generated.files.length) * 100))
     : 0;
-  const timelineTicks = ['0:01', '0:02', '0:03', '0:04', '0:05', '0:06', '0:07', '0:08', '0:09'];
   const hasImplementationApproval =
     Boolean(config.approverName) &&
     Boolean(config.approverRole) &&
     config.approverName !== 'pending' &&
     config.approverRole !== 'pending';
+  const approvalState = hasImplementationApproval ? 'approved' : 'blocked';
 
   return `
     <div class="preview-toolbar">
       <div>
-        <p class="eyebrow">Preview stage</p>
-        <h2>${escapeHtml(type.label)}</h2>
+        <p class="eyebrow">Output console</p>
+        <h2>${escapeHtml(type.label)} boilerplate</h2>
       </div>
       <div class="stage-controls" aria-label="Preview controls">
-        <button class="icon-button" type="button" aria-label="Previous preview frame">&lt;</button>
-        <button class="icon-button" type="button" aria-label="Next preview frame">&gt;</button>
-        <span class="duration-chip">10s</span>
+        <span class="duration-chip">governed</span>
+        <span class="duration-chip">${escapeHtml(approvalState)}</span>
       </div>
     </div>
 
     <div class="preview-stage">
-      <div class="stage-side-actions" aria-hidden="true">
-        <span>cursor</span>
-        <span>star</span>
-        <span>lock</span>
-        <span>idea</span>
-      </div>
-      <img class="stage-character" src="./src/assets/stage-builder.png" alt="Original cartoon project builder holding a workflow blueprint">
-      <div class="stage-hud" aria-label="Generated workspace summary">
-        <span><strong>${activeFiles.length}</strong> files</span>
-        <span><strong>16</strong> docs</span>
-        <span><strong>${inactiveFiles.length}</strong> removed</span>
+      <div class="console-window" aria-label="AI-Agent SDLC boilerplate run console">
+        <div class="console-command">
+          <span>$</span>
+          <code>agent-sdlc build --type ${escapeHtml(type.id)} --local-only</code>
+        </div>
+        <div class="sdlc-status-grid" aria-label="Generated boilerplate status">
+          <div>
+            <span>files</span>
+            <strong>${activeFiles.length}/${generated.files.length}</strong>
+          </div>
+          <div>
+            <span>governance</span>
+            <strong>16 docs</strong>
+          </div>
+          <div>
+            <span>approval</span>
+            <strong>${hasImplementationApproval ? 'open' : 'blocked'}</strong>
+          </div>
+        </div>
+        <div class="sdlc-pipeline" aria-label="AI agent SDLC pipeline">
+          <div class="pipeline-node is-ready">
+            <small>01</small>
+            <strong>Intake</strong>
+            <span>answers.json</span>
+          </div>
+          <div class="pipeline-node is-ready">
+            <small>02</small>
+            <strong>Governance</strong>
+            <span>approval gate</span>
+          </div>
+          <div class="pipeline-node is-ready">
+            <small>03</small>
+            <strong>Agents</strong>
+            <span>role prompts</span>
+          </div>
+          <div class="pipeline-node is-ready">
+            <small>04</small>
+            <strong>Evals</strong>
+            <span>safety tests</span>
+          </div>
+          <div class="pipeline-node ${hasImplementationApproval ? 'is-ready' : 'is-blocked'}">
+            <small>05</small>
+            <strong>Release</strong>
+            <span>${hasImplementationApproval ? 'candidate' : 'approval needed'}</span>
+          </div>
+          <div class="pipeline-node is-ready">
+            <small>06</small>
+            <strong>ZIP</strong>
+            <span>local export</span>
+          </div>
+        </div>
+        <div class="agent-roster" aria-label="Generated agent roles">
+          <div><strong>Intake</strong><span>collects scope</span></div>
+          <div><strong>Implementation</strong><span>waits for gate</span></div>
+          <div><strong>Review</strong><span>checks output</span></div>
+          <div><strong>Red team</strong><span>tests misuse</span></div>
+          <div><strong>Release</strong><span>blocks deploy</span></div>
+          <div><strong>Monitoring</strong><span>keeps audit</span></div>
+        </div>
       </div>
     </div>
 
-    <div class="timeline-panel" aria-label="Preview timeline">
-      <div class="timeline-scale" aria-hidden="true">
-        ${timelineTicks.map((tick) => `<span>${tick}</span>`).join('')}
+    <div class="timeline-panel" aria-label="Boilerplate readiness">
+      <div class="timeline-scale readiness-scale" aria-hidden="true">
+        <span>intake</span><span>docs</span><span>agents</span><span>evals</span><span>audit</span><span>release</span>
       </div>
       <div class="timeline-track">
         <span style="width: ${inclusionRatio}%"></span>
         <i></i>
       </div>
-      <div class="waveform" aria-hidden="true">
-        ${Array.from({ length: 42 }, (_, index) => `<span style="height: ${28 + ((index * 13) % 42)}%"></span>`).join('')}
+      <div class="readiness-list">
+        <span><strong>PASS</strong> governance files generated</span>
+        <span><strong>PASS</strong> eval cases included</span>
+        <span><strong>${inactiveFiles.length ? 'WARN' : 'PASS'}</strong> ${inactiveFiles.length} file${inactiveFiles.length === 1 ? '' : 's'} excluded</span>
+        <span><strong>${hasImplementationApproval ? 'PASS' : 'HOLD'}</strong> implementation approval</span>
       </div>
     </div>
 
@@ -444,9 +494,9 @@ function builderMarkup(excludedFiles = new Set()) {
           <span></span><span></span><span></span><span></span>
         </div>
         <nav>
-          <a href="#section-project" aria-label="Project node">T</a>
-          <a href="#section-governance" aria-label="Governance node">[]</a>
-          <a href="#section-controls" aria-label="Controls node">--</a>
+          <a href="#section-project" aria-label="Intake node">IN</a>
+          <a href="#section-governance" aria-label="Governance node">GV</a>
+          <a href="#section-controls" aria-label="Controls node">CT</a>
           <a href="#section-approval" aria-label="Approval node">OK</a>
         </nav>
         <button class="rail-add" type="button" aria-label="Add blueprint node">+</button>
@@ -455,9 +505,9 @@ function builderMarkup(excludedFiles = new Set()) {
       <div class="workbench">
       <header class="workbench-topbar">
         <div class="workspace-tabs" aria-label="Open workspaces">
-          <span class="workspace-tab is-active"><i></i>New Blueprint</span>
-          <span class="workspace-tab"><i></i>Governance Templates</span>
-          <span class="workspace-tab"><i></i>Untitled</span>
+          <span class="workspace-tab is-active"><i></i>Agent Boilerplate</span>
+          <span class="workspace-tab"><i></i>Governance Gates</span>
+          <span class="workspace-tab"><i></i>Release Evidence</span>
           <button class="icon-button" type="button" aria-label="Open another workspace">+</button>
         </div>
         <div class="topbar-actions">
@@ -484,8 +534,8 @@ function builderMarkup(excludedFiles = new Set()) {
           <div class="editor-section node-card node-card-ideas" id="section-project">
             <div class="section-heading">
               <p class="step-label">01 Idea</p>
-              <h1 id="builder-title">Blueprint console</h1>
-              <p>Describe the project once. The rest of the workspace updates from this brief.</p>
+              <h1 id="builder-title">Agent SDLC Console</h1>
+              <p>Describe the agent workflow once. The console turns it into governed roles, evals, audit evidence and a local ZIP.</p>
             </div>
             <div class="field-grid">
               ${field('projectName', 'Project name', defaults.projectName, 'text', 'Used for folder, ZIP and governance docs.')}
@@ -496,7 +546,7 @@ function builderMarkup(excludedFiles = new Set()) {
           <div class="editor-section node-card node-card-references">
             <div class="section-heading">
               <p class="step-label">02 References</p>
-              <h2>Pick the package pattern closest to the team journey.</h2>
+              <h2>Pick the boilerplate pattern closest to the agent journey.</h2>
             </div>
             <div class="type-list">
               ${typeOptions(type.id)}
@@ -520,18 +570,28 @@ function builderMarkup(excludedFiles = new Set()) {
 
           <div class="editor-section node-card node-card-models">
             <div class="section-heading">
-              <p class="step-label">04 AI Models</p>
-              <h2>Output plan</h2>
+              <p class="step-label">04 Agent team</p>
+              <h2>Generated roles and evidence</h2>
             </div>
             <div class="model-grid" aria-label="Generated output plan">
               <div>
-                <span class="model-mark model-mark-spark">+</span>
-                <strong>Governance pack</strong>
-                <small>Docs, approvals, evals and audit evidence.</small>
+                <span class="model-mark model-mark-spark">IN</span>
+                <strong>Intake agent</strong>
+                <small>Collects scope and stops before implementation.</small>
               </div>
               <div>
-                <span class="model-mark model-mark-zip">ZIP</span>
-                <strong>Local export</strong>
+                <span class="model-mark model-mark-zip">RV</span>
+                <strong>Review agent</strong>
+                <small>Checks correctness, safety and evidence quality.</small>
+              </div>
+              <div>
+                <span class="model-mark model-mark-release">RT</span>
+                <strong>Red-team agent</strong>
+                <small>Tests prompt injection, tool misuse and leakage.</small>
+              </div>
+              <div>
+                <span class="model-mark model-mark-local">ZIP</span>
+                <strong>Local package</strong>
                 <small>No backend, secrets, paid APIs or production data.</small>
               </div>
             </div>
@@ -585,18 +645,19 @@ function builderMarkup(excludedFiles = new Set()) {
           </div>
           <div class="code-feed" aria-label="Generated workflow code preview">
             <ol>
-              <li><code>const blueprint = collectGovernanceInputs();</code></li>
-              <li><code>await run("npm run governance:check");</code></li>
-              <li><code>const files = generateProjectFiles(blueprint);</code></li>
-              <li><code>return createZipBlob(files);</code></li>
+              <li><code>const intake = collectGovernanceInputs();</code></li>
+              <li><code>await gate("npm run governance:check");</code></li>
+              <li><code>const agents = createRolePrompts(intake);</code></li>
+              <li><code>const evals = createSafetyCoverage(intake);</code></li>
+              <li><code>return exportLocalBoilerplate({ agents, evals });</code></li>
             </ol>
           </div>
         </aside>
 
         <div class="export-bar">
           <div>
-            <strong>Ready to package</strong>
-            <span>The ZIP is generated locally in this browser.</span>
+            <strong>Ready to export agent boilerplate</strong>
+            <span>Governance docs, role prompts, evals, audit templates and release gates are generated locally.</span>
           </div>
           <button class="primary-action" type="submit">
             Export project
