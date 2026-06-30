@@ -360,9 +360,15 @@ function previewMarkup(config, excludedFiles = new Set()) {
     config.approverRole !== 'pending';
 
   return `
+    <div class="next-action-card">
+      <p class="eyebrow">Next action</p>
+      <h2>Complete scope, then review the generated package.</h2>
+      <p>The preview updates as you type. Export is local-only, and implementation stays blocked unless a real human approval is entered.</p>
+    </div>
+
     <div class="output-header">
       <div>
-        <p class="eyebrow">Live output</p>
+        <p class="eyebrow">Generated package</p>
         <h2>${escapeHtml(generated.fileName)}</h2>
         <p>${escapeHtml(type.label)} with ${escapeHtml(config.riskLevel)} risk and ${escapeHtml(config.dataClass)} data boundaries.</p>
       </div>
@@ -439,7 +445,7 @@ function builderMarkup(excludedFiles = new Set()) {
         <div class="builder-title-block">
           <p class="eyebrow">CarlasHub /</p>
           <h1 id="builder-title">ai-agent-sdlc-boilerplate</h1>
-          <p>Generate a governed AI-agent starter kit with role prompts, eval coverage, audit evidence and human approval gates.</p>
+          <p>Generate a governed AI-agent starter kit. Work left to right: define scope, set guardrails, decide approval, then export the local ZIP.</p>
           <div class="header-metrics" aria-label="Default package contents">
             <span>Public</span>
             <span><strong>16</strong> governance docs</span>
@@ -456,20 +462,39 @@ function builderMarkup(excludedFiles = new Set()) {
         </div>
       </header>
 
+      <ol class="workflow-strip" aria-label="Builder workflow">
+        <li class="is-current">
+          <strong>Scope</strong>
+          <span>Name the project and choose the starter pattern.</span>
+        </li>
+        <li>
+          <strong>Guardrails</strong>
+          <span>Set owner, users, risk and data boundaries.</span>
+        </li>
+        <li>
+          <strong>Approval</strong>
+          <span>Keep implementation blocked or record sign-off.</span>
+        </li>
+        <li>
+          <strong>Export</strong>
+          <span>Review included files and download the ZIP.</span>
+        </li>
+      </ol>
+
       <form class="builder-layout" id="project-form">
         <section class="setup-panel" aria-labelledby="builder-title">
           <nav class="setup-nav" aria-label="Builder sections">
-            <a href="#section-project">Project</a>
-            <a href="#section-governance">Governance</a>
-            <a href="#section-controls">Controls</a>
+            <a href="#section-project">Scope</a>
+            <a href="#section-governance">Guardrails</a>
+            <a href="#section-controls">Boundaries</a>
             <a href="#section-approval">Approval</a>
           </nav>
 
           <section class="form-section" id="section-project">
             <div class="section-heading">
-              <p class="step-label">01 Project</p>
-              <h2>Define the agent workflow.</h2>
-              <p>Name the package and choose the closest starter pattern.</p>
+              <p class="step-label">Step 1 of 4</p>
+              <h2>Scope the package.</h2>
+              <p>Name the project, explain the outcome, and choose the starter pattern closest to the workflow.</p>
             </div>
             <div class="field-grid basics-grid">
               ${field('projectName', 'Project name', defaults.projectName, 'text', 'Used for folder, ZIP and governance docs.')}
@@ -482,8 +507,9 @@ function builderMarkup(excludedFiles = new Set()) {
 
           <section class="form-section" id="section-governance">
             <div class="section-heading">
-              <p class="step-label">02 Governance</p>
-              <h2>Set ownership, users, risk and data boundaries.</h2>
+              <p class="step-label">Step 2 of 4</p>
+              <h2>Define accountable guardrails.</h2>
+              <p>Make ownership, users, risk level and allowed data obvious before any files are exported.</p>
             </div>
             <div class="field-grid">
               ${field('owner', 'Owner', defaults.owner, 'text', 'Named accountable owner.')}
@@ -497,8 +523,9 @@ function builderMarkup(excludedFiles = new Set()) {
 
           <section class="form-section" id="section-controls">
             <div class="section-heading">
-              <p class="step-label">03 Controls</p>
-              <h2>Set boundaries the generated agents must respect.</h2>
+              <p class="step-label">Step 3 of 4</p>
+              <h2>Block unsafe agent behavior.</h2>
+              <p>State the approvers, data sources, forbidden data, blocked tools and actions agents must refuse.</p>
             </div>
             <div class="field-grid">
               ${textArea('approvers', 'Approvers', defaults.approvers, 2)}
@@ -516,8 +543,9 @@ function builderMarkup(excludedFiles = new Set()) {
 
           <section class="form-section" id="section-approval">
             <div class="section-heading">
-              <p class="step-label">04 Optional approval</p>
-              <h2>Leave blocked by default, or record a real human approval.</h2>
+              <p class="step-label">Step 4 of 4</p>
+              <h2>Record approval only when it exists.</h2>
+              <p>The ZIP can be exported for review while implementation remains blocked by default.</p>
             </div>
             ${checkField('includeApproval', 'Include human implementation approval in the generated project.')}
             <div class="field-grid approval-fields" aria-label="Implementation approval fields">
@@ -537,8 +565,8 @@ function builderMarkup(excludedFiles = new Set()) {
 
         <div class="export-bar">
           <div>
-            <strong>Ready to export agent boilerplate</strong>
-            <span>Governance docs, role prompts, evals, audit templates and release gates are generated locally.</span>
+            <strong>Final step: review the preview, then export.</strong>
+            <span>The ZIP contains governance docs, role prompts, evals, audit templates and release gates generated locally.</span>
           </div>
           <button class="primary-action" type="submit">
             Export project
