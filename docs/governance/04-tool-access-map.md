@@ -10,6 +10,8 @@
 | Git CLI | Initialise repository, record release commit and push approved public demo files | yes | yes | yes | public project source and metadata | high | release approval required | yes | Project owner |
 | GitHub CLI | Create public GitHub repository, configure remote and enable GitHub Pages | yes | yes | yes | public project source and repository metadata | high | release approval required | yes | Project owner |
 | GitHub Pages | Host the static app demo from the approved repository workflow | yes | yes | yes | public fictional demo UI | medium | release approval required | yes | Project owner |
+| Local screen recording | Record a local demonstration video of the approved fictional-data demo only | yes | yes | yes | public local demo UI and generated fictional project files | medium | required before demo recording | yes | Project owner |
+| Visual Studio Code | Open the generated fictional boilerplate workspace locally for demonstration review only | yes | no | yes | public generated fictional project files | low | required before demo recording | yes | Project owner |
 
 Blocked tools:
 
