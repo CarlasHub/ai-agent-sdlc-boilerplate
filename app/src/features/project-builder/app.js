@@ -621,14 +621,15 @@ function builderMarkup(excludedFiles = new Set()) {
   const profile = selectedJobProfile(defaults.jobProfile);
 
   return `
-    <form class="console-shell" id="project-form">
-      <aside class="console-sidebar" aria-label="AI-Agent SDLC navigation">
-        <div class="brand-lockup">
-          <div class="brand-mark" aria-hidden="true">${svgIcon('network', 'ui-icon brand-icon')}</div>
+    <form class="console-shell arvane-shell" id="project-form">
+      <header class="console-sidebar site-header" aria-label="AI-Agent SDLC navigation">
+        <a class="brand-lockup" href="#builder-title" aria-label="AI-Agent SDLC Blueprint home">
+          <span class="brand-mark" aria-hidden="true">${svgIcon('network', 'ui-icon brand-icon')}</span>
           <div>
-            <strong>AI-Agent<br>SDLC<br>Blueprint</strong>
+            <strong>AI-Agent SDLC</strong>
+            <span>Blueprint</span>
           </div>
-        </div>
+        </a>
 
         <nav class="side-nav" aria-label="Workspace">
           <a class="is-active" href="#project-builder-config"><span class="nav-icon">${svgIcon('layout-dashboard', 'ui-icon')}</span>Builder</a>
@@ -647,179 +648,193 @@ function builderMarkup(excludedFiles = new Set()) {
             <span>Approval first</span>
           </div>
         </div>
-      </aside>
-
-      <section class="top-command-row">
-        <section class="network-panel step-overview" aria-labelledby="step-overview-title">
-          <p class="panel-kicker" id="step-overview-title">Builder steps</p>
-          <div class="step-chip-grid" aria-label="Project builder steps">
-            <article><span>01</span><strong>Scope</strong></article>
-            <article><span>02</span><strong>Guardrails</strong></article>
-            <article><span>03</span><strong>Approval</strong></article>
-            <article><span>04</span><strong>Export</strong></article>
-          </div>
-        </section>
-
-        <section class="readiness-health-panel" aria-label="Current package status">
-          <div class="readiness-gauge">
-            <p class="panel-kicker">Package status</p>
-            <div class="gauge-row">
-              <div class="gauge-ring" aria-hidden="true"></div>
-              <div><strong>72%</strong><span>Review</span></div>
-            </div>
-          </div>
-          <ul class="status-fact-list">
-            <li><strong>Approval</strong><span class="status-blocked">Blocked</span></li>
-            <li><strong>Secrets</strong><span class="status-locked">Denied</span></li>
-            <li><strong>Access</strong><span class="status-ready">Least privilege</span></li>
-          </ul>
-        </section>
-      </section>
+      </header>
 
       <main class="console-main">
         <section class="hero-console" aria-labelledby="builder-title">
           <div class="hero-copy">
-            <p class="eyebrow">Local governed package</p>
+            <p class="eyebrow">Governance-first agent delivery</p>
             <h1 id="builder-title">Agent SDLC boilerplate</h1>
-            <p class="hero-subtitle">Scope / Guardrails / Approval / Export</p>
-            <p>Fill the steps below and export a review-ready ZIP.</p>
-            <a class="primary-action hero-action" href="#project-builder-config">
-              Start builder
-              <span class="button-chevron" aria-hidden="true">${svgIcon('arrow-right', 'ui-icon')}</span>
-            </a>
+            <p class="hero-subtitle">Scope, guardrails, approval and export for governed AI work.</p>
+            <p>Shape a review-ready local package with governance docs, agent roles, eval cases, audit evidence and release gates before implementation starts.</p>
+            <div class="hero-actions">
+              <a class="primary-action hero-action" href="#project-builder-config">
+                Start builder
+                <span class="button-chevron" aria-hidden="true">${svgIcon('arrow-right', 'ui-icon')}</span>
+              </a>
+              <a class="ghost-action" href="#package-summary">View package</a>
+            </div>
           </div>
 
-          <div class="blueprint-flow" aria-label="SDLC blueprint flow">
-            <div class="governance-node scope"><span class="node-icon">${svgIcon('target', 'ui-icon')}</span><span class="node-number">01</span><strong>Scope</strong></div>
-            <div class="flow-line"></div>
-            <div class="governance-node guardrails"><span class="node-icon">${svgIcon('shield-check', 'ui-icon')}</span><span class="node-number">02</span><strong>Guardrails</strong></div>
-            <div class="flow-line"></div>
-            <div class="governance-node approval"><span class="node-icon">${svgIcon('users', 'ui-icon')}</span><span class="node-number">03</span><strong>Approval</strong></div>
-            <div class="flow-line"></div>
-            <div class="governance-node export"><span class="node-icon">${svgIcon('download', 'ui-icon')}</span><span class="node-number">04</span><strong>Export</strong></div>
-            <ul class="orbit-list">
-              <li>Risk checks</li>
-              <li>Data boundaries</li>
-              <li>Eval cases</li>
-              <li>Audit evidence</li>
+          <div class="blueprint-flow hero-gallery" aria-label="SDLC blueprint flow">
+            <div class="hero-stat-card">
+              <strong>78</strong>
+              <span>Files generated</span>
+            </div>
+            <div class="hero-stat-card">
+              <strong>19</strong>
+              <span>Governance docs</span>
+            </div>
+            <div class="gallery-frame">
+              <span class="frame-pin">${svgIcon('shield-check', 'ui-icon')}</span>
+              <strong>Approval blocked</strong>
+              <p>Agents wait for human sign-off before implementation begins.</p>
+            </div>
+            <div class="gallery-mini-row">
+              <article><span>01</span><strong>Scope</strong></article>
+              <article><span>02</span><strong>Guardrails</strong></article>
+              <article><span>03</span><strong>Approval</strong></article>
+            </div>
+          </div>
+        </section>
+
+        <section class="top-command-row">
+          <section class="network-panel step-overview" aria-labelledby="step-overview-title">
+            <p class="panel-kicker" id="step-overview-title">Builder steps</p>
+            <div class="step-chip-grid" aria-label="Project builder steps">
+              <article><span>01</span><strong>Scope</strong></article>
+              <article><span>02</span><strong>Guardrails</strong></article>
+              <article><span>03</span><strong>Approval</strong></article>
+              <article><span>04</span><strong>Export</strong></article>
+            </div>
+          </section>
+
+          <section class="readiness-health-panel" aria-label="Current package status">
+            <div class="readiness-gauge">
+              <p class="panel-kicker">Package status</p>
+              <div class="gauge-row">
+                <div class="gauge-ring" aria-hidden="true"></div>
+                <div><strong>72%</strong><span>Review</span></div>
+              </div>
+            </div>
+            <ul class="status-fact-list">
+              <li><strong>Approval</strong><span class="status-blocked">Blocked</span></li>
+              <li><strong>Secrets</strong><span class="status-locked">Denied</span></li>
+              <li><strong>Access</strong><span class="status-ready">Least privilege</span></li>
             </ul>
-          </div>
+          </section>
         </section>
 
-        <section class="builder-config-panel" id="project-builder-config" aria-labelledby="config-title">
-          <div class="panel-heading">
-            <div>
-              <p class="panel-kicker">Builder</p>
-              <h2 id="config-title">Configure package</h2>
+        <div class="builder-stage">
+          <section class="builder-config-panel" id="project-builder-config" aria-labelledby="config-title">
+            <div class="panel-heading">
+              <div>
+                <p class="panel-kicker">Builder</p>
+                <h2 id="config-title">Configure package</h2>
+              </div>
+              <button class="ghost-action" type="button" data-action="reset">Reset</button>
             </div>
-            <button class="ghost-action" type="button" data-action="reset">Reset</button>
-          </div>
 
-          <section class="config-section" id="section-project">
-            <div class="section-heading">
-              <p class="step-label">Step 1 of 4</p>
-              <h3>Scope</h3>
-              <p>Project, job profile and purpose.</p>
+            <section class="config-section" id="section-project">
+              <div class="section-heading">
+                <p class="step-label">Step 1 of 4</p>
+                <h3>Scope</h3>
+                <p>Project, job profile and purpose.</p>
+              </div>
+              <div class="field-grid">
+                ${field('projectName', 'Project name', defaults.projectName, 'text', 'Used for folder, ZIP and governance docs.')}
+                ${jobProfileSelect(profile.id)}
+                ${textArea('purpose', 'Purpose', type.defaultPurpose, 4)}
+              </div>
+              <div class="type-list">${typeOptions(type.id)}</div>
+              ${sectionContinue('#section-governance', 'Continue to guardrails', 'Next: confirm owner, users, risk and allowed data.')}
+            </section>
+
+            <section class="config-section" id="section-governance">
+              <div class="section-heading">
+                <p class="step-label">Step 2 of 4</p>
+                <h3>Guardrails</h3>
+                <p>Owner, users, risk and data boundaries.</p>
+              </div>
+              <div class="field-grid">
+                ${field('owner', 'Owner', defaults.owner, 'text', 'Named accountable owner.')}
+                ${textArea('users', 'Users', defaults.users, 2)}
+                ${selectField('riskLevel', 'Risk level', defaults.riskLevel, ['low', 'medium', 'high', 'critical'])}
+                ${selectField('dataClass', 'Data class', defaults.dataClass, ['public', 'internal', 'confidential', 'personal-data', 'regulated', 'secrets-blocked'])}
+                ${selectField('personalData', 'Personal data', defaults.personalData, ['no', 'yes'])}
+                ${selectField('secrets', 'Secrets', defaults.secrets, ['no', 'yes'])}
+              </div>
+              ${sectionContinue('#section-controls', 'Continue to boundaries', 'Next: state what agents may read, use and refuse.')}
+            </section>
+
+            <section class="config-section" id="section-controls">
+              <div class="section-heading">
+                <p class="step-label">Step 3 of 4</p>
+                <h3>Agent rules</h3>
+                <p>Job rules, blocked actions and accountable owners.</p>
+              </div>
+              <div class="field-group-stack">
+                <section class="field-group" aria-labelledby="agent-job-rules-title">
+                  <h3 id="agent-job-rules-title">Agent job rules</h3>
+                  <div class="field-grid">
+                    ${textArea('jobScope', 'Job scope', defaults.jobScope, 3)}
+                    ${textArea('jobQualityRubric', 'Decision rubric', defaults.jobQualityRubric, 3)}
+                    ${textArea('jobEvidenceRequirements', 'Evidence requirements', defaults.jobEvidenceRequirements, 3)}
+                    ${textArea('jobOutputSchema', 'Output schema', defaults.jobOutputSchema, 3)}
+                    ${textArea('jobEscalationRules', 'Escalation rules', defaults.jobEscalationRules, 3)}
+                  </div>
+                </section>
+
+                <section class="field-group" aria-labelledby="safety-boundaries-title">
+                  <h3 id="safety-boundaries-title">Safety boundaries</h3>
+                  <div class="field-grid">
+                    ${textArea('blockedData', 'Blocked data', defaults.blockedData, 2)}
+                    ${textArea('blockedTools', 'Blocked tools', defaults.blockedTools, 2)}
+                    ${textArea('neverDo', 'Never do', defaults.neverDo, 2)}
+                    ${textArea('jobStopRules', 'Job stop rules', defaults.jobStopRules, 3)}
+                    ${textArea('dataSources', 'Data sources', defaults.dataSources, 2)}
+                  </div>
+                </section>
+
+                <section class="field-group" aria-labelledby="governance-ownership-title">
+                  <h3 id="governance-ownership-title">Governance ownership</h3>
+                  <div class="field-grid">
+                    ${textArea('approvers', 'Approvers', defaults.approvers, 2)}
+                    ${field('dataOwner', 'Data owner', defaults.dataOwner)}
+                    ${field('releaseOwner', 'Release owner', defaults.releaseOwner)}
+                    ${field('riskReviewFrequency', 'Risk review', defaults.riskReviewFrequency)}
+                    ${textArea('riskRationale', 'Risk rationale', defaults.riskRationale, 2)}
+                    ${textArea('highRiskAreas', 'Risk areas', defaults.highRiskAreas, 2)}
+                  </div>
+                </section>
+              </div>
+              ${sectionContinue('#section-approval', 'Continue to approval', 'Next: leave implementation blocked or record real human sign-off.')}
+            </section>
+
+            <section class="config-section" id="section-approval">
+              <div class="section-heading">
+                <p class="step-label">Step 4 of 4</p>
+                <h3>Approval</h3>
+                <p>Leave blank to keep implementation blocked.</p>
+              </div>
+              ${checkField('includeApproval', 'Include human implementation approval in the generated project.')}
+              <div class="field-grid approval-fields" aria-label="Implementation approval fields">
+                ${field('approverName', 'Approver', '', 'text', 'Leave empty to keep implementation blocked.')}
+                ${field('approverRole', 'Role', '', 'text')}
+                ${field('approvalDate', 'Date', '', 'date')}
+                ${textArea('approvalScope', 'Scope', 'Approved for local implementation inside the documented scope.', 2)}
+                ${textArea('approvalConditions', 'Conditions', 'No real data, no secrets, no production systems and no deployment without release approval.', 2)}
+                ${textArea('approvalNotes', 'Notes', 'Implementation may proceed after governance validation passes.', 2)}
+              </div>
+              ${sectionContinue('#project-export', 'Review export', 'Final: check the package preview before downloading the ZIP.')}
+            </section>
+
+            <div class="export-bar" id="project-export">
+              <div>
+                <strong>Export package</strong>
+                <span>Governance docs, agent prompts, evals and gates.</span>
+              </div>
+              <button class="primary-action" type="submit">
+                ${svgIcon('download', 'ui-icon button-icon')}
+                Export governed package
+              </button>
             </div>
-            <div class="field-grid">
-              ${field('projectName', 'Project name', defaults.projectName, 'text', 'Used for folder, ZIP and governance docs.')}
-              ${jobProfileSelect(profile.id)}
-              ${textArea('purpose', 'Purpose', type.defaultPurpose, 4)}
-            </div>
-            <div class="type-list">${typeOptions(type.id)}</div>
-            ${sectionContinue('#section-governance', 'Continue to guardrails', 'Next: confirm owner, users, risk and allowed data.')}
           </section>
 
-          <section class="config-section" id="section-governance">
-            <div class="section-heading">
-              <p class="step-label">Step 2 of 4</p>
-              <h3>Guardrails</h3>
-              <p>Owner, users, risk and data boundaries.</p>
-            </div>
-            <div class="field-grid">
-              ${field('owner', 'Owner', defaults.owner, 'text', 'Named accountable owner.')}
-              ${textArea('users', 'Users', defaults.users, 2)}
-              ${selectField('riskLevel', 'Risk level', defaults.riskLevel, ['low', 'medium', 'high', 'critical'])}
-              ${selectField('dataClass', 'Data class', defaults.dataClass, ['public', 'internal', 'confidential', 'personal-data', 'regulated', 'secrets-blocked'])}
-              ${selectField('personalData', 'Personal data', defaults.personalData, ['no', 'yes'])}
-              ${selectField('secrets', 'Secrets', defaults.secrets, ['no', 'yes'])}
-            </div>
-            ${sectionContinue('#section-controls', 'Continue to boundaries', 'Next: state what agents may read, use and refuse.')}
-          </section>
-
-          <section class="config-section" id="section-controls">
-            <div class="section-heading">
-              <p class="step-label">Step 3 of 4</p>
-              <h3>Agent rules</h3>
-              <p>Job rules, blocked actions and accountable owners.</p>
-            </div>
-            <div class="field-group-stack">
-              <section class="field-group" aria-labelledby="agent-job-rules-title">
-                <h3 id="agent-job-rules-title">Agent job rules</h3>
-                <div class="field-grid">
-                  ${textArea('jobScope', 'Job scope', defaults.jobScope, 3)}
-                  ${textArea('jobQualityRubric', 'Decision rubric', defaults.jobQualityRubric, 3)}
-                  ${textArea('jobEvidenceRequirements', 'Evidence requirements', defaults.jobEvidenceRequirements, 3)}
-                  ${textArea('jobOutputSchema', 'Output schema', defaults.jobOutputSchema, 3)}
-                  ${textArea('jobEscalationRules', 'Escalation rules', defaults.jobEscalationRules, 3)}
-                </div>
-              </section>
-
-              <section class="field-group" aria-labelledby="safety-boundaries-title">
-                <h3 id="safety-boundaries-title">Safety boundaries</h3>
-                <div class="field-grid">
-                  ${textArea('blockedData', 'Blocked data', defaults.blockedData, 2)}
-                  ${textArea('blockedTools', 'Blocked tools', defaults.blockedTools, 2)}
-                  ${textArea('neverDo', 'Never do', defaults.neverDo, 2)}
-                  ${textArea('jobStopRules', 'Job stop rules', defaults.jobStopRules, 3)}
-                  ${textArea('dataSources', 'Data sources', defaults.dataSources, 2)}
-                </div>
-              </section>
-
-              <section class="field-group" aria-labelledby="governance-ownership-title">
-                <h3 id="governance-ownership-title">Governance ownership</h3>
-                <div class="field-grid">
-                  ${textArea('approvers', 'Approvers', defaults.approvers, 2)}
-                  ${field('dataOwner', 'Data owner', defaults.dataOwner)}
-                  ${field('releaseOwner', 'Release owner', defaults.releaseOwner)}
-                  ${field('riskReviewFrequency', 'Risk review', defaults.riskReviewFrequency)}
-                  ${textArea('riskRationale', 'Risk rationale', defaults.riskRationale, 2)}
-                  ${textArea('highRiskAreas', 'Risk areas', defaults.highRiskAreas, 2)}
-                </div>
-              </section>
-            </div>
-            ${sectionContinue('#section-approval', 'Continue to approval', 'Next: leave implementation blocked or record real human sign-off.')}
-          </section>
-
-          <section class="config-section" id="section-approval">
-            <div class="section-heading">
-              <p class="step-label">Step 4 of 4</p>
-              <h3>Approval</h3>
-              <p>Leave blank to keep implementation blocked.</p>
-            </div>
-            ${checkField('includeApproval', 'Include human implementation approval in the generated project.')}
-            <div class="field-grid approval-fields" aria-label="Implementation approval fields">
-              ${field('approverName', 'Approver', '', 'text', 'Leave empty to keep implementation blocked.')}
-              ${field('approverRole', 'Role', '', 'text')}
-              ${field('approvalDate', 'Date', '', 'date')}
-              ${textArea('approvalScope', 'Scope', 'Approved for local implementation inside the documented scope.', 2)}
-              ${textArea('approvalConditions', 'Conditions', 'No real data, no secrets, no production systems and no deployment without release approval.', 2)}
-              ${textArea('approvalNotes', 'Notes', 'Implementation may proceed after governance validation passes.', 2)}
-            </div>
-            ${sectionContinue('#project-export', 'Review export', 'Final: check the package preview before downloading the ZIP.')}
-          </section>
-
-          <div class="export-bar" id="project-export">
-            <div>
-              <strong>Export package</strong>
-              <span>Governance docs, agent prompts, evals and gates.</span>
-            </div>
-            <button class="primary-action" type="submit">
-              ${svgIcon('download', 'ui-icon button-icon')}
-              Export governed package
-            </button>
-          </div>
-        </section>
+          <aside class="intelligence-panel" id="package-summary" data-preview aria-label="Package summary">
+            ${previewMarkup(defaults, excludedFiles)}
+          </aside>
+        </div>
 
         <section class="about-panel" id="about-boilerplate" aria-labelledby="about-title">
           <div class="panel-heading">
@@ -837,10 +852,6 @@ function builderMarkup(excludedFiles = new Set()) {
           </div>
         </section>
       </main>
-
-      <aside class="intelligence-panel" id="package-summary" data-preview aria-label="Package summary">
-        ${previewMarkup(defaults, excludedFiles)}
-      </aside>
     </form>
   `;
 }
