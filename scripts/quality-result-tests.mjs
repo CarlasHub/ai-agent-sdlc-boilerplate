@@ -465,15 +465,17 @@ function verifyBuilderJourneyUi() {
   }
 
   for (const expected of [
-    '--bg-main: #010107',
-    '--bg-shell: #010716',
-    '--bg-panel: #020a18',
-    '--cyan: #00dfff',
-    '--violet: #9a63ff',
-    '--amber: #ffb947',
-    '--text-main: #edf2f8',
-    'background: #0a1a31',
-    'background: #17110a',
+    '--bg-app: #04080d',
+    '--bg-sidebar: #07111b',
+    '--bg-topbar: #08121c',
+    '--bg-panel: #091520',
+    '--border-default: #223445',
+    '--border-active: #357fc6',
+    '--text-primary: #f2f5f8',
+    '--text-secondary: #c4ced8',
+    '--accent-blue: #3a8dde',
+    '--accent-green: #58c77b',
+    '--status-amber-bg: #2b220d',
     '.button-chevron',
     '.console-shell',
     '.console-sidebar',
@@ -492,7 +494,20 @@ function verifyBuilderJourneyUi() {
     requireIncludes(styleSource, expected, 'Builder journey CSS');
   }
 
-  for (const blockedColor of ['#fff', '#ffffff', '#e6edf3', '#0d1117']) {
+  for (const blockedVisual of [
+    'linear-gradient',
+    'radial-gradient',
+    'conic-gradient',
+    'drop-shadow',
+    'backdrop-filter',
+    'filter:',
+    'box-shadow:',
+    'animation:'
+  ]) {
+    assert(!styleSource.toLowerCase().includes(blockedVisual), `Builder CSS reintroduced aggressive visual effect: ${blockedVisual}`);
+  }
+
+  for (const blockedColor of ['#fff', '#ffffff', '#e6edf3', '#0d1117', '#00dfff', '#32f29a', '#ff4c78']) {
     assert(!styleSource.toLowerCase().includes(blockedColor), `Builder CSS reintroduced harsh color token: ${blockedColor}`);
   }
 }
