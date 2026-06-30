@@ -404,6 +404,45 @@ function sectionContinue(target, label, note) {
   `;
 }
 
+function titleCase(value) {
+  return String(value)
+    .split('-')
+    .filter(Boolean)
+    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
+    .join(' ');
+}
+
+function statusBannerMarkup(config) {
+  const hasImplementationApproval =
+    Boolean(config.approverName) &&
+    Boolean(config.approverRole) &&
+    config.approverName !== 'pending' &&
+    config.approverRole !== 'pending';
+  const title = hasImplementationApproval
+    ? 'Implementation approval recorded'
+    : 'Implementation blocked until human approval';
+  const copy = hasImplementationApproval
+    ? 'A human approval record will be included. Export the package for review before release approval.'
+    : 'You can export a review package now. Agents cannot start implementation until approval is recorded.';
+  const secretsState = config.secrets === 'yes' ? 'Allowed by config' : 'Denied';
+
+  return `
+    <section class="primary-status-banner ${hasImplementationApproval ? 'is-approved' : 'is-blocked'}" data-status-banner aria-live="polite">
+      <div>
+        <p class="eyebrow">Current status</p>
+        <h2>${escapeHtml(title)}</h2>
+        <p>${escapeHtml(copy)}</p>
+      </div>
+      <p class="status-facts">
+        Risk: ${escapeHtml(titleCase(config.riskLevel))} ·
+        Data: ${escapeHtml(titleCase(config.dataClass))} ·
+        Secrets: ${escapeHtml(secretsState)} ·
+        Tool access: Least privilege
+      </p>
+    </section>
+  `;
+}
+
 function landingMarkup() {
   return `
     <section class="launch-shell" aria-labelledby="hero-title">
@@ -491,122 +530,108 @@ function previewMarkup(config, excludedFiles = new Set()) {
     : 'Export a review ZIP; implementation stays blocked.';
   const nextActionCopy = hasImplementationApproval
     ? 'Human approval will be written into the generated evidence. Release approval still remains separate.'
-    : 'Use the continue links to finish each section. The ZIP is safe to review because it records APPROVED_FOR_IMPLEMENTATION: no.';
+    : 'Export the review package when the form is ready. Implementation stays blocked until approval is recorded.';
   const governanceReadiness = hasImplementationApproval ? inclusionRatio : Math.min(inclusionRatio, 72);
   const approvalStateLabel = hasImplementationApproval ? 'OPEN' : 'BLOCKED';
   const implementationState = hasImplementationApproval ? 'Open after recorded human approval' : 'Blocked until approval';
-  const secretsState = config.secrets === 'yes' ? 'Allowed by config' : 'Denied';
-  const personalDataState = config.personalData === 'yes' ? 'Allowed by config' : 'Blocked';
 
   return `
-    <div class="next-action-card ${hasImplementationApproval ? 'is-open' : 'is-blocked'}">
-      <p class="eyebrow">Next action</p>
-      <h2>${escapeHtml(nextActionTitle)}</h2>
-      <p>${escapeHtml(nextActionCopy)}</p>
-      <div class="action-signal-row" aria-label="Current approval signal">
-        <span class="${hasImplementationApproval ? 'is-pass' : 'is-hold'}">${hasImplementationApproval ? 'Approval recorded' : 'Human gate required'}</span>
-        <span>Release gate remains separate</span>
+    <div class="sidebar-summary-card">
+      <div class="next-action-card ${hasImplementationApproval ? 'is-open' : 'is-blocked'}">
+        <p class="eyebrow">Next action</p>
+        <h2>${escapeHtml(nextActionTitle)}</h2>
+        <p>${escapeHtml(nextActionCopy)}</p>
       </div>
+
+      <div class="sidebar-status-list" aria-label="Package summary">
+        <div>
+          <span>Implementation status</span>
+          <strong>${escapeHtml(implementationState)}</strong>
+        </div>
+        <div>
+          <span>Readiness score</span>
+          <strong>${governanceReadiness}%</strong>
+        </div>
+        <div>
+          <span>Files included</span>
+          <strong>${activeFiles.length}/${generated.files.length}</strong>
+        </div>
+        <div>
+          <span>Approval state</span>
+          <strong class="${hasImplementationApproval ? 'is-pass' : 'is-hold'}">${approvalStateLabel}</strong>
+        </div>
+      </div>
+
+      <div class="readiness-meter" aria-label="Governance readiness progress">
+        <div>
+          <span>Governance readiness</span>
+          <strong>${governanceReadiness}%</strong>
+        </div>
+        <i><span style="width: ${governanceReadiness}%"></span></i>
+      </div>
+
+      <button class="primary-action sidebar-export" type="submit" form="project-form">
+        Export review package
+      </button>
     </div>
 
-    ${journeyChecklist(config, type, profile, activeFiles, hasImplementationApproval)}
+    <details class="sidebar-details">
+      <summary>Gate details</summary>
+      <div class="gate-list" aria-label="Generated readiness checks">
+        <div class="gate-row is-pass"><strong>PASS</strong><span>Governance gate, approval record and release gate included.</span></div>
+        <div class="gate-row is-pass"><strong>PASS</strong><span>${escapeHtml(profile.label)} scope, rubric, evidence, escalation and stop rules included.</span></div>
+        <div class="gate-row ${inactiveFiles.length ? 'is-warn' : 'is-pass'}"><strong>${inactiveFiles.length ? 'WARN' : 'PASS'}</strong><span>${inactiveFiles.length} file${inactiveFiles.length === 1 ? '' : 's'} excluded from the ZIP.</span></div>
+        <div class="gate-row ${hasImplementationApproval ? 'is-pass' : 'is-hold'}"><strong>${hasImplementationApproval ? 'PASS' : 'HOLD'}</strong><span>${hasImplementationApproval ? 'Human implementation approval will be recorded.' : 'Human approval missing; implementation remains blocked.'}</span></div>
+      </div>
+    </details>
 
-    <div class="output-header blueprint-intelligence">
-      <div>
-        <p class="eyebrow">Blueprint Intelligence</p>
-        <h2>${escapeHtml(generated.fileName)}</h2>
-        <p>${escapeHtml(type.label)} with ${escapeHtml(profile.label)} job conditions, ${escapeHtml(config.riskLevel)} risk and ${escapeHtml(config.dataClass)} data boundaries.</p>
+    <details class="sidebar-details">
+      <summary>Generated files</summary>
+      <div class="command-line" aria-label="Local build command">
+        <span>$</span>
+        <code>agent-sdlc build --type ${escapeHtml(type.id)} --job ${escapeHtml(profile.id)} --local-only</code>
       </div>
-      <span class="status-chip ${hasImplementationApproval ? 'is-open' : 'is-blocked'}">
-        ${hasImplementationApproval ? 'implementation open' : 'implementation blocked'}
-      </span>
-    </div>
-
-    <div class="command-line" aria-label="Local build command">
-      <span>$</span>
-      <code>agent-sdlc build --type ${escapeHtml(type.id)} --job ${escapeHtml(profile.id)} --local-only</code>
-    </div>
-
-    <div class="summary-grid" aria-label="Generated package summary">
-      <div><span>Files included</span><strong>${activeFiles.length}/${generated.files.length}</strong></div>
-      <div><span>Governance docs</span><strong>${GOVERNANCE_DOC_COUNT}</strong></div>
-      <div><span>Agent roles</span><strong>${roleCount}</strong></div>
-      <div><span>Eval cases</span><strong>${evalCount}</strong></div>
-    </div>
-
-    <div class="readiness-meter" aria-label="Included files progress">
-      <div>
-        <span>Governance readiness</span>
-        <strong>${governanceReadiness}%</strong>
-      </div>
-      <i><span style="width: ${governanceReadiness}%"></span></i>
-    </div>
-
-    <div class="intelligence-ledger" aria-label="Governance intelligence summary">
-      <div>
-        <span>Risk</span>
-        <strong>${escapeHtml(config.riskLevel)}</strong>
-      </div>
-      <div>
-        <span>Data class</span>
-        <strong>${escapeHtml(config.dataClass)}</strong>
-      </div>
-      <div>
-        <span>Approval state</span>
-        <strong class="${hasImplementationApproval ? 'is-pass' : 'is-hold'}">${approvalStateLabel}</strong>
-      </div>
-      <div>
-        <span>Secrets</span>
-        <strong>${escapeHtml(secretsState)}</strong>
-      </div>
-      <div>
-        <span>Personal data</span>
-        <strong>${escapeHtml(personalDataState)}</strong>
-      </div>
-      <div>
-        <span>Package integrity</span>
-        <strong class="is-pass">PASS</strong>
-      </div>
-    </div>
-
-    <div class="gate-list" aria-label="Generated readiness checks">
-      <div class="gate-row is-pass"><strong>PASS</strong><span>Governance gate, approval record and release gate included.</span></div>
-      <div class="gate-row is-pass"><strong>PASS</strong><span>Eval coverage includes ${evalCount} cases for scope, injection, tool misuse and audit logging.</span></div>
-      <div class="gate-row is-pass"><strong>PASS</strong><span>Least privilege agent prompts generated for ${roleCount} roles.</span></div>
-      <div class="gate-row ${hasImplementationApproval ? 'is-pass' : 'is-hold'}"><strong>${hasImplementationApproval ? 'PASS' : 'HOLD'}</strong><span>${hasImplementationApproval ? 'Human implementation approval will be recorded.' : 'Human approval missing; implementation remains blocked.'}</span></div>
-      <div class="gate-row is-pass"><strong>PASS</strong><span>${escapeHtml(profile.label)} scope, rubric, evidence, escalation and stop rules included.</span></div>
-      <div class="gate-row ${inactiveFiles.length ? 'is-warn' : 'is-pass'}"><strong>${inactiveFiles.length ? 'WARN' : 'PASS'}</strong><span>${inactiveFiles.length} file${inactiveFiles.length === 1 ? '' : 's'} excluded from the ZIP.</span></div>
-      <div class="gate-row ${hasImplementationApproval ? 'is-pass' : 'is-hold'}"><strong>${hasImplementationApproval ? 'PASS' : 'HOLD'}</strong><span>Implementation status: ${escapeHtml(implementationState)}.</span></div>
-    </div>
-
-    <details class="file-browser live-file-browser" aria-label="Live generated project preview" aria-live="polite">
-      <summary>
-        <span>Review generated files</span>
-        <strong>${activeFiles.length} included</strong>
-      </summary>
-      <div>
+      <div class="file-browser live-file-browser" aria-label="Live generated project preview" aria-live="polite">
         <div class="file-browser-bar">
-          <span></span><span></span><span></span>
           <strong>${escapeHtml(`${generated.root} -- watch`)}</strong>
         </div>
         <div class="terminal-feed">
-          <p><span>$</span> plan workspace ${escapeHtml(generated.root)}</p>
           <p><span>></span> ${activeFiles.length} of ${generated.files.length} files included locally</p>
-          <p class="feed-note"><span>!</span> Files are optional. Removing governance or script files may make generated checks fail.</p>
-          <ul>
-            ${terminalRows(activeFiles, generated.root, activeFiles.length, 'queued', true)}
-          </ul>
-          ${activeFiles.length ? '<p class="feed-more">Use trash to exclude a file from the generated ZIP.</p>' : '<p class="feed-more is-warning">No files are currently included.</p>'}
+          <p class="feed-note"><span>!</span> Removing governance or script files may make generated checks fail.</p>
+          <ul>${terminalRows(activeFiles, generated.root, activeFiles.length, 'queued', true)}</ul>
           ${removedRows(inactiveFiles, generated.root)}
         </div>
       </div>
     </details>
 
-    <div class="approval-summary">
-      <p class="preview-label">Human approval record</p>
-      <h3>APPROVED_FOR_IMPLEMENTATION: ${hasImplementationApproval ? 'yes' : 'no'}</h3>
-      <p>${escapeHtml(config.projectName)} exports as a governed ${escapeHtml(type.label)}. Release remains separate from implementation approval.</p>
-    </div>
+    <details class="sidebar-details">
+      <summary>Agent readiness</summary>
+      <div class="agent-readiness-list" aria-label="Agent readiness signals">
+        <span><strong>Intake agent</strong><em>Ready</em></span>
+        <span><strong>Review agent</strong><em>Waiting</em></span>
+        <span><strong>Red team agent</strong><em>Blocked</em></span>
+        <span><strong>Release agent</strong><em>Locked</em></span>
+      </div>
+    </details>
+
+    <details class="sidebar-details">
+      <summary>Agent roles</summary>
+      <p>${roleCount} least-privilege agent role prompts will be generated for ${escapeHtml(profile.label)}.</p>
+    </details>
+
+    <details class="sidebar-details">
+      <summary>Eval coverage</summary>
+      <p>${evalCount} eval cases cover scope adherence, prompt injection, forbidden actions, sensitive data, tool misuse, unsupported claims, approval gates and audit logging.</p>
+    </details>
+
+    <details class="sidebar-details">
+      <summary>Human approval record</summary>
+      <div class="approval-summary">
+        <p class="preview-label">Approval state</p>
+        <h3>APPROVED_FOR_IMPLEMENTATION: ${hasImplementationApproval ? 'yes' : 'no'}</h3>
+        <p>${escapeHtml(config.projectName)} exports as a governed ${escapeHtml(type.label)}. Release remains separate from implementation approval.</p>
+      </div>
+    </details>
   `;
 }
 
@@ -622,29 +647,10 @@ function builderMarkup(excludedFiles = new Set()) {
           <h1 id="builder-title">AI-Agent SDLC Blueprint</h1>
           <p class="hero-subtitle">Governed project generation for agent-led software delivery.</p>
           <p>Define scope, enforce guardrails, generate evidence, and export a review-ready workspace before any agent writes implementation code.</p>
-          <div class="header-metrics" aria-label="Default package contents">
-            <span>Risk: <strong>Medium</strong></span>
-            <span>Data class: <strong>Public</strong></span>
-            <span>Approval: <strong>Blocked</strong></span>
-            <span>Secrets: <strong>Denied</strong></span>
-            <span>Tool access: <strong>Least privilege</strong></span>
-          </div>
-          <div class="system-signal-grid" aria-label="Agent readiness signals">
-            <span class="system-signal is-ready"><strong>INTAKE AGENT</strong><em>READY</em></span>
-            <span class="system-signal is-waiting"><strong>REVIEW AGENT</strong><em>WAITING</em></span>
-            <span class="system-signal is-blocked"><strong>RED TEAM AGENT</strong><em>BLOCKED</em></span>
-            <span class="system-signal is-locked"><strong>RELEASE AGENT</strong><em>LOCKED</em></span>
-          </div>
-        </div>
-        <div class="header-actions">
-          <span class="run-state">local export only</span>
-          <span class="run-state is-pass">package integrity pass</span>
-          <button class="primary-action top-submit" type="submit" form="project-form">
-            Generate governed blueprint
-          </button>
-          <button class="ghost-action" type="button" data-action="reset">Reset</button>
         </div>
       </header>
+
+      ${statusBannerMarkup(defaults)}
 
       <ol class="workflow-strip" aria-label="Builder workflow">
         <li class="is-active" aria-current="step">
@@ -671,13 +677,6 @@ function builderMarkup(excludedFiles = new Set()) {
 
       <form class="builder-layout" id="project-form">
         <section class="setup-panel" aria-labelledby="builder-title">
-          <nav class="setup-nav" aria-label="Builder sections">
-            <a href="#section-project">Scope</a>
-            <a href="#section-governance">Guardrails</a>
-            <a href="#section-controls">Boundaries</a>
-            <a href="#section-approval">Approval</a>
-          </nav>
-
           <section class="form-section" id="section-project">
             <div class="section-heading">
               <p class="step-label">Step 1 of 4</p>
@@ -715,26 +714,43 @@ function builderMarkup(excludedFiles = new Set()) {
           <section class="form-section" id="section-controls">
             <div class="section-heading">
               <p class="step-label">Step 3 of 4</p>
-              <h2>Block unsafe agent behavior.</h2>
-              <p>State the approvers, data sources, forbidden data, blocked tools and actions agents must refuse.</p>
+              <h2>Set agent rules and safety boundaries.</h2>
+              <p>Group the job rules, blocked actions and governance owners so reviewers can scan each responsibility.</p>
             </div>
-            <div class="field-grid">
-              ${textArea('approvers', 'Approvers', defaults.approvers, 2)}
-              ${textArea('jobScope', 'Job scope', defaults.jobScope, 3)}
-              ${textArea('jobQualityRubric', 'Decision rubric', defaults.jobQualityRubric, 3)}
-              ${textArea('jobEvidenceRequirements', 'Evidence requirements', defaults.jobEvidenceRequirements, 3)}
-              ${textArea('jobEscalationRules', 'Escalation rules', defaults.jobEscalationRules, 3)}
-              ${textArea('jobOutputSchema', 'Output schema', defaults.jobOutputSchema, 3)}
-              ${textArea('jobStopRules', 'Job stop rules', defaults.jobStopRules, 3)}
-              ${textArea('riskRationale', 'Risk rationale', defaults.riskRationale, 2)}
-              ${textArea('highRiskAreas', 'Risk areas', defaults.highRiskAreas, 2)}
-              ${textArea('dataSources', 'Data sources', defaults.dataSources, 2)}
-              ${textArea('blockedData', 'Blocked data', defaults.blockedData, 2)}
-              ${textArea('blockedTools', 'Blocked tools', defaults.blockedTools, 2)}
-              ${textArea('neverDo', 'Never do', defaults.neverDo, 2)}
-              ${field('dataOwner', 'Data owner', defaults.dataOwner)}
-              ${field('releaseOwner', 'Release owner', defaults.releaseOwner)}
-              ${field('riskReviewFrequency', 'Risk review', defaults.riskReviewFrequency)}
+            <div class="field-group-stack">
+              <section class="field-group" aria-labelledby="agent-job-rules-title">
+                <h3 id="agent-job-rules-title">Agent job rules</h3>
+                <div class="field-grid">
+                  ${textArea('jobScope', 'Job scope', defaults.jobScope, 3)}
+                  ${textArea('jobQualityRubric', 'Decision rubric', defaults.jobQualityRubric, 3)}
+                  ${textArea('jobEvidenceRequirements', 'Evidence requirements', defaults.jobEvidenceRequirements, 3)}
+                  ${textArea('jobOutputSchema', 'Output schema', defaults.jobOutputSchema, 3)}
+                  ${textArea('jobEscalationRules', 'Escalation rules', defaults.jobEscalationRules, 3)}
+                </div>
+              </section>
+
+              <section class="field-group" aria-labelledby="safety-boundaries-title">
+                <h3 id="safety-boundaries-title">Safety boundaries</h3>
+                <div class="field-grid">
+                  ${textArea('blockedData', 'Blocked data', defaults.blockedData, 2)}
+                  ${textArea('blockedTools', 'Blocked tools', defaults.blockedTools, 2)}
+                  ${textArea('neverDo', 'Never do', defaults.neverDo, 2)}
+                  ${textArea('jobStopRules', 'Job stop rules', defaults.jobStopRules, 3)}
+                  ${textArea('dataSources', 'Data sources', defaults.dataSources, 2)}
+                </div>
+              </section>
+
+              <section class="field-group" aria-labelledby="governance-ownership-title">
+                <h3 id="governance-ownership-title">Governance ownership</h3>
+                <div class="field-grid">
+                  ${textArea('approvers', 'Approvers', defaults.approvers, 2)}
+                  ${field('dataOwner', 'Data owner', defaults.dataOwner)}
+                  ${field('releaseOwner', 'Release owner', defaults.releaseOwner)}
+                  ${field('riskReviewFrequency', 'Risk review', defaults.riskReviewFrequency)}
+                  ${textArea('riskRationale', 'Risk rationale', defaults.riskRationale, 2)}
+                  ${textArea('highRiskAreas', 'Risk areas', defaults.highRiskAreas, 2)}
+                </div>
+              </section>
             </div>
             ${sectionContinue('#section-approval', 'Continue to approval', 'Next: leave implementation blocked or record real human sign-off.')}
           </section>
@@ -770,6 +786,7 @@ function builderMarkup(excludedFiles = new Set()) {
           <button class="primary-action" type="submit">
             Export governed package
           </button>
+          <button class="ghost-action" type="button" data-action="reset">Reset</button>
         </div>
       </form>
     </div>
@@ -913,6 +930,10 @@ export function createProjectBuilderApp(root) {
 
     const config = getFormConfig(form);
     preview.innerHTML = previewMarkup(config, state.excludedFiles);
+    const statusBanner = root.querySelector('[data-status-banner]');
+    if (statusBanner) {
+      statusBanner.outerHTML = statusBannerMarkup(config);
+    }
 
     root.querySelectorAll('.type-option').forEach((option) => {
       const input = option.querySelector('input');

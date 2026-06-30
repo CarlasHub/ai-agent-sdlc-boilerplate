@@ -362,7 +362,9 @@ function verifyBuilderJourneyUi() {
   const styleSource = fs.readFileSync(path.join(root, 'app/src/styles.css'), 'utf8');
 
   for (const expected of [
-    'journey-checklist',
+    'primary-status-banner',
+    'sidebar-summary-card',
+    'sidebar-details',
     'jobProfileSelect',
     'Job profile',
     'Job scope',
@@ -376,28 +378,35 @@ function verifyBuilderJourneyUi() {
     'Continue to approval',
     'Review export',
     'Export a review ZIP; implementation stays blocked.',
+    'Implementation blocked until human approval',
+    'You can export a review package now. Agents cannot start implementation until approval is recorded.',
+    'Agent job rules',
+    'Safety boundaries',
+    'Governance ownership',
+    'Export review package',
+    'Agent readiness',
+    'Gate details',
+    'Generated files',
+    'Agent roles',
+    'Eval coverage',
+    'Human approval record',
     'GOVERNANCE-FIRST AI DELIVERY',
     'AI-Agent SDLC Blueprint',
-    'Blueprint Intelligence',
-    'INTAKE AGENT',
-    'REVIEW AGENT',
-    'RED TEAM AGENT',
-    'RELEASE AGENT',
-    'Governance readiness',
-    'Package integrity',
-    'Generate governed blueprint'
+    'Governance readiness'
   ]) {
     requireIncludes(appSource, expected, 'Builder journey UI');
   }
 
   for (const expected of [
     '--bg-main: #0b111a',
-    '--ai-cyan: #76b7d8',
-    '.system-signal-grid',
-    '.blueprint-intelligence',
-    '.intelligence-ledger',
+    '--text-main: #f3f7fb',
+    '--text-secondary: #c7d2e2',
+    '--text-muted: #aab7c7',
+    '.primary-status-banner',
+    '.sidebar-summary-card',
+    '.sidebar-details',
+    '.field-group-stack',
     '.section-next',
-    '.journey-checklist',
     '.workflow-strip li.is-active'
   ]) {
     requireIncludes(styleSource, expected, 'Builder journey CSS');
