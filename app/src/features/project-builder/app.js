@@ -455,13 +455,12 @@ function previewMarkup(config, excludedFiles = new Set()) {
     : 'Human review and approval required to continue.';
 
   return `
-    <section class="blueprint-intelligence">
+    <section class="blueprint-intelligence package-summary">
       <div class="panel-heading">
         <div>
-          <p class="panel-kicker">Blueprint Intelligence</p>
+          <p class="panel-kicker">Package summary</p>
           <h2>${escapeHtml(generated.fileName)}</h2>
         </div>
-        <button class="icon-button panel-menu" type="button" aria-label="Blueprint intelligence menu">...</button>
       </div>
 
       <div class="intel-metric-grid" aria-label="Blueprint package metrics">
@@ -470,12 +469,11 @@ function previewMarkup(config, excludedFiles = new Set()) {
         <article><span>Agent roles</span><strong>${roleCount}</strong></article>
         <article><span>Eval cases</span><strong>${evalCount}</strong></article>
         <article><span>Gate checks</span><strong>${hasImplementationApproval ? '7 / 7' : '6 / 7'}</strong></article>
-        <article><span>Package size</span><strong>~1.2 MB</strong></article>
       </div>
 
       <div class="readiness-meter" aria-label="Governance readiness progress">
         <div>
-          <span>Governance readiness</span>
+          <span>Export readiness</span>
           <strong>${governanceReadiness}%</strong>
         </div>
         <i><span style="width: ${governanceReadiness}%"></span></i>
@@ -505,19 +503,6 @@ function previewMarkup(config, excludedFiles = new Set()) {
       </div>
     </section>
 
-    <section class="activity-panel">
-      <div class="panel-heading compact">
-        <p class="panel-kicker">Activity Feed</p>
-        <a href="#section-approval">View all <span aria-hidden="true">-&gt;</span></a>
-      </div>
-      <ol class="activity-feed">
-        <li><span class="dot ready"></span><p>Intake agent completed scope analysis</p><time>2m ago</time></li>
-        <li><span class="dot active"></span><p>Guardrails validation in progress</p><time>5m ago</time></li>
-        <li><span class="dot blocked"></span><p>Red team agent flagged missing approval</p><time>7m ago</time></li>
-        <li><span class="dot hold"></span><p>Waiting for human approval</p><time>8m ago</time></li>
-      </ol>
-    </section>
-
     <details class="intel-details">
       <summary>Generated files</summary>
       <div class="file-browser live-file-browser" aria-label="Live generated project preview" aria-live="polite">
@@ -531,16 +516,6 @@ function previewMarkup(config, excludedFiles = new Set()) {
           <ul>${terminalRows(activeFiles, generated.root, activeFiles.length, 'queued', true)}</ul>
           ${removedRows(inactiveFiles, generated.root)}
         </div>
-      </div>
-    </details>
-
-    <details class="intel-details">
-      <summary>Agent readiness</summary>
-      <div class="agent-readiness-list" aria-label="Agent readiness signals">
-        <span><strong>Intake agent</strong><em>Ready</em></span>
-        <span><strong>Review agent</strong><em>Waiting</em></span>
-        <span><strong>Red team agent</strong><em>Blocked</em></span>
-        <span><strong>Release agent</strong><em>Locked</em></span>
       </div>
     </details>
 
@@ -580,69 +555,62 @@ function builderMarkup(excludedFiles = new Set()) {
         </div>
 
         <nav class="side-nav" aria-label="Workspace">
-          <a class="is-active" href="#project-builder-config"><span>PB</span>Project Builder</a>
-          <a href="#recent-projects"><span>MP</span>My Projects</a>
-          <a href="#governance-signals"><span>GD</span>Governance Docs</a>
-          <a href="#agent-network"><span>AL</span>Agent Library</a>
-          <a href="#blueprint-intelligence"><span>EC</span>Eval Cases</a>
-          <a href="#project-builder-config"><span>AT</span>Audit Templates</a>
-          <a href="#project-export"><span>EH</span>Export History</a>
-          <a href="#project-builder-config"><span>ST</span>Settings</a>
+          <a class="is-active" href="#project-builder-config"><span>01</span>Builder</a>
+          <a href="#project-export"><span>02</span>Export</a>
+          <a href="#about-boilerplate"><span>03</span>About</a>
         </nav>
 
         <div class="sidebar-footer">
           <div class="environment-card">
-            <span>Environment</span>
-            <strong>Local Development</strong>
-            <small>v1.0.0</small>
+            <span>Output</span>
+            <strong>Local ZIP</strong>
+            <small>No backend required</small>
           </div>
           <div class="secure-card">
-            <strong>Secure mode</strong>
-            <span>Least privilege</span>
+            <strong>Default gate</strong>
+            <span>Approval first</span>
           </div>
         </div>
       </aside>
 
       <section class="top-command-row">
-        <section class="network-panel" id="agent-network" aria-labelledby="agent-network-title">
-          <p class="panel-kicker" id="agent-network-title">Agent Network Status</p>
-          <div class="agent-status-grid">
-            <article class="agent-card ready"><strong>Intake agent</strong><span>Ready</span></article>
-            <article class="agent-card waiting"><strong>Review agent</strong><span>Waiting</span></article>
-            <article class="agent-card blocked"><strong>Red team agent</strong><span>Blocked</span></article>
-            <article class="agent-card ready"><strong>Architect agent</strong><span>Ready</span></article>
-            <article class="agent-card locked"><strong>Release agent</strong><span>Locked</span></article>
+        <section class="network-panel step-overview" aria-labelledby="step-overview-title">
+          <p class="panel-kicker" id="step-overview-title">Builder steps</p>
+          <div class="step-chip-grid" aria-label="Project builder steps">
+            <article><span>01</span><strong>Scope</strong></article>
+            <article><span>02</span><strong>Guardrails</strong></article>
+            <article><span>03</span><strong>Approval</strong></article>
+            <article><span>04</span><strong>Export</strong></article>
           </div>
         </section>
 
-        <section class="readiness-health-panel" aria-label="Governance readiness and system health">
+        <section class="readiness-health-panel" aria-label="Current package status">
           <div class="readiness-gauge">
-            <p class="panel-kicker">Governance Readiness</p>
+            <p class="panel-kicker">Package status</p>
             <div class="gauge-row">
               <div class="gauge-ring" aria-hidden="true"></div>
-              <div><strong>72%</strong><span>Medium</span></div>
+              <div><strong>72%</strong><span>Review</span></div>
             </div>
           </div>
-          <div class="system-health">
-            <p class="panel-kicker">System Health</p>
-            <div class="sparkline" aria-hidden="true"><span></span></div>
-            <small><span></span>All systems nominal</small>
-          </div>
+          <ul class="status-fact-list">
+            <li><strong>Approval</strong><span>Blocked</span></li>
+            <li><strong>Secrets</strong><span>Denied</span></li>
+            <li><strong>Access</strong><span>Least privilege</span></li>
+          </ul>
         </section>
       </section>
 
       <main class="console-main">
         <section class="hero-console" aria-labelledby="builder-title">
           <div class="hero-copy">
-            <p class="eyebrow">Governed. Intelligent. Auditable.</p>
-            <h1 id="builder-title">AI-Agent SDLC Blueprint</h1>
-            <p class="hero-subtitle">Governed project generation for agent-led software delivery.</p>
-            <p>Define scope, enforce guardrails, generate evidence, and export a review-ready workspace before any agent writes implementation code.</p>
-            <button class="primary-action hero-action" type="submit">
-              <span class="button-plus" aria-hidden="true">+</span>
-              Create New Project
+            <p class="eyebrow">Local governed package</p>
+            <h1 id="builder-title">Agent SDLC boilerplate</h1>
+            <p class="hero-subtitle">Scope / Guardrails / Approval / Export</p>
+            <p>Fill the steps below and export a review-ready ZIP.</p>
+            <a class="primary-action hero-action" href="#project-builder-config">
+              Start builder
               <span class="button-chevron" aria-hidden="true">&rsaquo;</span>
-            </button>
+            </a>
           </div>
 
           <div class="blueprint-flow" aria-label="SDLC blueprint flow">
@@ -662,77 +630,11 @@ function builderMarkup(excludedFiles = new Set()) {
           </div>
         </section>
 
-        <section class="workflow-panel" aria-labelledby="workflow-title">
-          <p class="panel-kicker" id="workflow-title">SDLC Workflow</p>
-          <div class="workflow-card-grid">
-            <article class="workflow-card active">
-              <span>01</span>
-              <strong>Scope</strong>
-              <p>Define what we are building and why.</p>
-              <em>Active</em>
-            </article>
-            <article class="workflow-card required">
-              <span>02</span>
-              <strong>Guardrails</strong>
-              <p>Set policies, risks, and boundaries.</p>
-              <em>Required</em>
-            </article>
-            <article class="workflow-card blocked">
-              <span>03</span>
-              <strong>Approval</strong>
-              <p>Human-in-the-loop review required.</p>
-              <em>Blocked</em>
-            </article>
-            <article class="workflow-card ready">
-              <span>04</span>
-              <strong>Export</strong>
-              <p>Generate governed project package.</p>
-              <em>Ready after review</em>
-            </article>
-          </div>
-        </section>
-
-        <section class="signals-panel" id="governance-signals" aria-labelledby="signals-title">
-          <p class="panel-kicker" id="signals-title">Governance Signals</p>
-          <div class="signal-grid">
-            <article class="signal-card amber"><span>Risk level</span><strong>Medium</strong></article>
-            <article class="signal-card cyan"><span>Data class</span><strong>Public</strong></article>
-            <article class="signal-card red"><span>Approval</span><strong>Blocked</strong></article>
-            <article class="signal-card red"><span>Secrets access</span><strong>Denied</strong></article>
-            <article class="signal-card green"><span>Tool access</span><strong>Least privilege</strong></article>
-            <article class="signal-card cyan"><span>Audit trail</span><strong>Enabled</strong></article>
-          </div>
-        </section>
-
-        <section class="recent-panel" id="recent-projects" aria-labelledby="recent-title">
-          <div class="panel-heading">
-            <p class="panel-kicker" id="recent-title">Recent Projects</p>
-            <a href="#project-builder-config">View all projects <span aria-hidden="true">-&gt;</span></a>
-          </div>
-          <div class="project-card-grid">
-            <article class="project-card is-selected">
-              <div><strong>Customer Support Copilot</strong><span>May 12, 2025 · 2m ago</span></div>
-              <em>Blocked</em>
-              <dl><div><dt>Files</dt><dd>42</dd></div><div><dt>Docs</dt><dd>9</dd></div><div><dt>Ready</dt><dd>72%</dd></div></dl>
-            </article>
-            <article class="project-card">
-              <div><strong>Data Insights Agent</strong><span>May 11, 2025 · 1d ago</span></div>
-              <em>Ready</em>
-              <dl><div><dt>Files</dt><dd>38</dd></div><div><dt>Docs</dt><dd>8</dd></div><div><dt>Ready</dt><dd>85%</dd></div></dl>
-            </article>
-            <article class="project-card">
-              <div><strong>Invoice Processing Agent</strong><span>May 10, 2025 · 2d ago</span></div>
-              <em>Approved</em>
-              <dl><div><dt>Files</dt><dd>45</dd></div><div><dt>Docs</dt><dd>10</dd></div><div><dt>Ready</dt><dd>100%</dd></div></dl>
-            </article>
-          </div>
-        </section>
-
         <section class="builder-config-panel" id="project-builder-config" aria-labelledby="config-title">
           <div class="panel-heading">
             <div>
-              <p class="panel-kicker">Project Builder Configuration</p>
-              <h2 id="config-title">Configure the governed package</h2>
+              <p class="panel-kicker">Builder</p>
+              <h2 id="config-title">Configure package</h2>
             </div>
             <button class="ghost-action" type="button" data-action="reset">Reset</button>
           </div>
@@ -740,8 +642,8 @@ function builderMarkup(excludedFiles = new Set()) {
           <section class="config-section" id="section-project">
             <div class="section-heading">
               <p class="step-label">Step 1 of 4</p>
-              <h3>Scope the package</h3>
-              <p>Name the project, explain the outcome, and choose the starter pattern closest to the workflow.</p>
+              <h3>Scope</h3>
+              <p>Project, job profile and purpose.</p>
             </div>
             <div class="field-grid">
               ${field('projectName', 'Project name', defaults.projectName, 'text', 'Used for folder, ZIP and governance docs.')}
@@ -755,8 +657,8 @@ function builderMarkup(excludedFiles = new Set()) {
           <section class="config-section" id="section-governance">
             <div class="section-heading">
               <p class="step-label">Step 2 of 4</p>
-              <h3>Define accountable guardrails</h3>
-              <p>Make ownership, users, risk level and allowed data obvious before any files are exported.</p>
+              <h3>Guardrails</h3>
+              <p>Owner, users, risk and data boundaries.</p>
             </div>
             <div class="field-grid">
               ${field('owner', 'Owner', defaults.owner, 'text', 'Named accountable owner.')}
@@ -772,8 +674,8 @@ function builderMarkup(excludedFiles = new Set()) {
           <section class="config-section" id="section-controls">
             <div class="section-heading">
               <p class="step-label">Step 3 of 4</p>
-              <h3>Set agent rules and safety boundaries</h3>
-              <p>Group the job rules, blocked actions and governance owners so reviewers can scan each responsibility.</p>
+              <h3>Agent rules</h3>
+              <p>Job rules, blocked actions and accountable owners.</p>
             </div>
             <div class="field-group-stack">
               <section class="field-group" aria-labelledby="agent-job-rules-title">
@@ -816,8 +718,8 @@ function builderMarkup(excludedFiles = new Set()) {
           <section class="config-section" id="section-approval">
             <div class="section-heading">
               <p class="step-label">Step 4 of 4</p>
-              <h3>Record approval only when it exists</h3>
-              <p>The ZIP can be exported for review while implementation remains blocked by default.</p>
+              <h3>Approval</h3>
+              <p>Leave blank to keep implementation blocked.</p>
             </div>
             ${checkField('includeApproval', 'Include human implementation approval in the generated project.')}
             <div class="field-grid approval-fields" aria-label="Implementation approval fields">
@@ -833,17 +735,33 @@ function builderMarkup(excludedFiles = new Set()) {
 
           <div class="export-bar" id="project-export">
             <div>
-              <strong>Final step: review the intelligence rail, then export.</strong>
-              <span>The ZIP contains governance docs, role prompts, evals, audit templates and release gates generated locally.</span>
+              <strong>Export package</strong>
+              <span>Governance docs, agent prompts, evals and gates.</span>
             </div>
             <button class="primary-action" type="submit">
               Export governed package
             </button>
           </div>
         </section>
+
+        <section class="about-panel" id="about-boilerplate" aria-labelledby="about-title">
+          <div class="panel-heading">
+            <div>
+              <p class="panel-kicker">About</p>
+              <h2 id="about-title">How the boilerplate works</h2>
+            </div>
+          </div>
+          <div class="about-grid">
+            <article><span>01</span><strong>Scope</strong><p>Name the project, select the job profile and define the expected output.</p></article>
+            <article><span>02</span><strong>Guardrails</strong><p>Record owner, users, risk, data class, secrets and personal-data boundaries.</p></article>
+            <article><span>03</span><strong>Agent rules</strong><p>Generate prompts, quality rubric, evidence requirements, blocked tools and stop rules.</p></article>
+            <article><span>04</span><strong>Approval</strong><p>Keep implementation blocked unless a human approval record is entered.</p></article>
+            <article><span>05</span><strong>Export</strong><p>Download a local ZIP with governance docs, eval cases, audit templates and release gates.</p></article>
+          </div>
+        </section>
       </main>
 
-      <aside class="intelligence-panel" id="blueprint-intelligence" data-preview aria-label="Blueprint intelligence">
+      <aside class="intelligence-panel" id="package-summary" data-preview aria-label="Package summary">
         ${previewMarkup(defaults, excludedFiles)}
       </aside>
     </form>

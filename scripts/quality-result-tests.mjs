@@ -364,19 +364,13 @@ function verifyBuilderJourneyUi() {
   for (const expected of [
     'console-shell',
     'console-sidebar',
-    'Agent Network Status',
-    'Governance Readiness',
-    'System Health',
-    'Governed. Intelligent. Auditable.',
-    'Create New Project',
-    'Blueprint Intelligence',
-    'SDLC Workflow',
-    'Governance Signals',
-    'Recent Projects',
-    'Project Builder Configuration',
+    'Builder steps',
+    'Package status',
+    'Start builder',
+    'Package summary',
+    'Configure package',
     'Gate Stack',
     'Approval State',
-    'Activity Feed',
     'jobProfileSelect',
     'Job profile',
     'Job scope',
@@ -394,15 +388,35 @@ function verifyBuilderJourneyUi() {
     'Agent job rules',
     'Safety boundaries',
     'Governance ownership',
-    'Agent readiness',
     'Generated files',
     'Agent roles',
     'Eval coverage',
     'Human approval record',
-    'AI-Agent SDLC Blueprint',
-    'Governance readiness'
+    'Agent SDLC boilerplate',
+    'Export readiness',
+    'About',
+    'How the boilerplate works',
+    'Download a local ZIP with governance docs'
   ]) {
     requireIncludes(appSource, expected, 'Builder journey UI');
+  }
+
+  for (const removed of [
+    'My Projects',
+    'Governance Docs',
+    'Agent Library',
+    'Audit Templates',
+    'Export History',
+    'System Health',
+    'Recent Projects',
+    'Activity Feed',
+    'Customer Support Copilot',
+    'Data Insights Agent',
+    'Invoice Processing Agent',
+    'Governed. Intelligent. Auditable.',
+    'Create New Project'
+  ]) {
+    assert(!appSource.includes(removed), `Builder journey UI still contains removed placeholder copy: ${removed}`);
   }
 
   for (const expected of [
@@ -425,9 +439,10 @@ function verifyBuilderJourneyUi() {
     '.intelligence-panel',
     '.blueprint-intelligence',
     '.field-group-stack',
-    '.workflow-card-grid',
-    '.signal-grid',
-    '.project-card-grid'
+    '.step-chip-grid',
+    '.status-fact-list',
+    '.about-panel',
+    '.about-grid'
   ]) {
     requireIncludes(styleSource, expected, 'Builder journey CSS');
   }

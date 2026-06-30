@@ -1,7 +1,7 @@
 {
   "enterprise_ready": true,
   "score": 100,
-  "generated_at": "2026-06-30T09:49:20.485Z",
+  "generated_at": "2026-06-30T10:17:06.963Z",
   "failed_blockers": [],
   "warnings": [
     {
@@ -412,7 +412,7 @@
       "name": "Audit events exist",
       "status": "passed",
       "severity": "warning",
-      "evidence": "audit events: 30"
+      "evidence": "audit events: 31"
     }
   ]
 }
