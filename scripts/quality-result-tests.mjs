@@ -508,9 +508,11 @@ function verifyBuilderJourneyUi() {
     '--section-gold-bg: rgba(216, 188, 118, 0.08)',
     '--section-green-bg: rgba(168, 200, 138, 0.075)',
     '--section-red-bg: rgba(228, 111, 112, 0.07)',
+    '--radius-sm: 10px',
+    '--radius-md: 16px',
     '--font-display: "Playfair Display", Georgia, serif',
     '--font-body: Manrope, "Segoe UI", system-ui, sans-serif',
-    '--page-max-width: 1320px',
+    '--page-max-width: 1600px',
     '--card-gap: 16px',
     '--text-xs: 12px',
     '--text-md: 16px',
@@ -546,8 +548,7 @@ function verifyBuilderJourneyUi() {
     '#section-governance',
     '#section-controls',
     '#section-approval',
-    'box-shadow: inset 4px 0 0 var(--section-accent)',
-    'box-shadow: inset 0 3px 0 var(--section-accent)',
+    'border: 1px solid var(--border-soft)',
     '.status-fact-list',
     '.about-panel',
     '.about-grid'
@@ -566,7 +567,17 @@ function verifyBuilderJourneyUi() {
 
   for (const blockedVisual of [
     'conic-gradient',
-    'drop-shadow'
+    'drop-shadow',
+    '--section-edge',
+    '--section-blue-border',
+    '--section-gold-border',
+    '--section-green-border',
+    '--section-red-border',
+    '--texture-',
+    'background-image: var(--section-texture)',
+    'repeating-linear-gradient',
+    'box-shadow: inset 4px 0 0 var(--section-accent)',
+    'box-shadow: inset 0 3px 0 var(--section-accent)'
   ]) {
     assert(!styleSource.toLowerCase().includes(blockedVisual), `Builder CSS reintroduced aggressive visual effect: ${blockedVisual}`);
   }
