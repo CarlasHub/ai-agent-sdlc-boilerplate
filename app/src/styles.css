@@ -54,7 +54,7 @@
   --text-md: 16px;
   --text-lg: 19px;
   --text-xl: clamp(26px, 3vw, 42px);
-  --text-hero: clamp(54px, 9vw, 118px);
+  --text-hero: clamp(46px, 7vw, 92px);
 
   /* Backward-compatible aliases used by generated classes. */
   --bg-topbar: var(--bg-sidebar);
@@ -1885,6 +1885,16 @@ textarea {
   width: min(100%, 860px);
   margin: 8vh auto;
   padding: 30px;
+}
+
+.assembly-copy h1,
+.success-panel h1 {
+  max-width: 18ch;
+  font-size: clamp(32px, 4vw, 54px);
+  line-height: 1.08;
+  letter-spacing: -0.015em;
+  text-transform: none;
+  overflow-wrap: anywhere;
 }
 
 .action-row {
