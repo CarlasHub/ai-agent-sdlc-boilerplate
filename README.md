@@ -20,6 +20,36 @@ AI agents can read context, call tools, generate code, create files, inspect bro
 
 This boilerplate gives teams a repeatable AI-Agent SDLC operating model.
 
+## What this offers
+
+This project offers a governed project-builder experience for teams that want to use AI agents without letting implementation start ahead of scope, risk, evidence and approval.
+
+The browser builder lets a team describe an AI-assisted job once, then export a review-ready ZIP that contains:
+
+- a starter project workspace
+- governance documents
+- role-specific agent prompts
+- job-specific quality rubrics
+- safety boundaries and stop rules
+- evaluation cases
+- audit and provenance records
+- CI governance workflows
+- release and human-approval gates
+- a local app scaffold for approved demo or internal-tool work
+
+The output is designed for review before implementation. It helps answer practical questions:
+
+- What is this agent allowed to do?
+- Which data can it use?
+- Which tools are blocked?
+- Who owns risk, data and release decisions?
+- What evidence must exist before a reviewer accepts the work?
+- Which checks prevent implementation or release?
+
+The builder currently supports several starter project shapes, including front-end demos, agent workflows, internal tools, documentation systems and governed multi-agent delivery teams. It also supports job profiles such as QA auditor, security reviewer, data steward, implementation builder, release manager and documentation reviewer, so the generated governance changes with the work being performed.
+
+This is not an agent runtime, SaaS backend or automatic deployment system. It is a governance-first starter kit and evidence generator for teams preparing AI-agent-assisted work.
+
 ## Foundation
 
 This is a proposed enterprise-style framework built from established practices:
@@ -61,6 +91,7 @@ agents/
   red-team-agent.md
   release-agent.md
 docs/
+  offering-overview.md        What the project offers and what it generates
   enterprise/                 Enterprise architecture, operating model and source-backed readiness model
   framework/                  AI-Agent SDLC framework and maturity model
   governance/                 Generated governance artefacts

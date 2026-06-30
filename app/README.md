@@ -2,6 +2,32 @@
 
 Project Blueprint Starter is a local front-end for generating governed AI-Agent SDLC starter ZIP files.
 
+## What the app offers
+
+The app gives users a guided browser workflow for creating a governed AI-agent project package. It is meant to be used before implementation starts, so the project has clear scope, ownership, safety boundaries, evals and approval evidence.
+
+The builder captures:
+
+- project name, type and purpose
+- job profile, such as QA auditor or security reviewer
+- owner, users, risk level and data class
+- personal-data and secrets boundaries
+- job scope, decision rubric and evidence requirements
+- output schema and escalation rules
+- blocked data, blocked tools and stop rules
+- approvers, data owner, release owner and risk rationale
+- optional human implementation approval details
+
+The export creates a ZIP with a governed starter workspace, governance docs, agent roles, eval cases, profile packs, audit records, CI workflow templates and local app files.
+
+## User journey
+
+1. Configure the package in the Builder section.
+2. Review the package summary and approval state.
+3. Keep implementation blocked, or record a real human approval when appropriate.
+4. Export the governed package.
+5. Open the generated project and review the folders, governance docs, agent prompts and evals before implementation work starts.
+
 ## Scope
 
 - Let users start a governed project from the browser.
