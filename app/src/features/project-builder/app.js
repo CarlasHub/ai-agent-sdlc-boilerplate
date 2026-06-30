@@ -315,6 +315,15 @@ function checkField(name, label) {
   `;
 }
 
+function sectionContinue(target, label, note) {
+  return `
+    <div class="section-actions">
+      <a class="section-next" href="${escapeHtml(target)}">${escapeHtml(label)} <span aria-hidden="true">-&gt;</span></a>
+      <small>${escapeHtml(note)}</small>
+    </div>
+  `;
+}
+
 function landingMarkup() {
   return `
     <section class="launch-shell" aria-labelledby="hero-title">
@@ -343,6 +352,44 @@ function landingMarkup() {
   `;
 }
 
+function journeyChecklist(config, type, activeFiles, hasImplementationApproval) {
+  const approvalState = hasImplementationApproval ? 'done' : 'hold';
+  const exportState = activeFiles.length ? 'ready' : 'hold';
+
+  return `
+    <ol class="journey-checklist" aria-label="Project journey status">
+      <li class="is-done">
+        <span>1</span>
+        <div>
+          <strong>Scope</strong>
+          <small>${escapeHtml(config.projectName)} uses the ${escapeHtml(type.label)} starter.</small>
+        </div>
+      </li>
+      <li class="is-done">
+        <span>2</span>
+        <div>
+          <strong>Guardrails</strong>
+          <small>${escapeHtml(config.owner)} owns ${escapeHtml(config.riskLevel)} risk with ${escapeHtml(config.dataClass)} data.</small>
+        </div>
+      </li>
+      <li class="is-${approvalState}">
+        <span>3</span>
+        <div>
+          <strong>Approval</strong>
+          <small>${hasImplementationApproval ? 'Implementation approval will be recorded.' : 'Implementation remains blocked by design.'}</small>
+        </div>
+      </li>
+      <li class="is-${exportState}">
+        <span>4</span>
+        <div>
+          <strong>Export</strong>
+          <small>${activeFiles.length} files are ready for the local ZIP.</small>
+        </div>
+      </li>
+    </ol>
+  `;
+}
+
 function previewMarkup(config, excludedFiles = new Set()) {
   const generated = generateProjectFiles(config);
   const type = selectedType(config.projectType);
@@ -358,13 +405,21 @@ function previewMarkup(config, excludedFiles = new Set()) {
     Boolean(config.approverRole) &&
     config.approverName !== 'pending' &&
     config.approverRole !== 'pending';
+  const nextActionTitle = hasImplementationApproval
+    ? 'Review generated files, then export the ZIP.'
+    : 'Export a review ZIP; implementation stays blocked.';
+  const nextActionCopy = hasImplementationApproval
+    ? 'Human approval will be written into the generated evidence. Release approval still remains separate.'
+    : 'Use the continue links to finish each section. The ZIP is safe to review because it records APPROVED_FOR_IMPLEMENTATION: no.';
 
   return `
     <div class="next-action-card">
       <p class="eyebrow">Next action</p>
-      <h2>Complete scope, then review the generated package.</h2>
-      <p>The preview updates as you type. Export is local-only, and implementation stays blocked unless a real human approval is entered.</p>
+      <h2>${escapeHtml(nextActionTitle)}</h2>
+      <p>${escapeHtml(nextActionCopy)}</p>
     </div>
+
+    ${journeyChecklist(config, type, activeFiles, hasImplementationApproval)}
 
     <div class="output-header">
       <div>
@@ -463,7 +518,7 @@ function builderMarkup(excludedFiles = new Set()) {
       </header>
 
       <ol class="workflow-strip" aria-label="Builder workflow">
-        <li class="is-current">
+        <li class="is-start">
           <strong>Scope</strong>
           <span>Name the project and choose the starter pattern.</span>
         </li>
@@ -503,6 +558,7 @@ function builderMarkup(excludedFiles = new Set()) {
             <div class="type-list">
               ${typeOptions(type.id)}
             </div>
+            ${sectionContinue('#section-governance', 'Continue to guardrails', 'Next: confirm owner, users, risk and allowed data.')}
           </section>
 
           <section class="form-section" id="section-governance">
@@ -519,6 +575,7 @@ function builderMarkup(excludedFiles = new Set()) {
               ${selectField('personalData', 'Personal data', defaults.personalData, ['no', 'yes'])}
               ${selectField('secrets', 'Secrets', defaults.secrets, ['no', 'yes'])}
             </div>
+            ${sectionContinue('#section-controls', 'Continue to boundaries', 'Next: state what agents may read, use and refuse.')}
           </section>
 
           <section class="form-section" id="section-controls">
@@ -539,6 +596,7 @@ function builderMarkup(excludedFiles = new Set()) {
               ${field('releaseOwner', 'Release owner', defaults.releaseOwner)}
               ${field('riskReviewFrequency', 'Risk review', defaults.riskReviewFrequency)}
             </div>
+            ${sectionContinue('#section-approval', 'Continue to approval', 'Next: leave implementation blocked or record real human sign-off.')}
           </section>
 
           <section class="form-section" id="section-approval">
@@ -556,6 +614,7 @@ function builderMarkup(excludedFiles = new Set()) {
               ${textArea('approvalConditions', 'Conditions', 'No real data, no secrets, no production systems and no deployment without release approval.', 2)}
               ${textArea('approvalNotes', 'Notes', 'Implementation may proceed after governance validation passes.', 2)}
             </div>
+            ${sectionContinue('#project-export', 'Review export', 'Final: check the package preview before downloading the ZIP.')}
           </section>
         </section>
 
@@ -563,7 +622,7 @@ function builderMarkup(excludedFiles = new Set()) {
           ${previewMarkup(defaults, excludedFiles)}
         </aside>
 
-        <div class="export-bar">
+        <div class="export-bar" id="project-export">
           <div>
             <strong>Final step: review the preview, then export.</strong>
             <span>The ZIP contains governance docs, role prompts, evals, audit templates and release gates generated locally.</span>

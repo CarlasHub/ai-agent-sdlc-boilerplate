@@ -299,11 +299,11 @@ textarea:focus-visible,
   font-weight: 600;
 }
 
-.workflow-strip li.is-current {
+.workflow-strip li.is-start {
   background: rgba(83, 155, 245, 0.08);
 }
 
-.workflow-strip li.is-current::before {
+.workflow-strip li.is-start::before {
   color: var(--fg-on-emphasis);
   background: var(--accent-emphasis);
   border-color: var(--accent-emphasis);
@@ -631,6 +631,48 @@ textarea {
   font-weight: 600;
 }
 
+.section-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-top: 1px solid var(--border-muted);
+  margin-top: 1rem;
+  padding-top: 0.875rem;
+}
+
+.section-actions small {
+  flex: 1 1 16rem;
+  color: var(--fg-muted);
+}
+
+.section-next {
+  display: inline-flex;
+  min-height: 2rem;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  padding: 0.4rem 0.65rem;
+  color: var(--accent-fg);
+  background: var(--canvas-subtle);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.section-next:hover {
+  border-color: rgba(83, 155, 245, 0.55);
+  background: rgba(83, 155, 245, 0.08);
+}
+
+.section-next:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
 .preview-panel {
   position: sticky;
   top: 1rem;
@@ -657,6 +699,79 @@ textarea {
 
 .next-action-card p:last-child {
   margin-bottom: 0;
+}
+
+.journey-checklist {
+  display: grid;
+  gap: 0;
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  margin: 0;
+  padding: 0.3rem 0.75rem;
+  background: var(--canvas-default);
+  list-style: none;
+}
+
+.journey-checklist li {
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr);
+  gap: 0.6rem;
+  align-items: start;
+  border-top: 1px solid var(--border-muted);
+  padding: 0.65rem 0;
+}
+
+.journey-checklist li:first-child {
+  border-top: 0;
+}
+
+.journey-checklist li > span {
+  display: grid;
+  width: 1.35rem;
+  height: 1.35rem;
+  place-items: center;
+  border: 1px solid var(--border-default);
+  border-radius: 999px;
+  color: var(--fg-muted);
+  background: var(--canvas-inset);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.journey-checklist strong,
+.journey-checklist small {
+  display: block;
+}
+
+.journey-checklist strong {
+  color: var(--fg-strong);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.journey-checklist small {
+  margin-top: 0.12rem;
+  color: var(--fg-muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.journey-checklist .is-done > span {
+  color: var(--fg-on-emphasis);
+  background: var(--success-emphasis);
+  border-color: var(--success-emphasis);
+}
+
+.journey-checklist .is-ready > span {
+  color: var(--fg-on-emphasis);
+  background: var(--accent-emphasis);
+  border-color: var(--accent-emphasis);
+}
+
+.journey-checklist .is-hold > span {
+  color: var(--attention-fg);
+  border-color: rgba(198, 144, 38, 0.45);
+  background: rgba(198, 144, 38, 0.08);
 }
 
 .output-header {
@@ -1170,7 +1285,8 @@ textarea {
   }
 
   .primary-action,
-  .ghost-action {
+  .ghost-action,
+  .section-next {
     width: 100%;
   }
 
@@ -1220,6 +1336,14 @@ textarea {
 
   .gate-row {
     grid-template-columns: 1fr;
+  }
+
+  .section-actions {
+    align-items: stretch;
+  }
+
+  .section-actions small {
+    flex-basis: 100%;
   }
 
   .launch-shell,
