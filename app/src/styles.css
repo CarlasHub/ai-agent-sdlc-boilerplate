@@ -16,10 +16,10 @@
   --green: #32f29a;
   --amber: #ffb947;
   --red: #ff4c78;
-  --text-main: #f7f8ff;
-  --text-secondary: #cdd6e7;
-  --text-muted: #9da9bf;
-  --text-faint: #6f7d94;
+  --text-main: #edf2f8;
+  --text-secondary: #c4cfdd;
+  --text-muted: #a2afc1;
+  --text-faint: #7d8ba1;
   --shadow-panel: 0 22px 64px rgba(0, 0, 0, 0.52), inset 0 1px 0 rgba(255, 255, 255, 0.025);
   --shadow-glow: 0 0 0 1px rgba(0, 223, 255, 0.18), 0 0 30px rgba(0, 223, 255, 0.13);
   --panel-fill: linear-gradient(180deg, rgba(5, 13, 29, 0.96), rgba(1, 6, 17, 0.98));
@@ -45,6 +45,8 @@ body {
     radial-gradient(circle at 8% 96%, rgba(0, 178, 255, 0.1), transparent 24rem),
     linear-gradient(180deg, #020713 0, var(--bg-main) 62rem);
   font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 body::before {
@@ -98,30 +100,32 @@ h3 {
 }
 
 h1 {
-  max-width: 12ch;
+  max-width: 11.5ch;
   margin-bottom: 0;
   color: var(--text-main);
-  font-size: clamp(2.85rem, 4.2vw, 4.75rem);
-  font-weight: 760;
-  line-height: 1.04;
+  font-size: clamp(2.55rem, 3.2vw, 3.5rem);
+  font-weight: 680;
+  line-height: 1.08;
 }
 
 h2 {
   color: var(--text-main);
-  font-size: clamp(1.5rem, 2vw, 2rem);
-  line-height: 1.2;
+  font-size: clamp(1.3rem, 1.6vw, 1.75rem);
+  font-weight: 650;
+  line-height: 1.24;
 }
 
 h3 {
   color: var(--text-main);
-  font-size: 1.2rem;
-  line-height: 1.25;
+  font-size: 1.08rem;
+  font-weight: 650;
+  line-height: 1.32;
 }
 
 p,
 small {
   color: var(--text-secondary);
-  font-size: 0.95rem;
+  font-size: 0.97rem;
   line-height: 1.6;
 }
 
@@ -184,7 +188,7 @@ a {
 .brand-lockup strong {
   color: var(--text-main);
   font-size: 1.12rem;
-  font-weight: 720;
+  font-weight: 660;
   line-height: 1.18;
   text-transform: uppercase;
 }
@@ -287,7 +291,7 @@ a {
 .secure-card strong {
   color: #9fb2ff;
   font-size: 0.78rem;
-  font-weight: 720;
+  font-weight: 650;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -307,7 +311,7 @@ a {
   color: var(--green);
   font-family: var(--mono);
   font-size: 0.82rem;
-  font-weight: 720;
+  font-weight: 650;
   text-transform: uppercase;
 }
 
@@ -334,7 +338,7 @@ a {
   margin: 0 0 0.65rem;
   color: var(--violet);
   font-size: 0.82rem;
-  font-weight: 730;
+  font-weight: 650;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -367,14 +371,14 @@ a {
 .agent-card strong {
   color: var(--text-main);
   font-size: 0.88rem;
-  font-weight: 720;
+  font-weight: 650;
   text-transform: uppercase;
 }
 
 .agent-card span {
   font-family: var(--mono);
   font-size: 0.78rem;
-  font-weight: 750;
+  font-weight: 650;
   text-transform: uppercase;
 }
 
@@ -429,7 +433,8 @@ a {
 .gauge-row strong {
   display: block;
   color: var(--cyan-soft);
-  font-size: 2.2rem;
+  font-size: 2rem;
+  font-weight: 640;
   line-height: 1;
 }
 
@@ -575,31 +580,27 @@ a {
   border: 1px solid var(--line-soft);
   border-radius: 8px;
   padding: 0.65rem 1rem;
-  color: var(--text-main);
-  background: rgba(8, 18, 34, 0.82);
+  color: var(--text-secondary);
+  background: #071429;
   box-shadow: none;
-  font-size: 0.98rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 650;
   line-height: 1;
   text-decoration: none;
 }
 
 .primary-action {
   min-height: 2.75rem;
-  border-color: rgba(0, 223, 255, 0.62);
-  background: linear-gradient(135deg, #4033df 0%, #545cff 44%, #18c9f4 100%);
-  box-shadow:
-    0 0 0 1px rgba(154, 99, 255, 0.28),
-    0 10px 26px rgba(0, 0, 0, 0.32),
-    0 0 26px rgba(0, 223, 255, 0.22);
+  border-color: rgba(0, 223, 255, 0.52);
+  color: var(--text-main);
+  background: #0a1a31;
+  box-shadow: inset 0 0 0 1px rgba(0, 223, 255, 0.08);
 }
 
 .primary-action:hover {
-  border-color: rgba(92, 236, 255, 0.86);
-  box-shadow:
-    0 0 0 1px rgba(154, 99, 255, 0.34),
-    0 12px 30px rgba(0, 0, 0, 0.36),
-    0 0 32px rgba(0, 223, 255, 0.28);
+  border-color: rgba(92, 236, 255, 0.72);
+  background: #0d223f;
+  box-shadow: inset 0 0 0 1px rgba(0, 223, 255, 0.12);
 }
 
 .primary-action:focus-visible {
@@ -611,7 +612,7 @@ a {
 .icon-button,
 .file-action {
   color: var(--text-secondary);
-  background: rgba(8, 18, 34, 0.82);
+  background: #071429;
   box-shadow: none;
 }
 
@@ -621,7 +622,7 @@ a {
   place-items: center;
   color: currentColor;
   font-family: var(--mono);
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1;
 }
 
@@ -706,7 +707,7 @@ a {
   color: var(--cyan);
   font-family: var(--mono);
   font-size: 0.9rem;
-  font-weight: 720;
+  font-weight: 650;
   list-style: none;
   text-transform: uppercase;
 }
@@ -746,7 +747,7 @@ a {
   border-radius: 50%;
   color: var(--cyan);
   font-family: var(--mono);
-  font-weight: 800;
+  font-weight: 680;
 }
 
 .workflow-card strong {
@@ -769,7 +770,7 @@ a {
   font-family: var(--mono);
   font-size: 0.78rem;
   font-style: normal;
-  font-weight: 750;
+  font-weight: 650;
   text-align: center;
   text-transform: uppercase;
 }
@@ -875,7 +876,7 @@ a {
   font-family: var(--mono);
   font-size: 0.74rem;
   font-style: normal;
-  font-weight: 750;
+  font-weight: 650;
   text-transform: uppercase;
 }
 
@@ -958,7 +959,7 @@ a {
 .check-row span {
   color: var(--text-main);
   font-size: 0.95rem;
-  font-weight: 700;
+  font-weight: 650;
 }
 
 .field small {
@@ -1095,7 +1096,7 @@ textarea {
   background: rgba(0, 223, 255, 0.08);
   font-family: var(--mono);
   font-size: 0.75rem;
-  font-weight: 720;
+  font-weight: 650;
 }
 
 .type-option strong,
@@ -1148,15 +1149,15 @@ textarea {
 .section-next {
   border-color: rgba(0, 223, 255, 0.36);
   color: var(--cyan-soft);
-  background: rgba(0, 223, 255, 0.08);
+  background: #071429;
   box-shadow: none;
 }
 
 .section-next:hover,
 .ghost-action:hover,
 .file-action:hover {
-  border-color: rgba(0, 223, 255, 0.58);
-  background: rgba(0, 223, 255, 0.11);
+  border-color: rgba(0, 223, 255, 0.54);
+  background: #0a1a31;
 }
 
 .check-row {
@@ -1390,14 +1391,14 @@ textarea {
   min-height: 2.2rem;
   border-color: rgba(255, 185, 71, 0.52);
   color: var(--amber);
-  background: rgba(255, 185, 71, 0.08);
+  background: #17110a;
   box-shadow: none;
   font-size: 0.85rem;
 }
 
 .review-link:hover {
   border-color: rgba(255, 185, 71, 0.76);
-  background: rgba(255, 185, 71, 0.12);
+  background: #21170b;
 }
 
 .activity-feed {
@@ -1775,7 +1776,7 @@ textarea {
   }
 
   h1 {
-    font-size: 2.45rem;
+    font-size: 2.5rem;
   }
 
   .brand-lockup,
