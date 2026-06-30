@@ -441,7 +441,9 @@ function verifyBuilderJourneyUi() {
     'Export readiness',
     'About',
     'How the boilerplate works',
-    'Download a local ZIP with governance docs'
+    'Download a local ZIP with governance docs',
+    'const ICONS',
+    'function svgIcon('
   ]) {
     requireIncludes(appSource, expected, 'Builder journey UI');
   }
@@ -464,6 +466,22 @@ function verifyBuilderJourneyUi() {
     assert(!appSource.includes(removed), `Builder journey UI still contains removed placeholder copy: ${removed}`);
   }
 
+  for (const blockedGlyph of [
+    '&rsaquo;',
+    '>i</button>',
+    '>ZIP</span>',
+    '>trash',
+    '>restore',
+    'approval-lock::before',
+    'governance-node::before',
+    'intel-details summary::after',
+    'orbit-list li::before',
+    'brand-mark::before',
+    'brand-mark::after'
+  ]) {
+    assert(!appSource.includes(blockedGlyph) && !styleSource.includes(blockedGlyph), `Builder journey UI reintroduced improvised icon/glyph treatment: ${blockedGlyph}`);
+  }
+
   for (const expected of [
     '--bg-app: #04080d',
     '--bg-sidebar: #07111b',
@@ -477,6 +495,12 @@ function verifyBuilderJourneyUi() {
     '--accent-green: #58c77b',
     '--status-amber-bg: #2b220d',
     '.button-chevron',
+    '.ui-icon',
+    '.nav-icon',
+    '.metric-symbol',
+    '.gate-icon',
+    '.details-chevron',
+    '.node-icon',
     '.console-shell',
     '.console-sidebar',
     '.network-panel',

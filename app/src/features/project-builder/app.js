@@ -89,6 +89,43 @@ function escapeHtml(value) {
     .replaceAll("'", '&#039;');
 }
 
+const ICONS = {
+  'arrow-right': '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+  'book-open': '<path d="M12 7v14"/><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3H12v18H5.5A2.5 2.5 0 0 1 3 18.5z"/><path d="M21 5.5A2.5 2.5 0 0 0 18.5 3H12v18h6.5a2.5 2.5 0 0 0 2.5-2.5z"/>',
+  'check-circle': '<circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.2 2.2 4.8-5.2"/>',
+  'chevron-down': '<path d="m6 9 6 6 6-6"/>',
+  'circle-plus': '<circle cx="12" cy="12" r="9"/><path d="M12 8v8"/><path d="M8 12h8"/>',
+  'clipboard-check': '<path d="M9 5h6"/><path d="M9 3h6a1 1 0 0 1 1 1v1h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2V4a1 1 0 0 1 1-1Z"/><path d="m9 14 2 2 4-5"/>',
+  'download': '<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>',
+  'file-text': '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/>',
+  'flask': '<path d="M10 2v6.5L5.4 18.2A2.6 2.6 0 0 0 7.8 22h8.4a2.6 2.6 0 0 0 2.4-3.8L14 8.5V2"/><path d="M8.5 14h7"/><path d="M8 2h8"/>',
+  'gauge': '<path d="M21 13a9 9 0 1 0-18 0"/><path d="M12 13l4-4"/><path d="M8 17h8"/>',
+  'info': '<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>',
+  'layout-dashboard': '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/>',
+  'lock': '<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><path d="M12 15v2"/>',
+  'minus-circle': '<circle cx="12" cy="12" r="9"/><path d="M8 12h8"/>',
+  'network': '<path d="M12 3 4.5 7.25v8.5L12 20l7.5-4.25v-8.5Z"/><path d="M12 8v8"/><path d="m7.2 10.5 4.8 2.7 4.8-2.7"/><path d="M7.2 13.5 12 16l4.8-2.5"/>',
+  'package': '<path d="m12 3 8 4.5v9L12 21l-8-4.5v-9Z"/><path d="M12 12 4.4 7.7"/><path d="M12 12v9"/><path d="m12 12 7.6-4.3"/>',
+  'plus': '<path d="M12 5v14"/><path d="M5 12h14"/>',
+  'rotate-ccw': '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v6h6"/>',
+  'shield-check': '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/>',
+  'target': '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3"/><path d="M12 19v3"/><path d="M2 12h3"/><path d="M19 12h3"/>',
+  'terminal': '<path d="m4 17 5-5-5-5"/><path d="M12 19h8"/>',
+  'trash': '<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 15H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>',
+  'users': '<path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7.5" r="3.5"/><path d="M22 21v-2a4 4 0 0 0-3-3.85"/><path d="M16 4.15a3.5 3.5 0 0 1 0 6.7"/>',
+  'x-circle': '<circle cx="12" cy="12" r="9"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>'
+};
+
+function svgIcon(name, className = 'ui-icon') {
+  const iconName = ICONS[name] ? name : 'info';
+
+  return `
+    <svg class="${escapeHtml(className)} icon-${escapeHtml(iconName)}" aria-hidden="true" viewBox="0 0 24 24" fill="none" focusable="false" xmlns="http://www.w3.org/2000/svg">
+      ${ICONS[iconName]}
+    </svg>
+  `;
+}
+
 function selectedType(id) {
   return PROJECT_TYPES.find((type) => type.id === id) || PROJECT_TYPES[0];
 }
@@ -138,7 +175,7 @@ function infoButton(label, tooltipId) {
       aria-expanded="false"
       aria-controls="${escapeHtml(tooltipId)}"
       data-tooltip-trigger="${escapeHtml(tooltipId)}"
-    >i</button>
+    >${svgIcon('info', 'ui-icon info-icon')}</button>
   `;
 }
 
@@ -196,14 +233,15 @@ function terminalRows(files, root, visibleCount = files.length, status = 'queued
   return files.slice(0, visibleCount).map((file) => {
     const relativePath = relativeFileName(file, root);
     const command = status === 'written' ? 'write' : 'queue';
+    const statusIcon = status === 'written' ? 'check-circle' : 'circle-plus';
 
     return `
       <li class="live-file-row ${removable ? 'is-editable' : ''}">
-        <span class="file-status ${status}">${status === 'written' ? 'ok' : '+'}</span>
+        <span class="file-status ${status}">${svgIcon(statusIcon, 'ui-icon file-status-icon')}</span>
         <code>${escapeHtml(`${command} ${relativePath}`)}</code>
         ${removable ? `
           <button class="file-action remove-file" type="button" data-remove-file="${escapeHtml(relativePath)}" aria-label="Remove ${escapeHtml(relativePath)} from project">
-            trash
+            ${svgIcon('trash', 'ui-icon action-icon')}
           </button>
         ` : ''}
       </li>
@@ -216,17 +254,17 @@ function removedRows(files, root) {
 
   return `
     <div class="removed-files" aria-label="Removed files">
-      <p><span>-</span> ${files.length} file${files.length === 1 ? '' : 's'} removed from package</p>
+      <p><span>${svgIcon('minus-circle', 'ui-icon terminal-icon')}</span> ${files.length} file${files.length === 1 ? '' : 's'} removed from package</p>
       <ul>
         ${files.map((file) => {
           const relativePath = relativeFileName(file, root);
 
           return `
             <li class="live-file-row is-removed">
-              <span class="file-status removed">off</span>
+              <span class="file-status removed">${svgIcon('x-circle', 'ui-icon file-status-icon')}</span>
               <code>${escapeHtml(relativePath)}</code>
               <button class="file-action restore-file" type="button" data-restore-file="${escapeHtml(relativePath)}" aria-label="Restore ${escapeHtml(relativePath)} to project">
-                restore
+                ${svgIcon('rotate-ccw', 'ui-icon action-icon')}
               </button>
             </li>
           `;
@@ -399,8 +437,36 @@ function checkField(name, label) {
 function sectionContinue(target, label, note) {
   return `
     <div class="section-actions">
-      <a class="section-next" href="${escapeHtml(target)}">${escapeHtml(label)} <span class="button-chevron" aria-hidden="true">&rsaquo;</span></a>
+      <a class="section-next" href="${escapeHtml(target)}">${escapeHtml(label)} <span class="button-chevron" aria-hidden="true">${svgIcon('arrow-right', 'ui-icon')}</span></a>
       <small>${escapeHtml(note)}</small>
+    </div>
+  `;
+}
+
+function metricCard(iconName, label, value, tone = 'neutral') {
+  return `
+    <article class="metric-card metric-${escapeHtml(tone)}">
+      <span class="metric-symbol">${svgIcon(iconName, 'ui-icon metric-icon')}</span>
+      <span class="metric-label">${escapeHtml(label)}</span>
+      <strong>${escapeHtml(value)}</strong>
+    </article>
+  `;
+}
+
+function gateIcon(status) {
+  const normalized = String(status).toLowerCase();
+  if (normalized === 'pass') return 'check-circle';
+  if (normalized === 'warn' || normalized === 'pending') return 'minus-circle';
+  if (normalized === 'blocked') return 'x-circle';
+  return 'info';
+}
+
+function gateRow(className, status, label) {
+  return `
+    <div class="gate-row ${escapeHtml(className)}">
+      <span class="gate-icon">${svgIcon(gateIcon(status), 'ui-icon list-icon')}</span>
+      <span>${escapeHtml(label)}</span>
+      <strong>${escapeHtml(status)}</strong>
     </div>
   `;
 }
@@ -425,7 +491,7 @@ function landingMarkup() {
         <h1 id="hero-title">Build a governed project blueprint with a real file preview.</h1>
         <p>Start with governance, see the exact workspace you are generating, then download a complete ZIP your team can inspect and run.</p>
         <button class="primary-action" type="button" data-action="start">
-          <span aria-hidden="true">+</span>
+          ${svgIcon('plus', 'ui-icon button-icon')}
           Start blueprint
         </button>
       </div>
@@ -464,12 +530,12 @@ function previewMarkup(config, excludedFiles = new Set()) {
       </div>
 
       <div class="intel-metric-grid" aria-label="Blueprint package metrics">
-        <article><span>Files included</span><strong>${activeFiles.length} / ${generated.files.length}</strong></article>
-        <article><span>Governance docs</span><strong>${GOVERNANCE_DOC_COUNT}</strong></article>
-        <article><span>Agent roles</span><strong>${roleCount}</strong></article>
-        <article><span>Eval cases</span><strong>${evalCount}</strong></article>
-        <article><span>Gate checks</span><strong>${hasImplementationApproval ? '8 / 8' : `${policyStatus.blockers.length ? '6' : '7'} / 8`}</strong></article>
-        <article><span>Policy score</span><strong>${policyStatus.score}%</strong></article>
+        ${metricCard('file-text', 'Files included', `${activeFiles.length} / ${generated.files.length}`)}
+        ${metricCard('shield-check', 'Governance docs', GOVERNANCE_DOC_COUNT)}
+        ${metricCard('users', 'Agent roles', roleCount)}
+        ${metricCard('flask', 'Eval cases', evalCount, 'purple')}
+        ${metricCard('check-circle', 'Gate checks', hasImplementationApproval ? '8 / 8' : `${policyStatus.blockers.length ? '6' : '7'} / 8`, hasImplementationApproval ? 'success' : 'warning')}
+        ${metricCard('gauge', 'Policy score', `${policyStatus.score}%`)}
       </div>
 
       <div class="readiness-meter" aria-label="Governance readiness progress">
@@ -485,36 +551,36 @@ function previewMarkup(config, excludedFiles = new Set()) {
       <div class="gate-stack">
         <p class="panel-kicker">Gate Stack</p>
         <div class="gate-list" aria-label="Generated readiness checks">
-          <div class="gate-row is-pass"><strong>PASS</strong><span>Governance gate</span></div>
-          <div class="gate-row is-pass"><strong>PASS</strong><span>Risk and data boundary check</span></div>
-          <div class="gate-row is-pass"><strong>PASS</strong><span>Eval coverage</span></div>
-          <div class="gate-row is-pass"><strong>PASS</strong><span>Least privilege agent prompts</span></div>
-          <div class="gate-row ${policyStatus.blockers.length ? 'is-hold' : 'is-pass'}"><strong>${policyStatus.blockers.length ? 'BLOCKED' : 'PASS'}</strong><span>Policy conditions</span></div>
-          <div class="gate-row ${hasImplementationApproval ? 'is-pass' : 'is-hold'}"><strong>${hasImplementationApproval ? 'PASS' : 'PENDING'}</strong><span>Human approval</span></div>
-          <div class="gate-row is-pass"><strong>PASS</strong><span>Release gate included</span></div>
-          <div class="gate-row ${inactiveFiles.length ? 'is-warn' : 'is-pass'}"><strong>${inactiveFiles.length ? 'WARN' : 'PASS'}</strong><span>Package integrity</span></div>
+          ${gateRow('is-pass', 'PASS', 'Governance gate')}
+          ${gateRow('is-pass', 'PASS', 'Risk and data boundary check')}
+          ${gateRow('is-pass', 'PASS', 'Eval coverage')}
+          ${gateRow('is-pass', 'PASS', 'Least privilege agent prompts')}
+          ${gateRow(policyStatus.blockers.length ? 'is-block' : 'is-pass', policyStatus.blockers.length ? 'BLOCKED' : 'PASS', 'Policy conditions')}
+          ${gateRow(hasImplementationApproval ? 'is-pass' : 'is-hold', hasImplementationApproval ? 'PASS' : 'PENDING', 'Human approval')}
+          ${gateRow('is-pass', 'PASS', 'Release gate included')}
+          ${gateRow(inactiveFiles.length ? 'is-warn' : 'is-pass', inactiveFiles.length ? 'WARN' : 'PASS', 'Package integrity')}
         </div>
       </div>
 
       <div class="approval-state-card ${hasImplementationApproval ? 'is-approved' : 'is-blocked'}">
         <p class="panel-kicker">Approval State</p>
-        <div class="approval-lock" aria-hidden="true"></div>
+        <div class="approval-lock" aria-hidden="true">${svgIcon(hasImplementationApproval ? 'check-circle' : 'lock', 'ui-icon approval-icon')}</div>
         <strong>${approvalStateLabel}</strong>
         <p>${escapeHtml(approvalCopy)}</p>
-        <a class="review-link" href="#section-approval">Review &amp; Approve <span class="button-chevron" aria-hidden="true">&rsaquo;</span></a>
+        <a class="review-link" href="#section-approval">Review &amp; Approve <span class="button-chevron" aria-hidden="true">${svgIcon('arrow-right', 'ui-icon')}</span></a>
       </div>
     </section>
 
     <details class="intel-details">
-      <summary>Generated files</summary>
+      <summary>Generated files <span class="details-chevron" aria-hidden="true">${svgIcon('chevron-down', 'ui-icon')}</span></summary>
       <div class="file-browser live-file-browser" aria-label="Live generated project preview" aria-live="polite">
         <div class="command-line" aria-label="Local build command">
-          <span>$</span>
+          <span>${svgIcon('terminal', 'ui-icon terminal-icon')}</span>
           <code>agent-sdlc build --type ${escapeHtml(type.id)} --job ${escapeHtml(profile.id)} --local-only</code>
         </div>
         <div class="terminal-feed">
-          <p><span>></span> ${activeFiles.length} of ${generated.files.length} files included locally</p>
-          <p class="feed-note"><span>!</span> Removing governance or script files may make generated checks fail.</p>
+          <p><span>${svgIcon('arrow-right', 'ui-icon terminal-icon')}</span> ${activeFiles.length} of ${generated.files.length} files included locally</p>
+          <p class="feed-note"><span>${svgIcon('info', 'ui-icon terminal-icon')}</span> Removing governance or script files may make generated checks fail.</p>
           <ul>${terminalRows(activeFiles, generated.root, activeFiles.length, 'queued', true)}</ul>
           ${removedRows(inactiveFiles, generated.root)}
         </div>
@@ -522,30 +588,25 @@ function previewMarkup(config, excludedFiles = new Set()) {
     </details>
 
     <details class="intel-details">
-      <summary>Agent roles</summary>
+      <summary>Agent roles <span class="details-chevron" aria-hidden="true">${svgIcon('chevron-down', 'ui-icon')}</span></summary>
       <p>${roleCount} least-privilege agent role prompts will be generated for ${escapeHtml(profile.label)}.</p>
     </details>
 
     <details class="intel-details">
-      <summary>Eval coverage</summary>
+      <summary>Eval coverage <span class="details-chevron" aria-hidden="true">${svgIcon('chevron-down', 'ui-icon')}</span></summary>
       <p>${evalCount} eval cases cover scope adherence, prompt injection, forbidden actions, sensitive data, tool misuse, unsupported claims, approval gates and audit logging.</p>
     </details>
 
     <details class="intel-details">
-      <summary>Policy checks</summary>
+      <summary>Policy checks <span class="details-chevron" aria-hidden="true">${svgIcon('chevron-down', 'ui-icon')}</span></summary>
       <p>${policyStatus.blockers.length ? `${policyStatus.blockers.length} blocking condition${policyStatus.blockers.length === 1 ? '' : 's'} require review before implementation.` : 'All generated policy conditions pass for implementation readiness.'}</p>
       <div class="gate-list compact-gate-list" aria-label="Policy check results">
-        ${policyStatus.checks.map((item) => `
-          <div class="gate-row ${item.status === 'pass' ? 'is-pass' : item.status === 'warn' ? 'is-warn' : 'is-hold'}">
-            <strong>${escapeHtml(item.status.toUpperCase())}</strong>
-            <span>${escapeHtml(item.title)}</span>
-          </div>
-        `).join('')}
+        ${policyStatus.checks.map((item) => gateRow(item.status === 'pass' ? 'is-pass' : item.status === 'warn' ? 'is-warn' : 'is-hold', item.status.toUpperCase(), item.title)).join('')}
       </div>
     </details>
 
     <details class="intel-details">
-      <summary>Human approval record</summary>
+      <summary>Human approval record <span class="details-chevron" aria-hidden="true">${svgIcon('chevron-down', 'ui-icon')}</span></summary>
       <div class="approval-summary">
         <p class="preview-label">Approval state</p>
         <h3>APPROVED_FOR_IMPLEMENTATION: ${hasImplementationApproval ? 'yes' : 'no'}</h3>
@@ -563,16 +624,16 @@ function builderMarkup(excludedFiles = new Set()) {
     <form class="console-shell" id="project-form">
       <aside class="console-sidebar" aria-label="AI-Agent SDLC navigation">
         <div class="brand-lockup">
-          <div class="brand-mark" aria-hidden="true"><span></span></div>
+          <div class="brand-mark" aria-hidden="true">${svgIcon('network', 'ui-icon brand-icon')}</div>
           <div>
             <strong>AI-Agent<br>SDLC<br>Blueprint</strong>
           </div>
         </div>
 
         <nav class="side-nav" aria-label="Workspace">
-          <a class="is-active" href="#project-builder-config"><span>01</span>Builder</a>
-          <a href="#project-export"><span>02</span>Export</a>
-          <a href="#about-boilerplate"><span>03</span>About</a>
+          <a class="is-active" href="#project-builder-config"><span class="nav-icon">${svgIcon('layout-dashboard', 'ui-icon')}</span>Builder</a>
+          <a href="#project-export"><span class="nav-icon">${svgIcon('download', 'ui-icon')}</span>Export</a>
+          <a href="#about-boilerplate"><span class="nav-icon">${svgIcon('book-open', 'ui-icon')}</span>About</a>
         </nav>
 
         <div class="sidebar-footer">
@@ -608,9 +669,9 @@ function builderMarkup(excludedFiles = new Set()) {
             </div>
           </div>
           <ul class="status-fact-list">
-            <li><strong>Approval</strong><span>Blocked</span></li>
-            <li><strong>Secrets</strong><span>Denied</span></li>
-            <li><strong>Access</strong><span>Least privilege</span></li>
+            <li><strong>Approval</strong><span class="status-blocked">Blocked</span></li>
+            <li><strong>Secrets</strong><span class="status-locked">Denied</span></li>
+            <li><strong>Access</strong><span class="status-ready">Least privilege</span></li>
           </ul>
         </section>
       </section>
@@ -624,18 +685,18 @@ function builderMarkup(excludedFiles = new Set()) {
             <p>Fill the steps below and export a review-ready ZIP.</p>
             <a class="primary-action hero-action" href="#project-builder-config">
               Start builder
-              <span class="button-chevron" aria-hidden="true">&rsaquo;</span>
+              <span class="button-chevron" aria-hidden="true">${svgIcon('arrow-right', 'ui-icon')}</span>
             </a>
           </div>
 
           <div class="blueprint-flow" aria-label="SDLC blueprint flow">
-            <div class="governance-node scope"><span>01</span><strong>Scope</strong></div>
+            <div class="governance-node scope"><span class="node-icon">${svgIcon('target', 'ui-icon')}</span><span class="node-number">01</span><strong>Scope</strong></div>
             <div class="flow-line"></div>
-            <div class="governance-node guardrails"><span>02</span><strong>Guardrails</strong></div>
+            <div class="governance-node guardrails"><span class="node-icon">${svgIcon('shield-check', 'ui-icon')}</span><span class="node-number">02</span><strong>Guardrails</strong></div>
             <div class="flow-line"></div>
-            <div class="governance-node approval"><span>03</span><strong>Approval</strong></div>
+            <div class="governance-node approval"><span class="node-icon">${svgIcon('users', 'ui-icon')}</span><span class="node-number">03</span><strong>Approval</strong></div>
             <div class="flow-line"></div>
-            <div class="governance-node export"><span>04</span><strong>Export</strong></div>
+            <div class="governance-node export"><span class="node-icon">${svgIcon('download', 'ui-icon')}</span><span class="node-number">04</span><strong>Export</strong></div>
             <ul class="orbit-list">
               <li>Risk checks</li>
               <li>Data boundaries</li>
@@ -754,6 +815,7 @@ function builderMarkup(excludedFiles = new Set()) {
               <span>Governance docs, agent prompts, evals and gates.</span>
             </div>
             <button class="primary-action" type="submit">
+              ${svgIcon('download', 'ui-icon button-icon')}
               Export governed package
             </button>
           </div>
@@ -802,7 +864,7 @@ function assemblyMarkup(build) {
         <p class="build-count">${build.visibleCount} / ${result.files.length} files added${nextFile ? ` - writing ${escapeHtml(relativeFileName(nextFile, result.root))}` : ''}</p>
         <div class="action-row">
           <button class="primary-action" type="button" data-action="get-project" ${complete ? '' : 'disabled'}>
-            <span aria-hidden="true">ZIP</span>
+            ${svgIcon('package', 'ui-icon button-icon')}
             ${complete ? 'Get project ZIP' : 'Building...'}
           </button>
           <button class="ghost-action" type="button" data-action="new-project">Start another project</button>
@@ -814,8 +876,8 @@ function assemblyMarkup(build) {
           <strong>${escapeHtml(`${result.root} -- build`)}</strong>
         </div>
         <div class="terminal-feed">
-          <p><span>$</span> governance-packager build ${escapeHtml(result.root)}</p>
-          <p><span>></span> resolving governance docs, agents, evals, scripts, app</p>
+          <p><span>${svgIcon('terminal', 'ui-icon terminal-icon')}</span> governance-packager build ${escapeHtml(result.root)}</p>
+          <p><span>${svgIcon('arrow-right', 'ui-icon terminal-icon')}</span> resolving governance docs, agents, evals, scripts, app</p>
           <ul>
             ${terminalRows(visibleFiles, result.root, visibleFiles.length, 'written')}
           </ul>
@@ -838,7 +900,7 @@ function successMarkup(result) {
       <p>The ZIP contains ${result.files.length} files: governance, agents, evals, scripts, CI and the starter app scaffold.</p>
       <div class="action-row">
         <button class="primary-action" type="button" data-action="download-again">
-          <span aria-hidden="true">ZIP</span>
+          ${svgIcon('package', 'ui-icon button-icon')}
           Get project ZIP again
         </button>
         <button class="ghost-action" type="button" data-action="new-project">Start another project</button>
