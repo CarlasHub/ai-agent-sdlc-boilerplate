@@ -483,19 +483,38 @@ function verifyBuilderJourneyUi() {
   }
 
   for (const expected of [
-    '--bg-app: #0d141d',
-    '--bg-sidebar: #101b26',
-    '--bg-topbar: #14202c',
-    '--bg-panel: #15212d',
-    '--border-default: #43596d',
-    '--border-active: #6aa6d9',
-    '--text-primary: #d8e2ec',
-    '--text-secondary: #c2ceda',
-    '--text-muted: #a9b8c6',
-    '--accent-blue: #6aa6d9',
-    '--accent-green: #7ccf96',
-    '--status-amber-bg: #302710',
-    'font-size: 1rem',
+    '--page-max-width: 1600px',
+    '--sidebar-width: 240px',
+    '--right-panel-width: 380px',
+    '--page-padding: 24px',
+    '--section-gap: 24px',
+    '--card-gap: 16px',
+    '--bg-app: #05070a',
+    '--bg-main: #08101a',
+    '--bg-sidebar: #0a111a',
+    '--surface-1: #101923',
+    '--surface-2: #172433',
+    '--surface-3: #203247',
+    '--surface-input: #0d1824',
+    '--surface-active: #18314c',
+    '--border-soft: #34495f',
+    '--border-default: #486176',
+    '--border-strong: #617b91',
+    '--border-focus: #7bb7f2',
+    '--text-primary: #f5f8fb',
+    '--text-secondary: #d8e0e8',
+    '--text-muted: #b3bfca',
+    '--text-faint: #95a3b1',
+    '--accent-blue: #7bb7f2',
+    '--accent-green: #72dc94',
+    '--status-amber-bg: #392d12',
+    '--text-xs: 12px',
+    '--text-md: 15px',
+    'grid-template-columns: var(--sidebar-width) minmax(760px, 1fr) var(--right-panel-width)',
+    'grid-template-columns: minmax(0, 1fr) var(--right-panel-width)',
+    'min-height: 44px',
+    'min-height: 108px',
+    'font-size: var(--text-md)',
     'outline: 3px solid var(--accent-blue-soft)',
     'scrollbar-color: var(--border-strong) var(--bg-panel)',
     '.button-chevron',
@@ -520,6 +539,15 @@ function verifyBuilderJourneyUi() {
     '.about-grid'
   ]) {
     requireIncludes(styleSource, expected, 'Builder journey CSS');
+  }
+
+  for (const tooSmall of [
+    'font-size: 0.6',
+    'font-size: 0.7',
+    'font-size: 10px',
+    'font-size: 11px'
+  ]) {
+    assert(!styleSource.toLowerCase().includes(tooSmall), `Builder CSS uses text below the 12px readability floor: ${tooSmall}`);
   }
 
   for (const blockedVisual of [
