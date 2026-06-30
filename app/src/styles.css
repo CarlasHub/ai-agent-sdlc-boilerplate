@@ -990,6 +990,10 @@ a:focus-visible,
   border: 0;
 }
 
+.builder-config-panel #config-title {
+  margin-bottom: 2rem;
+}
+
 .panel-heading {
   display: flex;
   align-items: flex-start;

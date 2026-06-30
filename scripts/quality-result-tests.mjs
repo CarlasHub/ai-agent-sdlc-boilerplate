@@ -545,6 +545,8 @@ function verifyBuilderJourneyUi() {
     '.hero-gallery',
     '.gallery-frame',
     '.builder-stage',
+    '.builder-config-panel #config-title',
+    'margin-bottom: 2rem',
     '.button-chevron',
     '.ui-icon',
     '.nav-icon',
