@@ -391,8 +391,8 @@ function verifyBuilderJourneyUi() {
   }
 
   for (const expected of [
-    '--bg-main: #070b14',
-    '--ai-cyan: #49e6ff',
+    '--bg-main: #0b111a',
+    '--ai-cyan: #76b7d8',
     '.system-signal-grid',
     '.blueprint-intelligence',
     '.intelligence-ledger',
