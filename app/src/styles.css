@@ -1389,12 +1389,11 @@ textarea {
 }
 
 .intelligence-panel {
-  position: sticky;
-  top: 104px;
+  position: static;
   display: grid;
   gap: 16px;
-  max-height: calc(100vh - 124px);
-  overflow: auto;
+  max-height: none;
+  overflow: visible;
   animation: fade-up 720ms ease 100ms both;
 }
 

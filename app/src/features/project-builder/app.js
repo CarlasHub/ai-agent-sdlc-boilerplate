@@ -118,7 +118,7 @@ const ICONS = {
 
 const NAV_TARGET_IDS = ['project-builder-config', 'project-export', 'about-boilerplate'];
 const CONFIG_SECTION_IDS = ['section-project', 'section-governance', 'section-controls', 'section-approval'];
-const DEFAULT_OPEN_CONFIG_SECTION_IDS = ['section-project'];
+const DEFAULT_OPEN_CONFIG_SECTION_IDS = [...CONFIG_SECTION_IDS];
 
 function svgIcon(name, className = 'ui-icon') {
   const iconName = ICONS[name] ? name : 'info';
