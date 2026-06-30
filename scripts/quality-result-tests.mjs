@@ -406,9 +406,14 @@ function verifyBuilderJourneyUi() {
   }
 
   for (const expected of [
-    '--bg-main: #020510',
-    '--cyan: #00e5ff',
-    '--violet: #9b5cff',
+    '--bg-main: #010107',
+    '--bg-shell: #010716',
+    '--bg-panel: #020a18',
+    '--cyan: #00dfff',
+    '--violet: #9a63ff',
+    '--amber: #ffb947',
+    'linear-gradient(135deg, #4033df 0%, #545cff 44%, #18c9f4 100%)',
+    '.button-chevron',
     '.console-shell',
     '.console-sidebar',
     '.network-panel',

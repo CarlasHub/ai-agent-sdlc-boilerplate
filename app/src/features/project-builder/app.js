@@ -398,7 +398,7 @@ function checkField(name, label) {
 function sectionContinue(target, label, note) {
   return `
     <div class="section-actions">
-      <a class="section-next" href="${escapeHtml(target)}">${escapeHtml(label)} <span aria-hidden="true">-&gt;</span></a>
+      <a class="section-next" href="${escapeHtml(target)}">${escapeHtml(label)} <span class="button-chevron" aria-hidden="true">&rsaquo;</span></a>
       <small>${escapeHtml(note)}</small>
     </div>
   `;
@@ -501,7 +501,7 @@ function previewMarkup(config, excludedFiles = new Set()) {
         <div class="approval-lock" aria-hidden="true"></div>
         <strong>${approvalStateLabel}</strong>
         <p>${escapeHtml(approvalCopy)}</p>
-        <a class="review-link" href="#section-approval">Review &amp; Approve <span aria-hidden="true">-&gt;</span></a>
+        <a class="review-link" href="#section-approval">Review &amp; Approve <span class="button-chevron" aria-hidden="true">&rsaquo;</span></a>
       </div>
     </section>
 
@@ -603,35 +603,35 @@ function builderMarkup(excludedFiles = new Set()) {
         </div>
       </aside>
 
-      <main class="console-main">
-        <section class="top-command-row">
-          <section class="network-panel" id="agent-network" aria-labelledby="agent-network-title">
-            <p class="panel-kicker" id="agent-network-title">Agent Network Status</p>
-            <div class="agent-status-grid">
-              <article class="agent-card ready"><strong>Intake agent</strong><span>Ready</span></article>
-              <article class="agent-card waiting"><strong>Review agent</strong><span>Waiting</span></article>
-              <article class="agent-card blocked"><strong>Red team agent</strong><span>Blocked</span></article>
-              <article class="agent-card ready"><strong>Architect agent</strong><span>Ready</span></article>
-              <article class="agent-card locked"><strong>Release agent</strong><span>Locked</span></article>
-            </div>
-          </section>
-
-          <section class="readiness-health-panel" aria-label="Governance readiness and system health">
-            <div class="readiness-gauge">
-              <p class="panel-kicker">Governance Readiness</p>
-              <div class="gauge-row">
-                <div class="gauge-ring" aria-hidden="true"></div>
-                <div><strong>72%</strong><span>Medium</span></div>
-              </div>
-            </div>
-            <div class="system-health">
-              <p class="panel-kicker">System Health</p>
-              <div class="sparkline" aria-hidden="true"><span></span></div>
-              <small><span></span>All systems nominal</small>
-            </div>
-          </section>
+      <section class="top-command-row">
+        <section class="network-panel" id="agent-network" aria-labelledby="agent-network-title">
+          <p class="panel-kicker" id="agent-network-title">Agent Network Status</p>
+          <div class="agent-status-grid">
+            <article class="agent-card ready"><strong>Intake agent</strong><span>Ready</span></article>
+            <article class="agent-card waiting"><strong>Review agent</strong><span>Waiting</span></article>
+            <article class="agent-card blocked"><strong>Red team agent</strong><span>Blocked</span></article>
+            <article class="agent-card ready"><strong>Architect agent</strong><span>Ready</span></article>
+            <article class="agent-card locked"><strong>Release agent</strong><span>Locked</span></article>
+          </div>
         </section>
 
+        <section class="readiness-health-panel" aria-label="Governance readiness and system health">
+          <div class="readiness-gauge">
+            <p class="panel-kicker">Governance Readiness</p>
+            <div class="gauge-row">
+              <div class="gauge-ring" aria-hidden="true"></div>
+              <div><strong>72%</strong><span>Medium</span></div>
+            </div>
+          </div>
+          <div class="system-health">
+            <p class="panel-kicker">System Health</p>
+            <div class="sparkline" aria-hidden="true"><span></span></div>
+            <small><span></span>All systems nominal</small>
+          </div>
+        </section>
+      </section>
+
+      <main class="console-main">
         <section class="hero-console" aria-labelledby="builder-title">
           <div class="hero-copy">
             <p class="eyebrow">Governed. Intelligent. Auditable.</p>
@@ -639,9 +639,9 @@ function builderMarkup(excludedFiles = new Set()) {
             <p class="hero-subtitle">Governed project generation for agent-led software delivery.</p>
             <p>Define scope, enforce guardrails, generate evidence, and export a review-ready workspace before any agent writes implementation code.</p>
             <button class="primary-action hero-action" type="submit">
-              <span aria-hidden="true">+</span>
+              <span class="button-plus" aria-hidden="true">+</span>
               Create New Project
-              <span aria-hidden="true">-&gt;</span>
+              <span class="button-chevron" aria-hidden="true">&rsaquo;</span>
             </button>
           </div>
 
