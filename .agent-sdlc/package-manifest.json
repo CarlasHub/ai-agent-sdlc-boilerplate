@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-06-30T12:01:43.974Z",
+  "project": "AI-Agent SDLC Boilerplate",
+  "root": "ai-agent-sdlc-boilerplate",
+  "files": [
+    {
+      "path": "app/src/features/project-builder/policies.js",
+      "purpose": "Policy engine for risk, data, approval and QA independence checks."
+    },
+    {
+      "path": "scripts/qa-audit.mjs",
+      "purpose": "Executable QA auditor for governance, eval, profile pack and generated package evidence."
+    },
+    {
+      "path": "scripts/full-functionality-tests.mjs",
+      "purpose": "Executable full functionality test suite for policy, QA audit, profile packs, provenance and generated ZIP contents."
+    },
+    {
+      "path": "profile-packs/index.json",
+      "purpose": "Reusable job profile pack index."
+    },
+    {
+      "path": "docs/testing/full-functionality-test-cases.md",
+      "purpose": "Human-readable full functionality test cases."
+    },
+    {
+      "path": "docs/governance/17-policy-checks.md",
+      "purpose": "Human-readable policy check evidence."
+    },
+    {
+      "path": "docs/governance/18-provenance-and-audit.md",
+      "purpose": "Human-readable provenance and structured audit evidence."
+    }
+  ],
+  "note": "Generated ZIP packages include their own full file manifest with deterministic content fingerprints."
+}

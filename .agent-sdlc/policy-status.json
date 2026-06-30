@@ -1,0 +1,69 @@
+{
+  "status": "passed",
+  "ready_for_implementation": true,
+  "score": 100,
+  "checks": [
+    {
+      "id": "risk-data-alignment",
+      "title": "Risk level matches data class",
+      "status": "pass",
+      "detail": "Confidential, personal, regulated or secret-related data needs at least medium risk."
+    },
+    {
+      "id": "regulated-data-escalation",
+      "title": "Regulated and personal data escalate to high risk",
+      "status": "pass",
+      "detail": "Personal, regulated or secret-related data needs high or critical risk."
+    },
+    {
+      "id": "personal-data-boundary",
+      "title": "Personal data is explicitly blocked or governed",
+      "status": "pass",
+      "detail": "Personal data requires high/critical risk and an explicit blocked or governed data statement."
+    },
+    {
+      "id": "secrets-blocked",
+      "title": "Secrets remain denied",
+      "status": "pass",
+      "detail": "Secrets are blocked by this boilerplate until exceptional security approval and a dedicated secret-handling plan exist."
+    },
+    {
+      "id": "least-privilege-tools",
+      "title": "Blocked tools protect real systems",
+      "status": "pass",
+      "detail": "Blocked tools must explicitly prevent production changes, real systems/databases and secrets."
+    },
+    {
+      "id": "approval-owner-coverage",
+      "title": "Approval roles cover governance and security",
+      "status": "pass",
+      "detail": "Medium or higher risk requires governance or security review coverage."
+    },
+    {
+      "id": "approval-scope-boundary",
+      "title": "Approval scope preserves deployment and data limits",
+      "status": "pass",
+      "detail": "Implementation approval must state data, secrets and deployment boundaries."
+    },
+    {
+      "id": "qa-auditor-independence",
+      "title": "QA auditor cannot self-approve or edit audited work",
+      "status": "pass",
+      "detail": "QA Auditor packs must preserve independence: no self-approval and no editing audited work."
+    },
+    {
+      "id": "evidence-is-actionable",
+      "title": "Evidence requirements support reproducibility",
+      "status": "pass",
+      "detail": "Evidence requirements should name concrete proof such as tests, reproduction steps, files or screenshots."
+    },
+    {
+      "id": "stop-rules-cover-bypass",
+      "title": "Stop rules block unsafe bypasses",
+      "status": "pass",
+      "detail": "Stop rules must block governance bypass, self-approval, secrets and real data."
+    }
+  ],
+  "blockers": [],
+  "warnings": []
+}

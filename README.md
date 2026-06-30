@@ -196,6 +196,8 @@ npm run governance:init       # asks questions and generates docs
 npm run governance:check      # validates docs, placeholders and approval
 npm run evals:check           # checks required agent evaluation cases exist
 npm run enterprise:check      # checks enterprise readiness controls and source-backed evidence
+npm run qa:audit              # writes structured QA findings to .agent-sdlc/qa-audit-report.json
+npm run test:functionality    # verifies policy rules, profile packs, provenance and generated packages
 npm run app:serve             # serves the local project builder at localhost
 npm run audit:new             # creates a timestamped audit event template
 npm run release:gate          # validates release-readiness evidence

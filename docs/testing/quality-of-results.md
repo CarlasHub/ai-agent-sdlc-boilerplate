@@ -10,6 +10,9 @@ The gate checks:
 
 - every project type generates the expected file set
 - every job profile generates personalized governance and eval evidence
+- policy conditions are exported as structured implementation blockers or passes
+- profile packs are generated as reusable JSON for each starter job
+- provenance, package manifest and audit event stream are generated
 - generated paths stay inside the project root
 - required governance docs, agent prompts, evals, scripts and app files exist
 - unresolved placeholders do not leak into generated artifacts
@@ -27,3 +30,12 @@ npm run check
 ```
 
 The full gate includes governance, eval coverage, enterprise readiness, result quality, ZIP extraction, app behavior, secret scanning and release approval checks.
+
+Use these additional checks for result quality:
+
+```bash
+npm run qa:audit
+npm run test:functionality
+```
+
+`qa:audit` writes `.agent-sdlc/qa-audit-report.json`. `test:functionality` verifies the policy engine, QA Auditor profile, generated profile packs, provenance records and full generated ZIP contract.

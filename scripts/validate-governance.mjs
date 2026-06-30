@@ -18,7 +18,10 @@ const requiredFiles = [
   'docs/governance/12-incident-response.md',
   'docs/governance/13-prompt-register.md',
   'docs/governance/14-artefact-provenance-record.md',
-  'docs/governance/15-decision-log.md'
+  'docs/governance/15-decision-log.md',
+  'docs/governance/16-job-governance-profile.md',
+  'docs/governance/17-policy-checks.md',
+  'docs/governance/18-provenance-and-audit.md'
 ];
 
 const blocking = [];
@@ -56,6 +59,20 @@ if (fs.existsSync(approvalPath)) {
 const answersPath = path.join(root, '.agent-sdlc/project.answers.json');
 if (!fs.existsSync(answersPath)) {
   blocking.push('Missing .agent-sdlc/project.answers.json. Run npm run governance:init.');
+}
+
+const policyPath = path.join(root, '.agent-sdlc/policy-status.json');
+if (!fs.existsSync(policyPath)) {
+  blocking.push('Missing .agent-sdlc/policy-status.json.');
+} else {
+  try {
+    const policy = JSON.parse(fs.readFileSync(policyPath, 'utf8'));
+    if (policy.status !== 'passed') {
+      blocking.push('Policy checks are blocking implementation. Review docs/governance/17-policy-checks.md.');
+    }
+  } catch {
+    blocking.push('.agent-sdlc/policy-status.json is not valid JSON.');
+  }
 }
 
 const statusPath = path.join(root, '.agent-sdlc/governance-status.json');

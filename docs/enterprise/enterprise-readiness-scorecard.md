@@ -17,11 +17,11 @@ Use this scorecard before presenting the boilerplate as an internal team platfor
 
 ## Current Position
 
-This repository is at Level 2 for a local controlled demo after governance approval. To be ready for an enterprise fleet of teams, the next upgrades are:
+This repository is at Level 2+ for a local controlled demo after governance approval. It now includes executable QA audit, structured policy checks, profile packs, package provenance and full-functionality tests. To be ready for an enterprise fleet of teams, the next upgrades are:
 
 - Replace placeholder CODEOWNERS with real teams.
-- Wire `npm run enterprise:check` into CI.
-- Add a real eval harness behind the eval case files.
+- Enforce branch protection with required Governance Check, Security Check and Pages checks.
+- Connect the structured eval cases to a live model/provider eval harness once tool and data approvals exist.
 - Add dependency review and SBOM generation when dependencies are approved.
 - Add structured audit storage if multiple repos will report into one governance view.
 - Define SLIs/SLOs for the agent workflow and user-facing demo.

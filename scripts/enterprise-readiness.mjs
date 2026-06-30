@@ -19,8 +19,18 @@ const requiredFiles = [
   'docs/mappings/enterprise-control-map.md',
   'docs/governance/09-human-approval-record.md',
   'docs/governance/10-release-gate.md',
+  'docs/governance/16-job-governance-profile.md',
+  'docs/governance/17-policy-checks.md',
+  'docs/governance/18-provenance-and-audit.md',
+  'docs/testing/full-functionality-test-cases.md',
   'docs/threat-model/agent-threat-model.template.md',
+  '.agent-sdlc/policy-status.json',
+  '.agent-sdlc/package-manifest.json',
+  '.agent-sdlc/provenance.json',
+  '.agent-sdlc/audit-events.jsonl',
   'scripts/serve-app.mjs',
+  'scripts/qa-audit.mjs',
+  'scripts/full-functionality-tests.mjs',
   'app/README.md',
   'app/index.html',
   'app/src/main.js',
@@ -42,6 +52,9 @@ const requiredScripts = [
   'governance:check',
   'evals:check',
   'enterprise:check',
+  'quality:results',
+  'qa:audit',
+  'test:functionality',
   'app:serve',
   'audit:new',
   'release:gate',
@@ -109,6 +122,11 @@ record(
   governanceWorkflow.includes('npm run enterprise:check'),
   '.github/workflows/governance-check.yml'
 );
+record(
+  'CI runs QA audit and full functionality gates',
+  governanceWorkflow.includes('npm run qa:audit') && governanceWorkflow.includes('npm run test:functionality'),
+  '.github/workflows/governance-check.yml'
+);
 
 const sourceBrief = read('docs/enterprise/source-research-brief.md');
 for (const link of requiredResearchLinks) {
@@ -120,7 +138,11 @@ const enterpriseDocs = [
   'docs/enterprise/target-architecture.md',
   'docs/enterprise/operating-model.md',
   'docs/enterprise/enterprise-readiness-scorecard.md',
-  'docs/mappings/enterprise-control-map.md'
+  'docs/mappings/enterprise-control-map.md',
+  'docs/governance/16-job-governance-profile.md',
+  'docs/governance/17-policy-checks.md',
+  'docs/governance/18-provenance-and-audit.md',
+  'docs/testing/full-functionality-test-cases.md'
 ];
 for (const file of enterpriseDocs) {
   const content = read(file);

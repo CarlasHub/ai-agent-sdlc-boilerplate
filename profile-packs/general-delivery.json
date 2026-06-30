@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "id": "general-delivery",
+  "label": "General Delivery",
+  "description": "Balanced governance for ordinary implementation, review and documentation work.",
+  "scope": "Governance applies to the requested local project work, generated files, review evidence and release readiness only.",
+  "decision_rubric": "Pass when scope is clear, checks pass, evidence is recorded, risks are named and approval gates remain intact.",
+  "evidence_requirements": "Changed file list, tests run, assumptions, unresolved risks, reviewer notes and approval status.",
+  "escalation_rules": "Escalate when scope changes, approval is missing, checks fail, risks are unclear or the agent needs unapproved tools.",
+  "output_schema": "Summary, confirmed facts, assumptions, files changed, tests run, risks, approval status and next action.",
+  "stop_rules": "Stop before secrets, real data, deployment, destructive changes, approval bypass or work outside the documented scope.",
+  "governance_conditions": [
+    "The agent must run or require governance validation before implementation.",
+    "The agent must record evidence before claiming readiness.",
+    "The agent must stop on missing approval, unsafe data, secrets or unapproved tools.",
+    "No agent may approve its own output."
+  ]
+}

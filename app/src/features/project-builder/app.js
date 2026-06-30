@@ -6,6 +6,7 @@ import {
   getAgentRoleCount,
   getEvalCount
 } from './templates.js';
+import { approvalEffective, evaluateGovernancePolicies } from './policies.js';
 import { createZipBlob } from './zip.js';
 
 const defaults = {
@@ -443,16 +444,15 @@ function previewMarkup(config, excludedFiles = new Set()) {
     : 0;
   const roleCount = getAgentRoleCount(config);
   const evalCount = getEvalCount(config);
-  const hasImplementationApproval =
-    Boolean(config.approverName) &&
-    Boolean(config.approverRole) &&
-    config.approverName !== 'pending' &&
-    config.approverRole !== 'pending';
+  const policyStatus = evaluateGovernancePolicies(config);
+  const hasImplementationApproval = approvalEffective(config);
   const governanceReadiness = hasImplementationApproval ? inclusionRatio : Math.min(inclusionRatio, 72);
   const approvalStateLabel = hasImplementationApproval ? 'APPROVED' : 'BLOCKED';
   const approvalCopy = hasImplementationApproval
     ? 'Human implementation approval will be recorded in the generated evidence.'
-    : 'Human review and approval required to continue.';
+    : policyStatus.blockers.length
+      ? 'Resolve blocking policy checks before implementation can start.'
+      : 'Human review and approval required to continue.';
 
   return `
     <section class="blueprint-intelligence package-summary">
@@ -468,7 +468,8 @@ function previewMarkup(config, excludedFiles = new Set()) {
         <article><span>Governance docs</span><strong>${GOVERNANCE_DOC_COUNT}</strong></article>
         <article><span>Agent roles</span><strong>${roleCount}</strong></article>
         <article><span>Eval cases</span><strong>${evalCount}</strong></article>
-        <article><span>Gate checks</span><strong>${hasImplementationApproval ? '7 / 7' : '6 / 7'}</strong></article>
+        <article><span>Gate checks</span><strong>${hasImplementationApproval ? '8 / 8' : `${policyStatus.blockers.length ? '6' : '7'} / 8`}</strong></article>
+        <article><span>Policy score</span><strong>${policyStatus.score}%</strong></article>
       </div>
 
       <div class="readiness-meter" aria-label="Governance readiness progress">
@@ -488,6 +489,7 @@ function previewMarkup(config, excludedFiles = new Set()) {
           <div class="gate-row is-pass"><strong>PASS</strong><span>Risk and data boundary check</span></div>
           <div class="gate-row is-pass"><strong>PASS</strong><span>Eval coverage</span></div>
           <div class="gate-row is-pass"><strong>PASS</strong><span>Least privilege agent prompts</span></div>
+          <div class="gate-row ${policyStatus.blockers.length ? 'is-hold' : 'is-pass'}"><strong>${policyStatus.blockers.length ? 'BLOCKED' : 'PASS'}</strong><span>Policy conditions</span></div>
           <div class="gate-row ${hasImplementationApproval ? 'is-pass' : 'is-hold'}"><strong>${hasImplementationApproval ? 'PASS' : 'PENDING'}</strong><span>Human approval</span></div>
           <div class="gate-row is-pass"><strong>PASS</strong><span>Release gate included</span></div>
           <div class="gate-row ${inactiveFiles.length ? 'is-warn' : 'is-pass'}"><strong>${inactiveFiles.length ? 'WARN' : 'PASS'}</strong><span>Package integrity</span></div>
@@ -527,6 +529,19 @@ function previewMarkup(config, excludedFiles = new Set()) {
     <details class="intel-details">
       <summary>Eval coverage</summary>
       <p>${evalCount} eval cases cover scope adherence, prompt injection, forbidden actions, sensitive data, tool misuse, unsupported claims, approval gates and audit logging.</p>
+    </details>
+
+    <details class="intel-details">
+      <summary>Policy checks</summary>
+      <p>${policyStatus.blockers.length ? `${policyStatus.blockers.length} blocking condition${policyStatus.blockers.length === 1 ? '' : 's'} require review before implementation.` : 'All generated policy conditions pass for implementation readiness.'}</p>
+      <div class="gate-list compact-gate-list" aria-label="Policy check results">
+        ${policyStatus.checks.map((item) => `
+          <div class="gate-row ${item.status === 'pass' ? 'is-pass' : item.status === 'warn' ? 'is-warn' : 'is-hold'}">
+            <strong>${escapeHtml(item.status.toUpperCase())}</strong>
+            <span>${escapeHtml(item.title)}</span>
+          </div>
+        `).join('')}
+      </div>
     </details>
 
     <details class="intel-details">

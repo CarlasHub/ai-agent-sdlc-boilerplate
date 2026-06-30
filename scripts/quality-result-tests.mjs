@@ -7,7 +7,8 @@ import {
   PROJECT_TYPES,
   createSlug,
   generateProjectFiles,
-  getEvalCount
+  getEvalCount,
+  profilePacks
 } from '../app/src/features/project-builder/templates.js';
 
 const root = process.cwd();
@@ -64,13 +65,22 @@ const governanceDocs = [
   '13-prompt-register.md',
   '14-artefact-provenance-record.md',
   '15-decision-log.md',
-  '16-job-governance-profile.md'
+  '16-job-governance-profile.md',
+  '17-policy-checks.md',
+  '18-provenance-and-audit.md'
 ];
 
 const commonRequiredFiles = [
   '.agent-sdlc/project.answers.json',
   '.agent-sdlc/governance-status.json',
+  '.agent-sdlc/policy-status.json',
+  '.agent-sdlc/package-manifest.json',
+  '.agent-sdlc/provenance.json',
+  '.agent-sdlc/audit-events.jsonl',
+  '.agent-sdlc/qa-audit-report.json',
   ...governanceDocs.map((file) => `docs/governance/${file}`),
+  'profile-packs/index.json',
+  ...profilePacks().map((pack) => `profile-packs/${pack.id}.json`),
   'README.md',
   'AGENTS.md',
   'package.json',
@@ -80,6 +90,8 @@ const commonRequiredFiles = [
   '.github/workflows/security-check.yml',
   'scripts/validate-governance.mjs',
   'scripts/evaluate-agent.mjs',
+  'scripts/qa-audit.mjs',
+  'scripts/full-functionality-tests.mjs',
   'scripts/release-gate.mjs',
   'scripts/create-audit-event.mjs',
   'scripts/serve-app.mjs',
@@ -203,12 +215,14 @@ function assertPackageScripts(files, label) {
   const packageJson = JSON.parse(files.get('package.json'));
   const scripts = packageJson.scripts || {};
 
-  for (const script of ['governance:check', 'evals:check', 'audit:new', 'release:gate', 'check']) {
+  for (const script of ['governance:check', 'evals:check', 'qa:audit', 'test:functionality', 'audit:new', 'release:gate', 'check']) {
     assert(Boolean(scripts[script]), `${label} package.json is missing script: ${script}`);
   }
 
   requireIncludes(scripts.check, 'governance:check', `${label} package check script`);
   requireIncludes(scripts.check, 'evals:check', `${label} package check script`);
+  requireIncludes(scripts.check, 'qa:audit', `${label} package check script`);
+  requireIncludes(scripts.check, 'test:functionality', `${label} package check script`);
   requireIncludes(scripts.check, 'release:gate', `${label} package check script`);
 }
 
@@ -217,6 +231,8 @@ function assertGovernanceQuality(files, label) {
   const releaseGate = files.get('docs/governance/10-release-gate.md') || '';
   const toolMap = files.get('docs/governance/04-tool-access-map.md') || '';
   const jobProfileDoc = files.get('docs/governance/16-job-governance-profile.md') || '';
+  const policyDoc = files.get('docs/governance/17-policy-checks.md') || '';
+  const provenanceDoc = files.get('docs/governance/18-provenance-and-audit.md') || '';
   const agents = files.get('AGENTS.md') || '';
   const readme = files.get('README.md') || '';
 
@@ -232,6 +248,10 @@ function assertGovernanceQuality(files, label) {
   requireIncludes(jobProfileDoc, '## Escalation rules', `${label} job profile doc`);
   requireIncludes(jobProfileDoc, '## Required output schema', `${label} job profile doc`);
   requireIncludes(jobProfileDoc, '## Stop rules', `${label} job profile doc`);
+  requireIncludes(policyDoc, '# Policy Checks', `${label} policy checks doc`);
+  requireIncludes(policyDoc, 'Status:', `${label} policy checks doc`);
+  requireIncludes(provenanceDoc, '# Provenance And Audit', `${label} provenance doc`);
+  requireIncludes(provenanceDoc, '.agent-sdlc/package-manifest.json', `${label} provenance doc`);
   requireIncludes(agents, 'Run `npm run governance:check` before implementation.', `${label} AGENTS.md`);
   requireIncludes(agents, 'docs/governance/16-job-governance-profile.md', `${label} AGENTS.md`);
   requireIncludes(agents, 'Do not create feature code', `${label} AGENTS.md`);
@@ -274,12 +294,34 @@ function assertSafetyBoundaries(files, label) {
   }
 }
 
+function assertStructuredEvidence(files, label) {
+  const policyStatus = JSON.parse(files.get('.agent-sdlc/policy-status.json') || '{}');
+  const manifest = JSON.parse(files.get('.agent-sdlc/package-manifest.json') || '{}');
+  const provenance = JSON.parse(files.get('.agent-sdlc/provenance.json') || '{}');
+  const qaReport = JSON.parse(files.get('.agent-sdlc/qa-audit-report.json') || '{}');
+  const auditEvents = files.get('.agent-sdlc/audit-events.jsonl') || '';
+  const profileIndex = JSON.parse(files.get('profile-packs/index.json') || '{}');
+
+  assert(Array.isArray(policyStatus.checks) && policyStatus.checks.length >= 8, `${label} policy status is not structured.`);
+  assert(Array.isArray(manifest.files) && manifest.files.length > 40, `${label} package manifest is missing file entries.`);
+  assert(manifest.files.some((file) => file.path === 'scripts/qa-audit.mjs'), `${label} manifest does not list QA audit script.`);
+  assert(provenance.policy_status === policyStatus.status, `${label} provenance does not match policy status.`);
+  assert(qaReport.status === 'pending', `${label} QA report seed should start pending.`);
+  assert(auditEvents.trim().startsWith('{'), `${label} audit event stream should contain JSONL.`);
+  assert(Array.isArray(profileIndex.profiles) && profileIndex.profiles.length === JOB_PROFILES.length, `${label} profile index is incomplete.`);
+
+  for (const pack of profilePacks()) {
+    const content = JSON.parse(files.get(`profile-packs/${pack.id}.json`) || '{}');
+    assert(content.id === pack.id, `${label} profile pack ${pack.id} is malformed.`);
+  }
+}
+
 function verifyProjectType(type) {
   const result = generateProjectFiles(configFor(type.id));
   const files = fileMap(result);
   const label = type.id;
   const config = configFor(type.id);
-  const expectedCount = type.id === 'governed-agent-team' ? 75 : 61;
+  const expectedCount = type.id === 'governed-agent-team' ? 92 : 78;
   const requiredEvalCount = getEvalCount(config);
 
   assert(result.root === createSlug(baseConfig.projectName), `${label} root slug does not match project name.`);
@@ -301,6 +343,7 @@ function verifyProjectType(type) {
   assertGovernanceQuality(files, label);
   assertEvalQuality(files, label, requiredEvalCount);
   assertSafetyBoundaries(files, label);
+  assertStructuredEvidence(files, label);
 }
 
 function verifyJobProfiles() {
@@ -391,6 +434,8 @@ function verifyBuilderJourneyUi() {
     'Generated files',
     'Agent roles',
     'Eval coverage',
+    'Policy checks',
+    'Policy score',
     'Human approval record',
     'Agent SDLC boilerplate',
     'Export readiness',

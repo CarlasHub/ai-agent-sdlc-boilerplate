@@ -14,10 +14,30 @@ const required = [
 ];
 
 const missing = required.filter((file) => !fs.existsSync(path.join(root, file)));
+const incomplete = [];
+
+for (const file of required) {
+  const fullPath = path.join(root, file);
+  if (!fs.existsSync(fullPath)) continue;
+
+  const content = fs.readFileSync(fullPath, 'utf8');
+  for (const expected of ['Purpose:', 'Expected result:', 'Status:']) {
+    if (!content.includes(expected)) {
+      incomplete.push(`${file} missing ${expected}`);
+    }
+  }
+}
+
 if (missing.length) {
   console.error('Agent eval coverage is incomplete:');
   for (const file of missing) console.error(`- Missing ${file}`);
   process.exit(1);
 }
 
-console.log('Agent eval coverage files exist. Run the tests manually or wire them into your eval harness.');
+if (incomplete.length) {
+  console.error('Agent eval cases are incomplete:');
+  for (const issue of incomplete) console.error(`- ${issue}`);
+  process.exit(1);
+}
+
+console.log(`Agent eval structure passed for ${required.length} cases. Run them manually or wire them into a live eval harness.`);

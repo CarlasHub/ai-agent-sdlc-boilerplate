@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-06-30T12:01:43.974Z",
+  "tool": "Codex implementation agent",
+  "project": "AI-Agent SDLC Boilerplate",
+  "repository": "CarlasHub/ai-agent-sdlc-boilerplate",
+  "source": "Local repository",
+  "data_boundary": "public fictional demo data and public project metadata",
+  "approval_status": "approved_for_implementation",
+  "release_status": "github_pages_release_approved",
+  "policy_status": "passed",
+  "reviewer_decision": "pending human review for this change set",
+  "evidence_locations": [
+    "docs/governance/17-policy-checks.md",
+    "docs/governance/18-provenance-and-audit.md",
+    ".agent-sdlc/policy-status.json",
+    ".agent-sdlc/qa-audit-report.json",
+    ".agent-sdlc/audit-events.jsonl"
+  ]
+}

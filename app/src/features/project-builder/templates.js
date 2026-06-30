@@ -1,3 +1,5 @@
+import { evaluateGovernancePolicies } from './policies.js';
+
 export const PROJECT_TYPES = [
   {
     id: 'front-end-demo',
@@ -133,7 +135,9 @@ export const GOVERNANCE_DOCS = [
   '13-prompt-register.md',
   '14-artefact-provenance-record.md',
   '15-decision-log.md',
-  '16-job-governance-profile.md'
+  '16-job-governance-profile.md',
+  '17-policy-checks.md',
+  '18-provenance-and-audit.md'
 ];
 
 export const GOVERNANCE_DOC_COUNT = GOVERNANCE_DOCS.length;
@@ -188,6 +192,31 @@ function json(value) {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
 
+export function profilePackFor(profile) {
+  return {
+    schema_version: '1.0',
+    id: profile.id,
+    label: profile.label,
+    description: profile.description,
+    scope: profile.defaultScope,
+    decision_rubric: profile.defaultRubric,
+    evidence_requirements: profile.defaultEvidence,
+    escalation_rules: profile.defaultEscalation,
+    output_schema: profile.defaultOutputSchema,
+    stop_rules: profile.defaultStopRules,
+    governance_conditions: [
+      'The agent must run or require governance validation before implementation.',
+      'The agent must record evidence before claiming readiness.',
+      'The agent must stop on missing approval, unsafe data, secrets or unapproved tools.',
+      'No agent may approve its own output.'
+    ]
+  };
+}
+
+export function profilePacks() {
+  return JOB_PROFILES.map(profilePackFor);
+}
+
 function projectType(config) {
   return PROJECT_TYPES.find((type) => type.id === config.projectType) || PROJECT_TYPES[0];
 }
@@ -224,6 +253,18 @@ export function getAgentRoleCount(config) {
 function answers(config) {
   const type = projectType(config);
   const profile = jobProfile(config);
+  const normalizedConfig = {
+    ...config,
+    projectType: type.id,
+    jobProfile: profile.id,
+    jobScope: config.jobScope || profile.defaultScope,
+    jobQualityRubric: config.jobQualityRubric || profile.defaultRubric,
+    jobEvidenceRequirements: config.jobEvidenceRequirements || profile.defaultEvidence,
+    jobEscalationRules: config.jobEscalationRules || profile.defaultEscalation,
+    jobOutputSchema: config.jobOutputSchema || profile.defaultOutputSchema,
+    jobStopRules: config.jobStopRules || profile.defaultStopRules
+  };
+  const policyStatus = evaluateGovernancePolicies(normalizedConfig);
 
   return {
     PROJECT_NAME: config.projectName,
@@ -232,12 +273,12 @@ function answers(config) {
     JOB_PROFILE: profile.label,
     JOB_PROFILE_ID: profile.id,
     JOB_PROFILE_PURPOSE: profile.description,
-    JOB_SCOPE: config.jobScope || profile.defaultScope,
-    JOB_QUALITY_RUBRIC: config.jobQualityRubric || profile.defaultRubric,
-    JOB_EVIDENCE_REQUIREMENTS: config.jobEvidenceRequirements || profile.defaultEvidence,
-    JOB_ESCALATION_RULES: config.jobEscalationRules || profile.defaultEscalation,
-    JOB_OUTPUT_SCHEMA: config.jobOutputSchema || profile.defaultOutputSchema,
-    JOB_STOP_RULES: config.jobStopRules || profile.defaultStopRules,
+    JOB_SCOPE: normalizedConfig.jobScope,
+    JOB_QUALITY_RUBRIC: normalizedConfig.jobQualityRubric,
+    JOB_EVIDENCE_REQUIREMENTS: normalizedConfig.jobEvidenceRequirements,
+    JOB_ESCALATION_RULES: normalizedConfig.jobEscalationRules,
+    JOB_OUTPUT_SCHEMA: normalizedConfig.jobOutputSchema,
+    JOB_STOP_RULES: normalizedConfig.jobStopRules,
     AGENT_PURPOSE: config.purpose || type.defaultPurpose,
     BUSINESS_JUSTIFICATION: 'The governed agent workflow is needed to keep AI-assisted delivery traceable, reviewed and constrained before implementation.',
     PRIMARY_USERS: config.users,
@@ -270,12 +311,21 @@ function answers(config) {
     RELEASE_RISKS: 'Incomplete review evidence, accessibility gaps, unclear fictional-data labelling, broken export behaviour, missing release approval and untested rollback.',
     MONITORING_OWNER: config.owner,
     LOG_LOCATION: 'docs/audit/',
+    POLICY_STATUS: policyStatus,
+    POLICY_BLOCKERS: policyStatus.blockers.map((item) => `${item.id}: ${item.detail}`).join('\n') || 'none',
+    POLICY_WARNINGS: policyStatus.warnings.map((item) => `${item.id}: ${item.detail}`).join('\n') || 'none',
     GENERATED_AT: new Date().toISOString()
   };
 }
 
 function add(files, path, content) {
   files.push({ path, content: `${content.trim()}\n` });
+}
+
+function policyTableRows(policyStatus) {
+  return policyStatus.checks.map((item) => (
+    `| ${item.id} | ${item.status} | ${item.title} | ${item.detail} |`
+  )).join('\n');
 }
 
 function governanceDocuments(a) {
@@ -551,12 +601,57 @@ ${a.JOB_STOP_RULES}
 
 ## Governance condition
 
-If the requested work does not fit this profile, the agent must stop, record the mismatch and request a human governance decision before continuing.`
+If the requested work does not fit this profile, the agent must stop, record the mismatch and request a human governance decision before continuing.`,
+    '17-policy-checks.md': `# Policy Checks
+
+Status: ${a.POLICY_STATUS.status}
+
+Score: ${a.POLICY_STATUS.score}/100
+
+| Check | Result | Policy | Evidence |
+|---|---|---|---|
+${policyTableRows(a.POLICY_STATUS)}
+
+## Blocking issues
+
+${a.POLICY_BLOCKERS}
+
+## Warnings
+
+${a.POLICY_WARNINGS}`,
+    '18-provenance-and-audit.md': `# Provenance And Audit
+
+This package includes structured evidence for machine review and human handoff.
+
+## Structured files
+
+- .agent-sdlc/package-manifest.json
+- .agent-sdlc/provenance.json
+- .agent-sdlc/policy-status.json
+- .agent-sdlc/audit-events.jsonl
+- .agent-sdlc/qa-audit-report.json after \`npm run qa:audit\`
+
+## Required audit event fields
+
+- requested task
+- agent role
+- files read
+- files changed
+- tools used
+- tests run
+- risks identified
+- reviewer decision
+- approval status
+
+## Rule
+
+Every meaningful agent action must create or update audit evidence before handoff.`
   };
 }
 
 function configApproval(a) {
-  return a.APPROVER_NAME !== 'pending' && a.APPROVER_ROLE !== 'pending' && a.APPROVAL_DATE !== 'pending' ? 'yes' : 'no';
+  const approvalRecordComplete = a.APPROVER_NAME !== 'pending' && a.APPROVER_ROLE !== 'pending' && a.APPROVAL_DATE !== 'pending';
+  return approvalRecordComplete && a.POLICY_STATUS.ready_for_implementation ? 'yes' : 'no';
 }
 
 function scripts(type, profile) {
@@ -587,6 +682,16 @@ if (!/^APPROVED_FOR_IMPLEMENTATION:\\s*yes\\s*$/im.test(approval)) {
   blocking.push('Implementation is not approved. Set APPROVED_FOR_IMPLEMENTATION: yes only after human review.');
 }
 
+const policyPath = path.join(root, '.agent-sdlc/policy-status.json');
+if (!fs.existsSync(policyPath)) {
+  blocking.push('Missing .agent-sdlc/policy-status.json.');
+} else {
+  const policy = JSON.parse(fs.readFileSync(policyPath, 'utf8'));
+  if (policy.status !== 'passed') {
+    blocking.push('Policy checks are blocking implementation. Review docs/governance/17-policy-checks.md.');
+  }
+}
+
 fs.mkdirSync(path.join(root, '.agent-sdlc'), { recursive: true });
 fs.writeFileSync(path.join(root, '.agent-sdlc/governance-status.json'), JSON.stringify({
   governance_initialized: fs.existsSync(path.join(root, '.agent-sdlc/project.answers.json')),
@@ -606,7 +711,18 @@ console.log('Governance check passed.');`,
 import path from 'node:path';
 
 const required = ${JSON.stringify(requiredEvalFiles, null, 2)};
-const missing = required.filter((file) => !fs.existsSync(path.join(process.cwd(), file)));
+const root = process.cwd();
+const missing = required.filter((file) => !fs.existsSync(path.join(root, file)));
+const incomplete = [];
+
+for (const file of required) {
+  const fullPath = path.join(root, file);
+  if (!fs.existsSync(fullPath)) continue;
+  const content = fs.readFileSync(fullPath, 'utf8');
+  for (const expected of ['Purpose:', 'Expected result:', 'Status:']) {
+    if (!content.includes(expected)) incomplete.push(\`\${file} missing \${expected}\`);
+  }
+}
 
 if (missing.length) {
   console.error('Agent eval coverage is incomplete:');
@@ -614,7 +730,174 @@ if (missing.length) {
   process.exit(1);
 }
 
-console.log('Agent eval coverage files exist.');`,
+if (incomplete.length) {
+  console.error('Agent eval cases are incomplete:');
+  for (const issue of incomplete) console.error(\`- \${issue}\`);
+  process.exit(1);
+}
+
+console.log(\`Agent eval coverage passed for \${required.length} cases.\`);`,
+    'qa-audit.mjs': `import fs from 'node:fs';
+import path from 'node:path';
+
+const root = process.cwd();
+const reportPath = path.join(root, '.agent-sdlc/qa-audit-report.json');
+const findings = [];
+
+function read(file) {
+  const fullPath = path.join(root, file);
+  return fs.existsSync(fullPath) ? fs.readFileSync(fullPath, 'utf8') : '';
+}
+
+function exists(file) {
+  return fs.existsSync(path.join(root, file));
+}
+
+function finding(id, severity, title, evidence, recommendation, status = 'open') {
+  findings.push({
+    id,
+    severity,
+    title,
+    evidence,
+    reproduction: \`Run npm run qa:audit and inspect \${evidence}.\`,
+    impact: severity === 'critical' || severity === 'high' ? 'Blocks trustworthy delivery evidence.' : 'Needs tracked remediation.',
+    recommendation,
+    owner: 'Project owner',
+    status,
+    reviewer_decision: 'pending human review',
+    confidence: 'high'
+  });
+}
+
+for (const file of ${JSON.stringify(GOVERNANCE_DOCS.map((file) => `docs/governance/${file}`), null, 2)}) {
+  if (!exists(file)) finding(\`missing-\${file.replaceAll('/', '-')}\`, 'critical', 'Missing governance document', file, 'Restore the required governance document.');
+}
+
+const approval = read('docs/governance/09-human-approval-record.md');
+if (!/^APPROVED_FOR_IMPLEMENTATION:\\s*yes\\s*$/im.test(approval)) {
+  finding('implementation-approval-missing', 'high', 'Implementation approval is not recorded', 'docs/governance/09-human-approval-record.md', 'Record human implementation approval or keep implementation blocked.');
+}
+
+const policy = read('.agent-sdlc/policy-status.json');
+if (!policy) {
+  finding('policy-status-missing', 'high', 'Policy status evidence is missing', '.agent-sdlc/policy-status.json', 'Regenerate or restore policy-status evidence.');
+} else {
+  const parsed = JSON.parse(policy);
+  if (parsed.status !== 'passed') {
+    finding('policy-status-blocked', 'high', 'Policy checks block implementation', 'docs/governance/17-policy-checks.md', 'Resolve blocking policy checks before implementation.');
+  }
+}
+
+const evalDir = path.join(root, 'evals/test-cases');
+const evalFiles = fs.existsSync(evalDir) ? fs.readdirSync(evalDir).filter((file) => file.endsWith('.md')) : [];
+if (evalFiles.length < ${requiredEvalFiles.length}) {
+  finding('eval-coverage-low', 'high', 'Eval coverage is incomplete', 'evals/test-cases', 'Restore all generated eval cases.');
+}
+
+for (const file of evalFiles) {
+  const content = read(path.join('evals/test-cases', file));
+  for (const section of ['Purpose:', 'Expected result:', 'Status:']) {
+    if (!content.includes(section)) {
+      finding(\`eval-\${file}-missing-\${section.toLowerCase().replace(/[^a-z]+/g, '-')}\`, 'medium', 'Eval case is missing required structure', \`evals/test-cases/\${file}\`, 'Add purpose, expected result and status fields.');
+    }
+  }
+}
+
+for (const file of ['.agent-sdlc/package-manifest.json', '.agent-sdlc/provenance.json', '.agent-sdlc/audit-events.jsonl']) {
+  if (!exists(file)) finding(\`missing-\${file.replaceAll('/', '-')}\`, 'medium', 'Structured evidence is missing', file, 'Restore structured audit and provenance evidence.');
+}
+
+const status = findings.some((item) => ['critical', 'high'].includes(item.severity)) ? 'failed' : 'passed';
+const report = {
+  schema_version: '1.0',
+  status,
+  generated_at: new Date().toISOString(),
+  summary: {
+    findings: findings.length,
+    critical: findings.filter((item) => item.severity === 'critical').length,
+    high: findings.filter((item) => item.severity === 'high').length,
+    medium: findings.filter((item) => item.severity === 'medium').length,
+    low: findings.filter((item) => item.severity === 'low').length
+  },
+  findings
+};
+
+if (fs.existsSync(reportPath)) {
+  try {
+    const previous = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+    const comparable = { ...report, generated_at: previous.generated_at };
+    if (JSON.stringify(comparable) === JSON.stringify(previous)) report.generated_at = previous.generated_at;
+  } catch {
+    // Rewrite invalid evidence.
+  }
+}
+
+fs.mkdirSync(path.dirname(reportPath), { recursive: true });
+fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
+
+if (status !== 'passed') {
+  console.error('QA audit failed:');
+  for (const item of findings) console.error(\`- [\${item.severity}] \${item.title}: \${item.evidence}\`);
+  process.exit(1);
+}
+
+console.log('QA audit passed. Report written to .agent-sdlc/qa-audit-report.json.');`,
+    'full-functionality-tests.mjs': `import fs from 'node:fs';
+import path from 'node:path';
+
+const root = process.cwd();
+const failures = [];
+
+function assert(condition, message) {
+  if (!condition) failures.push(message);
+}
+
+function read(file) {
+  const fullPath = path.join(root, file);
+  return fs.existsSync(fullPath) ? fs.readFileSync(fullPath, 'utf8') : '';
+}
+
+function exists(file) {
+  return fs.existsSync(path.join(root, file));
+}
+
+assert(exists('.agent-sdlc/project.answers.json'), 'Project answers must exist.');
+assert(exists('.agent-sdlc/policy-status.json'), 'Policy status must exist.');
+assert(exists('.agent-sdlc/package-manifest.json'), 'Package manifest must exist.');
+assert(exists('.agent-sdlc/provenance.json'), 'Provenance record must exist.');
+assert(exists('.agent-sdlc/audit-events.jsonl'), 'Audit event stream must exist.');
+assert(exists('profile-packs/index.json'), 'Profile pack index must exist.');
+
+const policy = JSON.parse(read('.agent-sdlc/policy-status.json') || '{}');
+assert(Array.isArray(policy.checks) && policy.checks.length >= 8, 'Policy checks must be structured and complete.');
+
+const manifest = JSON.parse(read('.agent-sdlc/package-manifest.json') || '{}');
+assert(Array.isArray(manifest.files) && manifest.files.length >= 50, 'Manifest must list generated files.');
+assert(manifest.files.some((file) => file.path === 'scripts/qa-audit.mjs'), 'Manifest must include QA audit script.');
+assert(manifest.files.some((file) => file.path === 'docs/governance/17-policy-checks.md'), 'Manifest must include policy checks doc.');
+
+const profileIndex = JSON.parse(read('profile-packs/index.json') || '{}');
+assert(Array.isArray(profileIndex.profiles) && profileIndex.profiles.length >= 7, 'Profile index must list all starter profiles.');
+assert(profileIndex.profiles.some((profile) => profile.id === 'qa-auditor'), 'QA Auditor profile pack must be present.');
+
+const qaProfile = JSON.parse(read('profile-packs/qa-auditor.json') || '{}');
+assert(String(qaProfile.stop_rules || '').toLowerCase().includes('approve'), 'QA Auditor stop rules must prevent self-approval.');
+assert(String(qaProfile.evidence_requirements || '').toLowerCase().includes('reproduction'), 'QA Auditor evidence must include reproducibility.');
+
+for (const file of ${JSON.stringify(requiredEvalFiles, null, 2)}) {
+  const content = read(file);
+  assert(content.includes('Purpose:'), \`\${file} must include Purpose.\`);
+  assert(content.includes('Expected result:'), \`\${file} must include Expected result.\`);
+  assert(content.includes('Status:'), \`\${file} must include Status.\`);
+}
+
+if (failures.length) {
+  console.error('Full functionality tests failed:');
+  for (const failure of failures) console.error(\`- \${failure}\`);
+  process.exit(1);
+}
+
+console.log('Full functionality tests passed.');`,
     'release-gate.mjs': `import fs from 'node:fs';
 import path from 'node:path';
 
@@ -826,10 +1109,12 @@ function supportFiles(a, type) {
     scripts: {
       'governance:check': 'node scripts/validate-governance.mjs',
       'evals:check': 'node scripts/evaluate-agent.mjs',
+      'qa:audit': 'node scripts/qa-audit.mjs',
+      'test:functionality': 'node scripts/full-functionality-tests.mjs',
       'audit:new': 'node scripts/create-audit-event.mjs',
       'app:serve': 'node scripts/serve-app.mjs',
       'release:gate': 'node scripts/release-gate.mjs',
-      check: 'npm run governance:check && npm run evals:check && npm run release:gate'
+      check: 'npm run governance:check && npm run evals:check && npm run qa:audit && npm run test:functionality && npm run release:gate'
     },
     engines: {
       node: '>=20.0.0'
@@ -1044,6 +1329,27 @@ Gates:
 - Release approval.
 - Audit evidence.`
   };
+}
+
+function profilePackFiles() {
+  const packs = profilePacks();
+  const files = {
+    'profile-packs/index.json': json({
+      schema_version: '1.0',
+      profiles: packs.map((pack) => ({
+        id: pack.id,
+        label: pack.label,
+        description: pack.description,
+        file: `profile-packs/${pack.id}.json`
+      }))
+    })
+  };
+
+  for (const pack of packs) {
+    files[`profile-packs/${pack.id}.json`] = json(pack);
+  }
+
+  return files;
 }
 
 function agentFiles(a) {
@@ -1265,6 +1571,82 @@ pending manual execution`
   ]));
 }
 
+function fingerprint(content) {
+  let hash = 2166136261;
+  for (let index = 0; index < content.length; index += 1) {
+    hash ^= content.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0');
+}
+
+function evidenceFiles(a, type, profile, files, root) {
+  const manifestFiles = files.map((file) => ({
+    path: file.path.replace(`${root}/`, ''),
+    bytes: new TextEncoder().encode(file.content).length,
+    content_fingerprint: fingerprint(file.content)
+  }));
+  const manifest = {
+    schema_version: '1.0',
+    generated_at: a.GENERATED_AT,
+    project: a.PROJECT_NAME,
+    project_type: type.id,
+    job_profile: profile.id,
+    root,
+    files: manifestFiles,
+    note: 'content_fingerprint is a deterministic package fingerprint for review; use an approved cryptographic checksum step for production release integrity.'
+  };
+  const provenance = {
+    schema_version: '1.0',
+    generated_at: a.GENERATED_AT,
+    tool: 'Project Blueprint Starter',
+    project: a.PROJECT_NAME,
+    project_type: type.label,
+    job_profile: a.JOB_PROFILE,
+    source: 'Local browser generator',
+    data_boundary: a.DATA_CLASSIFICATION,
+    approval_status: configApproval(a) === 'yes' ? 'approved_for_implementation' : 'blocked_until_human_approval',
+    policy_status: a.POLICY_STATUS.status,
+    release_status: 'release approval remains separate',
+    reviewer_decision: 'pending human review'
+  };
+  const initialAuditEvent = {
+    schema_version: '1.0',
+    timestamp: a.GENERATED_AT,
+    requested_task: 'Generate governed AI-Agent SDLC package',
+    agent_role: 'Project Intake Agent',
+    files_read: ['project builder form values'],
+    files_changed: manifestFiles.map((file) => file.path),
+    tools_used: ['local browser ZIP generator'],
+    tests_run: ['generated policy checks', 'generated manifest assembly'],
+    risks_identified: a.POLICY_STATUS.blockers.map((item) => item.detail),
+    reviewer_decision: 'pending human review',
+    approval_status: configApproval(a) === 'yes' ? 'implementation approved' : 'implementation blocked'
+  };
+  const qaReport = {
+    schema_version: '1.0',
+    status: 'pending',
+    generated_at: a.GENERATED_AT,
+    summary: {
+      findings: 0,
+      critical: 0,
+      high: 0,
+      medium: 0,
+      low: 0
+    },
+    findings: [],
+    next_action: 'Run npm run qa:audit after extracting the package.'
+  };
+
+  return {
+    '.agent-sdlc/package-manifest.json': json(manifest),
+    '.agent-sdlc/provenance.json': json(provenance),
+    '.agent-sdlc/policy-status.json': json(a.POLICY_STATUS),
+    '.agent-sdlc/audit-events.jsonl': `${JSON.stringify(initialAuditEvent)}\n`,
+    '.agent-sdlc/qa-audit-report.json': json(qaReport)
+  };
+}
+
 export function generateProjectFiles(config) {
   const a = answers(config);
   const type = projectType(config);
@@ -1278,7 +1660,9 @@ export function generateProjectFiles(config) {
     governance_initialized: true,
     approved_for_implementation: configApproval(a) === 'yes',
     generated_at: a.GENERATED_AT,
-    blocking_issues: configApproval(a) === 'yes' ? [] : ['Human approval is still required.']
+    blocking_issues: configApproval(a) === 'yes'
+      ? []
+      : ['Human approval is still required.', ...a.POLICY_STATUS.blockers.map((item) => item.detail)]
   }));
 
   for (const [file, content] of Object.entries(generatedDocs)) {
@@ -1291,6 +1675,10 @@ export function generateProjectFiles(config) {
 
   for (const [file, content] of Object.entries(scripts(type, profile))) {
     add(files, `${root}/scripts/${file}`, content);
+  }
+
+  for (const [file, content] of Object.entries(profilePackFiles())) {
+    add(files, `${root}/${file}`, content);
   }
 
   for (const [file, content] of Object.entries(agentFiles(a))) {
@@ -1312,6 +1700,10 @@ export function generateProjectFiles(config) {
   }
 
   for (const [file, content] of Object.entries(projectAppFiles(a, type))) {
+    add(files, `${root}/${file}`, content);
+  }
+
+  for (const [file, content] of Object.entries(evidenceFiles(a, type, profile, files, root))) {
     add(files, `${root}/${file}`, content);
   }
 

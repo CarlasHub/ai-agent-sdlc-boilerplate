@@ -1,7 +1,7 @@
 {
   "enterprise_ready": true,
   "score": 100,
-  "generated_at": "2026-06-30T10:17:06.963Z",
+  "generated_at": "2026-06-30T12:17:27.068Z",
   "failed_blockers": [],
   "warnings": [
     {
@@ -97,16 +97,76 @@
       "evidence": "docs/governance/10-release-gate.md"
     },
     {
+      "name": "Required file exists: docs/governance/16-job-governance-profile.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/governance/16-job-governance-profile.md"
+    },
+    {
+      "name": "Required file exists: docs/governance/17-policy-checks.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/governance/17-policy-checks.md"
+    },
+    {
+      "name": "Required file exists: docs/governance/18-provenance-and-audit.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/governance/18-provenance-and-audit.md"
+    },
+    {
+      "name": "Required file exists: docs/testing/full-functionality-test-cases.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/testing/full-functionality-test-cases.md"
+    },
+    {
       "name": "Required file exists: docs/threat-model/agent-threat-model.template.md",
       "status": "passed",
       "severity": "blocker",
       "evidence": "docs/threat-model/agent-threat-model.template.md"
     },
     {
+      "name": "Required file exists: .agent-sdlc/policy-status.json",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": ".agent-sdlc/policy-status.json"
+    },
+    {
+      "name": "Required file exists: .agent-sdlc/package-manifest.json",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": ".agent-sdlc/package-manifest.json"
+    },
+    {
+      "name": "Required file exists: .agent-sdlc/provenance.json",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": ".agent-sdlc/provenance.json"
+    },
+    {
+      "name": "Required file exists: .agent-sdlc/audit-events.jsonl",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": ".agent-sdlc/audit-events.jsonl"
+    },
+    {
       "name": "Required file exists: scripts/serve-app.mjs",
       "status": "passed",
       "severity": "blocker",
       "evidence": "scripts/serve-app.mjs"
+    },
+    {
+      "name": "Required file exists: scripts/qa-audit.mjs",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "scripts/qa-audit.mjs"
+    },
+    {
+      "name": "Required file exists: scripts/full-functionality-tests.mjs",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "scripts/full-functionality-tests.mjs"
     },
     {
       "name": "Required file exists: app/README.md",
@@ -217,6 +277,24 @@
       "evidence": "package.json scripts.enterprise:check"
     },
     {
+      "name": "Package script exists: quality:results",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "package.json scripts.quality:results"
+    },
+    {
+      "name": "Package script exists: qa:audit",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "package.json scripts.qa:audit"
+    },
+    {
+      "name": "Package script exists: test:functionality",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "package.json scripts.test:functionality"
+    },
+    {
       "name": "Package script exists: app:serve",
       "status": "passed",
       "severity": "blocker",
@@ -248,6 +326,12 @@
     },
     {
       "name": "CI runs enterprise readiness gate",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": ".github/workflows/governance-check.yml"
+    },
+    {
+      "name": "CI runs QA audit and full functionality gates",
       "status": "passed",
       "severity": "blocker",
       "evidence": ".github/workflows/governance-check.yml"
@@ -337,6 +421,30 @@
       "evidence": "docs/mappings/enterprise-control-map.md"
     },
     {
+      "name": "No unresolved placeholders in docs/governance/16-job-governance-profile.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/governance/16-job-governance-profile.md"
+    },
+    {
+      "name": "No unresolved placeholders in docs/governance/17-policy-checks.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/governance/17-policy-checks.md"
+    },
+    {
+      "name": "No unresolved placeholders in docs/governance/18-provenance-and-audit.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/governance/18-provenance-and-audit.md"
+    },
+    {
+      "name": "No unresolved placeholders in docs/testing/full-functionality-test-cases.md",
+      "status": "passed",
+      "severity": "blocker",
+      "evidence": "docs/testing/full-functionality-test-cases.md"
+    },
+    {
       "name": "At least eight agent eval cases exist",
       "status": "passed",
       "severity": "blocker",
@@ -412,7 +520,7 @@
       "name": "Audit events exist",
       "status": "passed",
       "severity": "warning",
-      "evidence": "audit events: 31"
+      "evidence": "audit events: 32"
     }
   ]
 }

@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "profiles": [
+    {
+      "id": "general-delivery",
+      "label": "General Delivery",
+      "description": "Balanced governance for ordinary implementation, review and documentation work.",
+      "file": "profile-packs/general-delivery.json"
+    },
+    {
+      "id": "qa-auditor",
+      "label": "QA Auditor",
+      "description": "Independent quality review with severity, evidence, reproducibility and no self-approval.",
+      "file": "profile-packs/qa-auditor.json"
+    },
+    {
+      "id": "implementation-builder",
+      "label": "Implementation Builder",
+      "description": "Governed delivery work with scope control, tests, review evidence and approval gates.",
+      "file": "profile-packs/implementation-builder.json"
+    },
+    {
+      "id": "security-reviewer",
+      "label": "Security Reviewer",
+      "description": "Security-focused review with threat evidence, abuse cases and strict escalation.",
+      "file": "profile-packs/security-reviewer.json"
+    },
+    {
+      "id": "data-steward",
+      "label": "Data Steward",
+      "description": "Data governance review for classification, minimization, provenance and retention.",
+      "file": "profile-packs/data-steward.json"
+    },
+    {
+      "id": "release-manager",
+      "label": "Release Manager",
+      "description": "Release readiness governance with rollback, approvals, checks and operational evidence.",
+      "file": "profile-packs/release-manager.json"
+    },
+    {
+      "id": "documentation-reviewer",
+      "label": "Documentation Reviewer",
+      "description": "Documentation quality review for completeness, traceability, claims and maintainability.",
+      "file": "profile-packs/documentation-reviewer.json"
+    }
+  ]
+}
