@@ -608,21 +608,54 @@ a:focus-visible,
 }
 
 .gallery-mini-row article {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 10px;
+  align-items: start;
   min-height: 96px;
   border-radius: 22px;
   padding: 14px;
 }
 
-.gallery-mini-row span {
+.mini-step-icon,
+.step-icon {
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid rgba(216, 188, 118, 0.38);
+  border-radius: 50%;
+  color: #00020b;
+  background: var(--accent-gold-soft);
+}
+
+.mini-step-icon {
+  width: 30px;
+  height: 30px;
+}
+
+.mini-step-icon .ui-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.gallery-mini-row span:not(.mini-step-icon) {
   color: var(--accent-gold-soft);
   font-family: var(--font-display);
   font-size: 22px;
+  line-height: 1;
 }
 
 .gallery-mini-row strong {
   display: block;
-  margin-top: 18px;
+  grid-column: 1 / -1;
+  margin-top: 12px;
   font-size: 13px;
+}
+
+.gallery-mini-row small {
+  grid-column: 1 / -1;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 .top-command-row {
@@ -662,27 +695,48 @@ a:focus-visible,
 
 .step-chip-grid article {
   display: grid;
-  gap: 6px;
-  min-height: 86px;
+  grid-template-columns: auto 1fr;
+  gap: 8px 10px;
+  min-height: 126px;
+  align-content: start;
   border: 1px solid var(--border-soft);
   border-radius: 18px;
   padding: 14px;
   background: rgba(255, 255, 255, 0.045);
 }
 
-.step-chip-grid span {
+.step-icon {
+  width: 34px;
+  height: 34px;
+}
+
+.step-icon .ui-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.step-number {
+  align-self: center;
   color: var(--accent-gold-soft);
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 24px;
   line-height: 1;
 }
 
 .step-chip-grid strong {
+  grid-column: 1 / -1;
   align-self: end;
   color: var(--text-primary);
   font-family: var(--font-display);
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 400;
+}
+
+.step-chip-grid small {
+  grid-column: 1 / -1;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .readiness-health-panel {

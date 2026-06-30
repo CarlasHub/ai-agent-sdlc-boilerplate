@@ -681,9 +681,24 @@ function builderMarkup(excludedFiles = new Set()) {
               <p>Agents wait for human sign-off before implementation begins.</p>
             </div>
             <div class="gallery-mini-row">
-              <article><span>01</span><strong>Scope</strong></article>
-              <article><span>02</span><strong>Guardrails</strong></article>
-              <article><span>03</span><strong>Approval</strong></article>
+              <article>
+                <span class="mini-step-icon">${svgIcon('target', 'ui-icon')}</span>
+                <span>01</span>
+                <strong>Scope</strong>
+                <small>Brief + profile</small>
+              </article>
+              <article>
+                <span class="mini-step-icon">${svgIcon('shield-check', 'ui-icon')}</span>
+                <span>02</span>
+                <strong>Guardrails</strong>
+                <small>Risk + data</small>
+              </article>
+              <article>
+                <span class="mini-step-icon">${svgIcon('users', 'ui-icon')}</span>
+                <span>03</span>
+                <strong>Approval</strong>
+                <small>Human gate</small>
+              </article>
             </div>
           </div>
         </section>
@@ -692,10 +707,30 @@ function builderMarkup(excludedFiles = new Set()) {
           <section class="network-panel step-overview" aria-labelledby="step-overview-title">
             <p class="panel-kicker" id="step-overview-title">Builder steps</p>
             <div class="step-chip-grid" aria-label="Project builder steps">
-              <article><span>01</span><strong>Scope</strong></article>
-              <article><span>02</span><strong>Guardrails</strong></article>
-              <article><span>03</span><strong>Approval</strong></article>
-              <article><span>04</span><strong>Export</strong></article>
+              <article>
+                <span class="step-icon">${svgIcon('target', 'ui-icon')}</span>
+                <span class="step-number">01</span>
+                <strong>Scope</strong>
+                <small>Project name, purpose and job profile</small>
+              </article>
+              <article>
+                <span class="step-icon">${svgIcon('shield-check', 'ui-icon')}</span>
+                <span class="step-number">02</span>
+                <strong>Guardrails</strong>
+                <small>Owner, users, risk and data class</small>
+              </article>
+              <article>
+                <span class="step-icon">${svgIcon('users', 'ui-icon')}</span>
+                <span class="step-number">03</span>
+                <strong>Approval</strong>
+                <small>Human sign-off keeps agents blocked</small>
+              </article>
+              <article>
+                <span class="step-icon">${svgIcon('download', 'ui-icon')}</span>
+                <span class="step-number">04</span>
+                <strong>Export</strong>
+                <small>78 files, 19 docs and eval evidence</small>
+              </article>
             </div>
           </section>
 

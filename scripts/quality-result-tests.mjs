@@ -447,6 +447,11 @@ function verifyBuilderJourneyUi() {
     'hero-gallery',
     'builder-stage',
     'gallery-frame',
+    'step-icon',
+    'Project name, purpose and job profile',
+    'Owner, users, risk and data class',
+    'Human sign-off keeps agents blocked',
+    '78 files, 19 docs and eval evidence',
     'const ICONS',
     'function svgIcon('
   ]) {
