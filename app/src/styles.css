@@ -987,6 +987,7 @@ a:focus-visible,
 
 .builder-config-panel {
   animation: fade-up 720ms ease both;
+  border: 0;
 }
 
 .panel-heading {
