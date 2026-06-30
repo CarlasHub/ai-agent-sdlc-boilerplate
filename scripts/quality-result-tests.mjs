@@ -362,9 +362,21 @@ function verifyBuilderJourneyUi() {
   const styleSource = fs.readFileSync(path.join(root, 'app/src/styles.css'), 'utf8');
 
   for (const expected of [
-    'primary-status-banner',
-    'sidebar-summary-card',
-    'sidebar-details',
+    'console-shell',
+    'console-sidebar',
+    'Agent Network Status',
+    'Governance Readiness',
+    'System Health',
+    'Governed. Intelligent. Auditable.',
+    'Create New Project',
+    'Blueprint Intelligence',
+    'SDLC Workflow',
+    'Governance Signals',
+    'Recent Projects',
+    'Project Builder Configuration',
+    'Gate Stack',
+    'Approval State',
+    'Activity Feed',
     'jobProfileSelect',
     'Job profile',
     'Job scope',
@@ -377,20 +389,16 @@ function verifyBuilderJourneyUi() {
     'Continue to boundaries',
     'Continue to approval',
     'Review export',
-    'Export a review ZIP; implementation stays blocked.',
-    'Implementation blocked until human approval',
-    'You can export a review package now. Agents cannot start implementation until approval is recorded.',
+    'Human review and approval required to continue.',
+    'Export governed package',
     'Agent job rules',
     'Safety boundaries',
     'Governance ownership',
-    'Export review package',
     'Agent readiness',
-    'Gate details',
     'Generated files',
     'Agent roles',
     'Eval coverage',
     'Human approval record',
-    'GOVERNANCE-FIRST AI DELIVERY',
     'AI-Agent SDLC Blueprint',
     'Governance readiness'
   ]) {
@@ -398,16 +406,21 @@ function verifyBuilderJourneyUi() {
   }
 
   for (const expected of [
-    '--bg-main: #0b111a',
-    '--text-main: #f3f7fb',
-    '--text-secondary: #c7d2e2',
-    '--text-muted: #aab7c7',
-    '.primary-status-banner',
-    '.sidebar-summary-card',
-    '.sidebar-details',
+    '--bg-main: #020510',
+    '--cyan: #00e5ff',
+    '--violet: #9b5cff',
+    '.console-shell',
+    '.console-sidebar',
+    '.network-panel',
+    '.readiness-health-panel',
+    '.hero-console',
+    '.governance-node',
+    '.intelligence-panel',
+    '.blueprint-intelligence',
     '.field-group-stack',
-    '.section-next',
-    '.workflow-strip li.is-active'
+    '.workflow-card-grid',
+    '.signal-grid',
+    '.project-card-grid'
   ]) {
     requireIncludes(styleSource, expected, 'Builder journey CSS');
   }

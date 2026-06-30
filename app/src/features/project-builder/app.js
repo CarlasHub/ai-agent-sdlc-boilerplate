@@ -404,45 +404,6 @@ function sectionContinue(target, label, note) {
   `;
 }
 
-function titleCase(value) {
-  return String(value)
-    .split('-')
-    .filter(Boolean)
-    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
-    .join(' ');
-}
-
-function statusBannerMarkup(config) {
-  const hasImplementationApproval =
-    Boolean(config.approverName) &&
-    Boolean(config.approverRole) &&
-    config.approverName !== 'pending' &&
-    config.approverRole !== 'pending';
-  const title = hasImplementationApproval
-    ? 'Implementation approval recorded'
-    : 'Implementation blocked until human approval';
-  const copy = hasImplementationApproval
-    ? 'A human approval record will be included. Export the package for review before release approval.'
-    : 'You can export a review package now. Agents cannot start implementation until approval is recorded.';
-  const secretsState = config.secrets === 'yes' ? 'Allowed by config' : 'Denied';
-
-  return `
-    <section class="primary-status-banner ${hasImplementationApproval ? 'is-approved' : 'is-blocked'}" data-status-banner aria-live="polite">
-      <div>
-        <p class="eyebrow">Current status</p>
-        <h2>${escapeHtml(title)}</h2>
-        <p>${escapeHtml(copy)}</p>
-      </div>
-      <p class="status-facts">
-        Risk: ${escapeHtml(titleCase(config.riskLevel))} ·
-        Data: ${escapeHtml(titleCase(config.dataClass))} ·
-        Secrets: ${escapeHtml(secretsState)} ·
-        Tool access: Least privilege
-      </p>
-    </section>
-  `;
-}
-
 function landingMarkup() {
   return `
     <section class="launch-shell" aria-labelledby="hero-title">
@@ -471,44 +432,6 @@ function landingMarkup() {
   `;
 }
 
-function journeyChecklist(config, type, profile, activeFiles, hasImplementationApproval) {
-  const approvalState = hasImplementationApproval ? 'done' : 'hold';
-  const exportState = activeFiles.length ? 'ready' : 'hold';
-
-  return `
-    <ol class="journey-checklist" aria-label="Project journey status">
-      <li class="is-done">
-        <span>1</span>
-        <div>
-          <strong>Scope <em>validated</em></strong>
-          <small>${escapeHtml(config.projectName)} uses ${escapeHtml(type.label)} with ${escapeHtml(profile.label)} governance.</small>
-        </div>
-      </li>
-      <li class="is-done">
-        <span>2</span>
-        <div>
-          <strong>Guardrails <em>required</em></strong>
-          <small>${escapeHtml(config.owner)} owns ${escapeHtml(config.riskLevel)} risk with ${escapeHtml(config.dataClass)} data.</small>
-        </div>
-      </li>
-      <li class="is-${approvalState}">
-        <span>3</span>
-        <div>
-          <strong>Approval <em>${hasImplementationApproval ? 'recorded' : 'blocked'}</em></strong>
-          <small>${hasImplementationApproval ? 'Implementation approval will be recorded.' : 'Implementation remains blocked by design.'}</small>
-        </div>
-      </li>
-      <li class="is-${exportState}">
-        <span>4</span>
-        <div>
-          <strong>Export <em>${activeFiles.length ? 'ready after review' : 'locked'}</em></strong>
-          <small>${activeFiles.length} files are ready for the local ZIP.</small>
-        </div>
-      </li>
-    </ol>
-  `;
-}
-
 function previewMarkup(config, excludedFiles = new Set()) {
   const generated = generateProjectFiles(config);
   const type = selectedType(config.projectType);
@@ -525,41 +448,29 @@ function previewMarkup(config, excludedFiles = new Set()) {
     Boolean(config.approverRole) &&
     config.approverName !== 'pending' &&
     config.approverRole !== 'pending';
-  const nextActionTitle = hasImplementationApproval
-    ? 'Review generated files, then export the ZIP.'
-    : 'Export a review ZIP; implementation stays blocked.';
-  const nextActionCopy = hasImplementationApproval
-    ? 'Human approval will be written into the generated evidence. Release approval still remains separate.'
-    : 'Export the review package when the form is ready. Implementation stays blocked until approval is recorded.';
   const governanceReadiness = hasImplementationApproval ? inclusionRatio : Math.min(inclusionRatio, 72);
-  const approvalStateLabel = hasImplementationApproval ? 'OPEN' : 'BLOCKED';
-  const implementationState = hasImplementationApproval ? 'Open after recorded human approval' : 'Blocked until approval';
+  const approvalStateLabel = hasImplementationApproval ? 'APPROVED' : 'BLOCKED';
+  const approvalCopy = hasImplementationApproval
+    ? 'Human implementation approval will be recorded in the generated evidence.'
+    : 'Human review and approval required to continue.';
 
   return `
-    <div class="sidebar-summary-card">
-      <div class="next-action-card ${hasImplementationApproval ? 'is-open' : 'is-blocked'}">
-        <p class="eyebrow">Next action</p>
-        <h2>${escapeHtml(nextActionTitle)}</h2>
-        <p>${escapeHtml(nextActionCopy)}</p>
+    <section class="blueprint-intelligence">
+      <div class="panel-heading">
+        <div>
+          <p class="panel-kicker">Blueprint Intelligence</p>
+          <h2>${escapeHtml(generated.fileName)}</h2>
+        </div>
+        <button class="icon-button panel-menu" type="button" aria-label="Blueprint intelligence menu">...</button>
       </div>
 
-      <div class="sidebar-status-list" aria-label="Package summary">
-        <div>
-          <span>Implementation status</span>
-          <strong>${escapeHtml(implementationState)}</strong>
-        </div>
-        <div>
-          <span>Readiness score</span>
-          <strong>${governanceReadiness}%</strong>
-        </div>
-        <div>
-          <span>Files included</span>
-          <strong>${activeFiles.length}/${generated.files.length}</strong>
-        </div>
-        <div>
-          <span>Approval state</span>
-          <strong class="${hasImplementationApproval ? 'is-pass' : 'is-hold'}">${approvalStateLabel}</strong>
-        </div>
+      <div class="intel-metric-grid" aria-label="Blueprint package metrics">
+        <article><span>Files included</span><strong>${activeFiles.length} / ${generated.files.length}</strong></article>
+        <article><span>Governance docs</span><strong>${GOVERNANCE_DOC_COUNT}</strong></article>
+        <article><span>Agent roles</span><strong>${roleCount}</strong></article>
+        <article><span>Eval cases</span><strong>${evalCount}</strong></article>
+        <article><span>Gate checks</span><strong>${hasImplementationApproval ? '7 / 7' : '6 / 7'}</strong></article>
+        <article><span>Package size</span><strong>~1.2 MB</strong></article>
       </div>
 
       <div class="readiness-meter" aria-label="Governance readiness progress">
@@ -569,31 +480,50 @@ function previewMarkup(config, excludedFiles = new Set()) {
         </div>
         <i><span style="width: ${governanceReadiness}%"></span></i>
       </div>
+    </section>
 
-      <button class="primary-action sidebar-export" type="submit" form="project-form">
-        Export review package
-      </button>
-    </div>
-
-    <details class="sidebar-details">
-      <summary>Gate details</summary>
-      <div class="gate-list" aria-label="Generated readiness checks">
-        <div class="gate-row is-pass"><strong>PASS</strong><span>Governance gate, approval record and release gate included.</span></div>
-        <div class="gate-row is-pass"><strong>PASS</strong><span>${escapeHtml(profile.label)} scope, rubric, evidence, escalation and stop rules included.</span></div>
-        <div class="gate-row ${inactiveFiles.length ? 'is-warn' : 'is-pass'}"><strong>${inactiveFiles.length ? 'WARN' : 'PASS'}</strong><span>${inactiveFiles.length} file${inactiveFiles.length === 1 ? '' : 's'} excluded from the ZIP.</span></div>
-        <div class="gate-row ${hasImplementationApproval ? 'is-pass' : 'is-hold'}"><strong>${hasImplementationApproval ? 'PASS' : 'HOLD'}</strong><span>${hasImplementationApproval ? 'Human implementation approval will be recorded.' : 'Human approval missing; implementation remains blocked.'}</span></div>
+    <section class="gate-approval-grid">
+      <div class="gate-stack">
+        <p class="panel-kicker">Gate Stack</p>
+        <div class="gate-list" aria-label="Generated readiness checks">
+          <div class="gate-row is-pass"><strong>PASS</strong><span>Governance gate</span></div>
+          <div class="gate-row is-pass"><strong>PASS</strong><span>Risk and data boundary check</span></div>
+          <div class="gate-row is-pass"><strong>PASS</strong><span>Eval coverage</span></div>
+          <div class="gate-row is-pass"><strong>PASS</strong><span>Least privilege agent prompts</span></div>
+          <div class="gate-row ${hasImplementationApproval ? 'is-pass' : 'is-hold'}"><strong>${hasImplementationApproval ? 'PASS' : 'PENDING'}</strong><span>Human approval</span></div>
+          <div class="gate-row is-pass"><strong>PASS</strong><span>Release gate included</span></div>
+          <div class="gate-row ${inactiveFiles.length ? 'is-warn' : 'is-pass'}"><strong>${inactiveFiles.length ? 'WARN' : 'PASS'}</strong><span>Package integrity</span></div>
+        </div>
       </div>
-    </details>
 
-    <details class="sidebar-details">
+      <div class="approval-state-card ${hasImplementationApproval ? 'is-approved' : 'is-blocked'}">
+        <p class="panel-kicker">Approval State</p>
+        <div class="approval-lock" aria-hidden="true"></div>
+        <strong>${approvalStateLabel}</strong>
+        <p>${escapeHtml(approvalCopy)}</p>
+        <a class="review-link" href="#section-approval">Review &amp; Approve <span aria-hidden="true">-&gt;</span></a>
+      </div>
+    </section>
+
+    <section class="activity-panel">
+      <div class="panel-heading compact">
+        <p class="panel-kicker">Activity Feed</p>
+        <a href="#section-approval">View all <span aria-hidden="true">-&gt;</span></a>
+      </div>
+      <ol class="activity-feed">
+        <li><span class="dot ready"></span><p>Intake agent completed scope analysis</p><time>2m ago</time></li>
+        <li><span class="dot active"></span><p>Guardrails validation in progress</p><time>5m ago</time></li>
+        <li><span class="dot blocked"></span><p>Red team agent flagged missing approval</p><time>7m ago</time></li>
+        <li><span class="dot hold"></span><p>Waiting for human approval</p><time>8m ago</time></li>
+      </ol>
+    </section>
+
+    <details class="intel-details">
       <summary>Generated files</summary>
-      <div class="command-line" aria-label="Local build command">
-        <span>$</span>
-        <code>agent-sdlc build --type ${escapeHtml(type.id)} --job ${escapeHtml(profile.id)} --local-only</code>
-      </div>
       <div class="file-browser live-file-browser" aria-label="Live generated project preview" aria-live="polite">
-        <div class="file-browser-bar">
-          <strong>${escapeHtml(`${generated.root} -- watch`)}</strong>
+        <div class="command-line" aria-label="Local build command">
+          <span>$</span>
+          <code>agent-sdlc build --type ${escapeHtml(type.id)} --job ${escapeHtml(profile.id)} --local-only</code>
         </div>
         <div class="terminal-feed">
           <p><span>></span> ${activeFiles.length} of ${generated.files.length} files included locally</p>
@@ -604,7 +534,7 @@ function previewMarkup(config, excludedFiles = new Set()) {
       </div>
     </details>
 
-    <details class="sidebar-details">
+    <details class="intel-details">
       <summary>Agent readiness</summary>
       <div class="agent-readiness-list" aria-label="Agent readiness signals">
         <span><strong>Intake agent</strong><em>Ready</em></span>
@@ -614,17 +544,17 @@ function previewMarkup(config, excludedFiles = new Set()) {
       </div>
     </details>
 
-    <details class="sidebar-details">
+    <details class="intel-details">
       <summary>Agent roles</summary>
       <p>${roleCount} least-privilege agent role prompts will be generated for ${escapeHtml(profile.label)}.</p>
     </details>
 
-    <details class="sidebar-details">
+    <details class="intel-details">
       <summary>Eval coverage</summary>
       <p>${evalCount} eval cases cover scope adherence, prompt injection, forbidden actions, sensitive data, tool misuse, unsupported claims, approval gates and audit logging.</p>
     </details>
 
-    <details class="sidebar-details">
+    <details class="intel-details">
       <summary>Human approval record</summary>
       <div class="approval-summary">
         <p class="preview-label">Approval state</p>
@@ -640,64 +570,192 @@ function builderMarkup(excludedFiles = new Set()) {
   const profile = selectedJobProfile(defaults.jobProfile);
 
   return `
-    <div class="builder-shell">
-      <header class="builder-header">
-        <div class="builder-title-block">
-          <p class="eyebrow">GOVERNANCE-FIRST AI DELIVERY</p>
-          <h1 id="builder-title">AI-Agent SDLC Blueprint</h1>
-          <p class="hero-subtitle">Governed project generation for agent-led software delivery.</p>
-          <p>Define scope, enforce guardrails, generate evidence, and export a review-ready workspace before any agent writes implementation code.</p>
+    <form class="console-shell" id="project-form">
+      <aside class="console-sidebar" aria-label="AI-Agent SDLC navigation">
+        <div class="brand-lockup">
+          <div class="brand-mark" aria-hidden="true"><span></span></div>
+          <div>
+            <strong>AI-Agent<br>SDLC<br>Blueprint</strong>
+          </div>
         </div>
-      </header>
 
-      ${statusBannerMarkup(defaults)}
+        <nav class="side-nav" aria-label="Workspace">
+          <a class="is-active" href="#project-builder-config"><span>PB</span>Project Builder</a>
+          <a href="#recent-projects"><span>MP</span>My Projects</a>
+          <a href="#governance-signals"><span>GD</span>Governance Docs</a>
+          <a href="#agent-network"><span>AL</span>Agent Library</a>
+          <a href="#blueprint-intelligence"><span>EC</span>Eval Cases</a>
+          <a href="#project-builder-config"><span>AT</span>Audit Templates</a>
+          <a href="#project-export"><span>EH</span>Export History</a>
+          <a href="#project-builder-config"><span>ST</span>Settings</a>
+        </nav>
 
-      <ol class="workflow-strip" aria-label="Builder workflow">
-        <li class="is-active" aria-current="step">
-          <span class="workflow-state">Active</span>
-          <strong>Scope</strong>
-          <span class="workflow-description">Name the project and choose the starter pattern.</span>
-        </li>
-        <li class="is-required">
-          <span class="workflow-state">Required</span>
-          <strong>Guardrails</strong>
-          <span class="workflow-description">Set owner, users, risk and data boundaries.</span>
-        </li>
-        <li class="is-blocked">
-          <span class="workflow-state">Blocked</span>
-          <strong>Approval</strong>
-          <span class="workflow-description">Keep implementation blocked or record sign-off.</span>
-        </li>
-        <li class="is-locked">
-          <span class="workflow-state">Ready after review</span>
-          <strong>Export</strong>
-          <span class="workflow-description">Review included files and download the ZIP.</span>
-        </li>
-      </ol>
+        <div class="sidebar-footer">
+          <div class="environment-card">
+            <span>Environment</span>
+            <strong>Local Development</strong>
+            <small>v1.0.0</small>
+          </div>
+          <div class="secure-card">
+            <strong>Secure mode</strong>
+            <span>Least privilege</span>
+          </div>
+        </div>
+      </aside>
 
-      <form class="builder-layout" id="project-form">
-        <section class="setup-panel" aria-labelledby="builder-title">
-          <section class="form-section" id="section-project">
+      <main class="console-main">
+        <section class="top-command-row">
+          <section class="network-panel" id="agent-network" aria-labelledby="agent-network-title">
+            <p class="panel-kicker" id="agent-network-title">Agent Network Status</p>
+            <div class="agent-status-grid">
+              <article class="agent-card ready"><strong>Intake agent</strong><span>Ready</span></article>
+              <article class="agent-card waiting"><strong>Review agent</strong><span>Waiting</span></article>
+              <article class="agent-card blocked"><strong>Red team agent</strong><span>Blocked</span></article>
+              <article class="agent-card ready"><strong>Architect agent</strong><span>Ready</span></article>
+              <article class="agent-card locked"><strong>Release agent</strong><span>Locked</span></article>
+            </div>
+          </section>
+
+          <section class="readiness-health-panel" aria-label="Governance readiness and system health">
+            <div class="readiness-gauge">
+              <p class="panel-kicker">Governance Readiness</p>
+              <div class="gauge-row">
+                <div class="gauge-ring" aria-hidden="true"></div>
+                <div><strong>72%</strong><span>Medium</span></div>
+              </div>
+            </div>
+            <div class="system-health">
+              <p class="panel-kicker">System Health</p>
+              <div class="sparkline" aria-hidden="true"><span></span></div>
+              <small><span></span>All systems nominal</small>
+            </div>
+          </section>
+        </section>
+
+        <section class="hero-console" aria-labelledby="builder-title">
+          <div class="hero-copy">
+            <p class="eyebrow">Governed. Intelligent. Auditable.</p>
+            <h1 id="builder-title">AI-Agent SDLC Blueprint</h1>
+            <p class="hero-subtitle">Governed project generation for agent-led software delivery.</p>
+            <p>Define scope, enforce guardrails, generate evidence, and export a review-ready workspace before any agent writes implementation code.</p>
+            <button class="primary-action hero-action" type="submit">
+              <span aria-hidden="true">+</span>
+              Create New Project
+              <span aria-hidden="true">-&gt;</span>
+            </button>
+          </div>
+
+          <div class="blueprint-flow" aria-label="SDLC blueprint flow">
+            <div class="governance-node scope"><span>01</span><strong>Scope</strong></div>
+            <div class="flow-line"></div>
+            <div class="governance-node guardrails"><span>02</span><strong>Guardrails</strong></div>
+            <div class="flow-line"></div>
+            <div class="governance-node approval"><span>03</span><strong>Approval</strong></div>
+            <div class="flow-line"></div>
+            <div class="governance-node export"><span>04</span><strong>Export</strong></div>
+            <ul class="orbit-list">
+              <li>Risk checks</li>
+              <li>Data boundaries</li>
+              <li>Eval cases</li>
+              <li>Audit evidence</li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="workflow-panel" aria-labelledby="workflow-title">
+          <p class="panel-kicker" id="workflow-title">SDLC Workflow</p>
+          <div class="workflow-card-grid">
+            <article class="workflow-card active">
+              <span>01</span>
+              <strong>Scope</strong>
+              <p>Define what we are building and why.</p>
+              <em>Active</em>
+            </article>
+            <article class="workflow-card required">
+              <span>02</span>
+              <strong>Guardrails</strong>
+              <p>Set policies, risks, and boundaries.</p>
+              <em>Required</em>
+            </article>
+            <article class="workflow-card blocked">
+              <span>03</span>
+              <strong>Approval</strong>
+              <p>Human-in-the-loop review required.</p>
+              <em>Blocked</em>
+            </article>
+            <article class="workflow-card ready">
+              <span>04</span>
+              <strong>Export</strong>
+              <p>Generate governed project package.</p>
+              <em>Ready after review</em>
+            </article>
+          </div>
+        </section>
+
+        <section class="signals-panel" id="governance-signals" aria-labelledby="signals-title">
+          <p class="panel-kicker" id="signals-title">Governance Signals</p>
+          <div class="signal-grid">
+            <article class="signal-card amber"><span>Risk level</span><strong>Medium</strong></article>
+            <article class="signal-card cyan"><span>Data class</span><strong>Public</strong></article>
+            <article class="signal-card red"><span>Approval</span><strong>Blocked</strong></article>
+            <article class="signal-card red"><span>Secrets access</span><strong>Denied</strong></article>
+            <article class="signal-card green"><span>Tool access</span><strong>Least privilege</strong></article>
+            <article class="signal-card cyan"><span>Audit trail</span><strong>Enabled</strong></article>
+          </div>
+        </section>
+
+        <section class="recent-panel" id="recent-projects" aria-labelledby="recent-title">
+          <div class="panel-heading">
+            <p class="panel-kicker" id="recent-title">Recent Projects</p>
+            <a href="#project-builder-config">View all projects <span aria-hidden="true">-&gt;</span></a>
+          </div>
+          <div class="project-card-grid">
+            <article class="project-card is-selected">
+              <div><strong>Customer Support Copilot</strong><span>May 12, 2025 · 2m ago</span></div>
+              <em>Blocked</em>
+              <dl><div><dt>Files</dt><dd>42</dd></div><div><dt>Docs</dt><dd>9</dd></div><div><dt>Ready</dt><dd>72%</dd></div></dl>
+            </article>
+            <article class="project-card">
+              <div><strong>Data Insights Agent</strong><span>May 11, 2025 · 1d ago</span></div>
+              <em>Ready</em>
+              <dl><div><dt>Files</dt><dd>38</dd></div><div><dt>Docs</dt><dd>8</dd></div><div><dt>Ready</dt><dd>85%</dd></div></dl>
+            </article>
+            <article class="project-card">
+              <div><strong>Invoice Processing Agent</strong><span>May 10, 2025 · 2d ago</span></div>
+              <em>Approved</em>
+              <dl><div><dt>Files</dt><dd>45</dd></div><div><dt>Docs</dt><dd>10</dd></div><div><dt>Ready</dt><dd>100%</dd></div></dl>
+            </article>
+          </div>
+        </section>
+
+        <section class="builder-config-panel" id="project-builder-config" aria-labelledby="config-title">
+          <div class="panel-heading">
+            <div>
+              <p class="panel-kicker">Project Builder Configuration</p>
+              <h2 id="config-title">Configure the governed package</h2>
+            </div>
+            <button class="ghost-action" type="button" data-action="reset">Reset</button>
+          </div>
+
+          <section class="config-section" id="section-project">
             <div class="section-heading">
               <p class="step-label">Step 1 of 4</p>
-              <h2>Scope the package.</h2>
+              <h3>Scope the package</h3>
               <p>Name the project, explain the outcome, and choose the starter pattern closest to the workflow.</p>
             </div>
-            <div class="field-grid basics-grid">
+            <div class="field-grid">
               ${field('projectName', 'Project name', defaults.projectName, 'text', 'Used for folder, ZIP and governance docs.')}
-              ${textArea('purpose', 'Purpose', type.defaultPurpose, 4)}
               ${jobProfileSelect(profile.id)}
+              ${textArea('purpose', 'Purpose', type.defaultPurpose, 4)}
             </div>
-            <div class="type-list">
-              ${typeOptions(type.id)}
-            </div>
+            <div class="type-list">${typeOptions(type.id)}</div>
             ${sectionContinue('#section-governance', 'Continue to guardrails', 'Next: confirm owner, users, risk and allowed data.')}
           </section>
 
-          <section class="form-section" id="section-governance">
+          <section class="config-section" id="section-governance">
             <div class="section-heading">
               <p class="step-label">Step 2 of 4</p>
-              <h2>Define accountable guardrails.</h2>
+              <h3>Define accountable guardrails</h3>
               <p>Make ownership, users, risk level and allowed data obvious before any files are exported.</p>
             </div>
             <div class="field-grid">
@@ -711,10 +769,10 @@ function builderMarkup(excludedFiles = new Set()) {
             ${sectionContinue('#section-controls', 'Continue to boundaries', 'Next: state what agents may read, use and refuse.')}
           </section>
 
-          <section class="form-section" id="section-controls">
+          <section class="config-section" id="section-controls">
             <div class="section-heading">
               <p class="step-label">Step 3 of 4</p>
-              <h2>Set agent rules and safety boundaries.</h2>
+              <h3>Set agent rules and safety boundaries</h3>
               <p>Group the job rules, blocked actions and governance owners so reviewers can scan each responsibility.</p>
             </div>
             <div class="field-group-stack">
@@ -755,10 +813,10 @@ function builderMarkup(excludedFiles = new Set()) {
             ${sectionContinue('#section-approval', 'Continue to approval', 'Next: leave implementation blocked or record real human sign-off.')}
           </section>
 
-          <section class="form-section" id="section-approval">
+          <section class="config-section" id="section-approval">
             <div class="section-heading">
               <p class="step-label">Step 4 of 4</p>
-              <h2>Record approval only when it exists.</h2>
+              <h3>Record approval only when it exists</h3>
               <p>The ZIP can be exported for review while implementation remains blocked by default.</p>
             </div>
             ${checkField('includeApproval', 'Include human implementation approval in the generated project.')}
@@ -772,24 +830,23 @@ function builderMarkup(excludedFiles = new Set()) {
             </div>
             ${sectionContinue('#project-export', 'Review export', 'Final: check the package preview before downloading the ZIP.')}
           </section>
-        </section>
 
-        <aside class="preview-panel" data-preview aria-label="Live generated project preview">
-          ${previewMarkup(defaults, excludedFiles)}
-        </aside>
-
-        <div class="export-bar" id="project-export">
-          <div>
-            <strong>Final step: review the preview, then export.</strong>
-            <span>The ZIP contains governance docs, role prompts, evals, audit templates and release gates generated locally.</span>
+          <div class="export-bar" id="project-export">
+            <div>
+              <strong>Final step: review the intelligence rail, then export.</strong>
+              <span>The ZIP contains governance docs, role prompts, evals, audit templates and release gates generated locally.</span>
+            </div>
+            <button class="primary-action" type="submit">
+              Export governed package
+            </button>
           </div>
-          <button class="primary-action" type="submit">
-            Export governed package
-          </button>
-          <button class="ghost-action" type="button" data-action="reset">Reset</button>
-        </div>
-      </form>
-    </div>
+        </section>
+      </main>
+
+      <aside class="intelligence-panel" id="blueprint-intelligence" data-preview aria-label="Blueprint intelligence">
+        ${previewMarkup(defaults, excludedFiles)}
+      </aside>
+    </form>
   `;
 }
 
@@ -930,10 +987,6 @@ export function createProjectBuilderApp(root) {
 
     const config = getFormConfig(form);
     preview.innerHTML = previewMarkup(config, state.excludedFiles);
-    const statusBanner = root.querySelector('[data-status-banner]');
-    if (statusBanner) {
-      statusBanner.outerHTML = statusBannerMarkup(config);
-    }
 
     root.querySelectorAll('.type-option').forEach((option) => {
       const input = option.querySelector('input');
