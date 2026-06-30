@@ -117,6 +117,8 @@ const ICONS = {
 };
 
 const NAV_TARGET_IDS = ['project-builder-config', 'project-export', 'about-boilerplate'];
+const CONFIG_SECTION_IDS = ['section-project', 'section-governance', 'section-controls', 'section-approval'];
+const DEFAULT_OPEN_CONFIG_SECTION_IDS = ['section-project'];
 
 function svgIcon(name, className = 'ui-icon') {
   const iconName = ICONS[name] ? name : 'info';
@@ -486,6 +488,39 @@ function sectionContinue(target, label, note) {
   `;
 }
 
+function configSection({ id, step, title, description, body, openConfigSections }) {
+  const isOpen = openConfigSections.has(id);
+  const contentId = `${id}-content`;
+  const actionLabel = `${isOpen ? 'Collapse' : 'Expand'} ${title}`;
+
+  return `
+    <section class="config-section ${isOpen ? 'is-open' : 'is-collapsed'}" id="${escapeHtml(id)}" data-config-section>
+      <div class="section-heading">
+        <div>
+          <p class="step-label">${escapeHtml(step)}</p>
+          <h3>${escapeHtml(title)}</h3>
+          <p>${escapeHtml(description)}</p>
+        </div>
+        <button
+          class="section-toggle"
+          type="button"
+          data-action="toggle-config-section"
+          data-section-id="${escapeHtml(id)}"
+          data-section-title="${escapeHtml(title)}"
+          aria-label="${escapeHtml(actionLabel)}"
+          aria-expanded="${String(isOpen)}"
+          aria-controls="${escapeHtml(contentId)}"
+        >
+          ${svgIcon('chevron-down', 'ui-icon section-toggle-icon')}
+        </button>
+      </div>
+      <div class="config-section-body" id="${escapeHtml(contentId)}" ${isOpen ? '' : 'hidden'}>
+        ${body}
+      </div>
+    </section>
+  `;
+}
+
 function metricCard(iconName, label, value, tone = 'neutral') {
   return `
     <article class="metric-card metric-${escapeHtml(tone)}">
@@ -659,9 +694,107 @@ function previewMarkup(config, excludedFiles = new Set()) {
   `;
 }
 
-function builderMarkup(excludedFiles = new Set()) {
+function builderMarkup(excludedFiles = new Set(), openConfigSections = new Set(DEFAULT_OPEN_CONFIG_SECTION_IDS)) {
   const type = selectedType(defaults.projectType);
   const profile = selectedJobProfile(defaults.jobProfile);
+  const projectSection = configSection({
+    id: 'section-project',
+    step: 'Step 1 of 4',
+    title: 'Scope',
+    description: 'Project, job profile and purpose.',
+    openConfigSections,
+    body: `
+      <div class="field-grid">
+        ${field('projectName', 'Project name', defaults.projectName, 'text', 'Used for folder, ZIP and governance docs.')}
+        ${jobProfileSelect(profile.id)}
+        ${textArea('purpose', 'Purpose', type.defaultPurpose, 4)}
+      </div>
+      <div class="type-list">${typeOptions(type.id)}</div>
+      ${sectionContinue('#section-governance', 'Continue to guardrails', 'Next: confirm owner, users, risk and allowed data.')}
+    `
+  });
+  const governanceSection = configSection({
+    id: 'section-governance',
+    step: 'Step 2 of 4',
+    title: 'Guardrails',
+    description: 'Owner, users, risk and data boundaries.',
+    openConfigSections,
+    body: `
+      <div class="field-grid">
+        ${field('owner', 'Owner', defaults.owner, 'text', 'Named accountable owner.')}
+        ${textArea('users', 'Users', defaults.users, 2)}
+        ${selectField('riskLevel', 'Risk level', defaults.riskLevel, ['low', 'medium', 'high', 'critical'])}
+        ${selectField('dataClass', 'Data class', defaults.dataClass, ['public', 'internal', 'confidential', 'personal-data', 'regulated', 'secrets-blocked'])}
+        ${selectField('personalData', 'Personal data', defaults.personalData, ['no', 'yes'])}
+        ${selectField('secrets', 'Secrets', defaults.secrets, ['no', 'yes'])}
+      </div>
+      ${sectionContinue('#section-controls', 'Continue to boundaries', 'Next: state what agents may read, use and refuse.')}
+    `
+  });
+  const controlsSection = configSection({
+    id: 'section-controls',
+    step: 'Step 3 of 4',
+    title: 'Agent rules',
+    description: 'Job rules, blocked actions and accountable owners.',
+    openConfigSections,
+    body: `
+      <div class="field-group-stack">
+        <section class="field-group" aria-labelledby="agent-job-rules-title">
+          <h3 id="agent-job-rules-title">Agent job rules</h3>
+          <div class="field-grid">
+            ${textArea('jobScope', 'Job scope', defaults.jobScope, 3)}
+            ${textArea('jobQualityRubric', 'Decision rubric', defaults.jobQualityRubric, 3)}
+            ${textArea('jobEvidenceRequirements', 'Evidence requirements', defaults.jobEvidenceRequirements, 3)}
+            ${textArea('jobOutputSchema', 'Output schema', defaults.jobOutputSchema, 3)}
+            ${textArea('jobEscalationRules', 'Escalation rules', defaults.jobEscalationRules, 3)}
+          </div>
+        </section>
+
+        <section class="field-group" aria-labelledby="safety-boundaries-title">
+          <h3 id="safety-boundaries-title">Safety boundaries</h3>
+          <div class="field-grid">
+            ${textArea('blockedData', 'Blocked data', defaults.blockedData, 2)}
+            ${textArea('blockedTools', 'Blocked tools', defaults.blockedTools, 2)}
+            ${textArea('neverDo', 'Never do', defaults.neverDo, 2)}
+            ${textArea('jobStopRules', 'Job stop rules', defaults.jobStopRules, 3)}
+            ${textArea('dataSources', 'Data sources', defaults.dataSources, 2)}
+          </div>
+        </section>
+
+        <section class="field-group" aria-labelledby="governance-ownership-title">
+          <h3 id="governance-ownership-title">Governance ownership</h3>
+          <div class="field-grid">
+            ${textArea('approvers', 'Approvers', defaults.approvers, 2)}
+            ${field('dataOwner', 'Data owner', defaults.dataOwner)}
+            ${field('releaseOwner', 'Release owner', defaults.releaseOwner)}
+            ${field('riskReviewFrequency', 'Risk review', defaults.riskReviewFrequency)}
+            ${textArea('riskRationale', 'Risk rationale', defaults.riskRationale, 2)}
+            ${textArea('highRiskAreas', 'Risk areas', defaults.highRiskAreas, 2)}
+          </div>
+        </section>
+      </div>
+      ${sectionContinue('#section-approval', 'Continue to approval', 'Next: leave implementation blocked or record real human sign-off.')}
+    `
+  });
+  const approvalSection = configSection({
+    id: 'section-approval',
+    step: 'Step 4 of 4',
+    title: 'Approval',
+    description: 'Leave blank to keep implementation blocked.',
+    openConfigSections,
+    body: `
+      ${checkField('includeApproval', 'Include human implementation approval in the generated project.')}
+      <div class="field-grid approval-fields" aria-label="Implementation approval fields">
+        ${field('approverName', 'Approver', '', 'text', 'Leave empty to keep implementation blocked.')}
+        ${field('approverRole', 'Role', '', 'text')}
+        ${field('approvalDate', 'Date', '', 'date')}
+        ${textArea('approvalScope', 'Scope', 'Approved for local implementation inside the documented scope.', 2)}
+        ${textArea('approvalConditions', 'Conditions', 'No real data, no secrets, no production systems and no deployment without release approval.', 2)}
+        ${textArea('approvalNotes', 'Notes', 'Implementation may proceed after governance validation passes.', 2)}
+      </div>
+      ${sectionContinue('#project-export', 'Review export', 'Final: check the package preview before downloading the ZIP.')}
+    `
+  });
 
   return `
     <form class="console-shell arvane-shell" id="project-form">
@@ -803,99 +936,10 @@ function builderMarkup(excludedFiles = new Set()) {
               <button class="ghost-action" type="button" data-action="reset">Reset</button>
             </div>
 
-            <section class="config-section" id="section-project">
-              <div class="section-heading">
-                <p class="step-label">Step 1 of 4</p>
-                <h3>Scope</h3>
-                <p>Project, job profile and purpose.</p>
-              </div>
-              <div class="field-grid">
-                ${field('projectName', 'Project name', defaults.projectName, 'text', 'Used for folder, ZIP and governance docs.')}
-                ${jobProfileSelect(profile.id)}
-                ${textArea('purpose', 'Purpose', type.defaultPurpose, 4)}
-              </div>
-              <div class="type-list">${typeOptions(type.id)}</div>
-              ${sectionContinue('#section-governance', 'Continue to guardrails', 'Next: confirm owner, users, risk and allowed data.')}
-            </section>
-
-            <section class="config-section" id="section-governance">
-              <div class="section-heading">
-                <p class="step-label">Step 2 of 4</p>
-                <h3>Guardrails</h3>
-                <p>Owner, users, risk and data boundaries.</p>
-              </div>
-              <div class="field-grid">
-                ${field('owner', 'Owner', defaults.owner, 'text', 'Named accountable owner.')}
-                ${textArea('users', 'Users', defaults.users, 2)}
-                ${selectField('riskLevel', 'Risk level', defaults.riskLevel, ['low', 'medium', 'high', 'critical'])}
-                ${selectField('dataClass', 'Data class', defaults.dataClass, ['public', 'internal', 'confidential', 'personal-data', 'regulated', 'secrets-blocked'])}
-                ${selectField('personalData', 'Personal data', defaults.personalData, ['no', 'yes'])}
-                ${selectField('secrets', 'Secrets', defaults.secrets, ['no', 'yes'])}
-              </div>
-              ${sectionContinue('#section-controls', 'Continue to boundaries', 'Next: state what agents may read, use and refuse.')}
-            </section>
-
-            <section class="config-section" id="section-controls">
-              <div class="section-heading">
-                <p class="step-label">Step 3 of 4</p>
-                <h3>Agent rules</h3>
-                <p>Job rules, blocked actions and accountable owners.</p>
-              </div>
-              <div class="field-group-stack">
-                <section class="field-group" aria-labelledby="agent-job-rules-title">
-                  <h3 id="agent-job-rules-title">Agent job rules</h3>
-                  <div class="field-grid">
-                    ${textArea('jobScope', 'Job scope', defaults.jobScope, 3)}
-                    ${textArea('jobQualityRubric', 'Decision rubric', defaults.jobQualityRubric, 3)}
-                    ${textArea('jobEvidenceRequirements', 'Evidence requirements', defaults.jobEvidenceRequirements, 3)}
-                    ${textArea('jobOutputSchema', 'Output schema', defaults.jobOutputSchema, 3)}
-                    ${textArea('jobEscalationRules', 'Escalation rules', defaults.jobEscalationRules, 3)}
-                  </div>
-                </section>
-
-                <section class="field-group" aria-labelledby="safety-boundaries-title">
-                  <h3 id="safety-boundaries-title">Safety boundaries</h3>
-                  <div class="field-grid">
-                    ${textArea('blockedData', 'Blocked data', defaults.blockedData, 2)}
-                    ${textArea('blockedTools', 'Blocked tools', defaults.blockedTools, 2)}
-                    ${textArea('neverDo', 'Never do', defaults.neverDo, 2)}
-                    ${textArea('jobStopRules', 'Job stop rules', defaults.jobStopRules, 3)}
-                    ${textArea('dataSources', 'Data sources', defaults.dataSources, 2)}
-                  </div>
-                </section>
-
-                <section class="field-group" aria-labelledby="governance-ownership-title">
-                  <h3 id="governance-ownership-title">Governance ownership</h3>
-                  <div class="field-grid">
-                    ${textArea('approvers', 'Approvers', defaults.approvers, 2)}
-                    ${field('dataOwner', 'Data owner', defaults.dataOwner)}
-                    ${field('releaseOwner', 'Release owner', defaults.releaseOwner)}
-                    ${field('riskReviewFrequency', 'Risk review', defaults.riskReviewFrequency)}
-                    ${textArea('riskRationale', 'Risk rationale', defaults.riskRationale, 2)}
-                    ${textArea('highRiskAreas', 'Risk areas', defaults.highRiskAreas, 2)}
-                  </div>
-                </section>
-              </div>
-              ${sectionContinue('#section-approval', 'Continue to approval', 'Next: leave implementation blocked or record real human sign-off.')}
-            </section>
-
-            <section class="config-section" id="section-approval">
-              <div class="section-heading">
-                <p class="step-label">Step 4 of 4</p>
-                <h3>Approval</h3>
-                <p>Leave blank to keep implementation blocked.</p>
-              </div>
-              ${checkField('includeApproval', 'Include human implementation approval in the generated project.')}
-              <div class="field-grid approval-fields" aria-label="Implementation approval fields">
-                ${field('approverName', 'Approver', '', 'text', 'Leave empty to keep implementation blocked.')}
-                ${field('approverRole', 'Role', '', 'text')}
-                ${field('approvalDate', 'Date', '', 'date')}
-                ${textArea('approvalScope', 'Scope', 'Approved for local implementation inside the documented scope.', 2)}
-                ${textArea('approvalConditions', 'Conditions', 'No real data, no secrets, no production systems and no deployment without release approval.', 2)}
-                ${textArea('approvalNotes', 'Notes', 'Implementation may proceed after governance validation passes.', 2)}
-              </div>
-              ${sectionContinue('#project-export', 'Review export', 'Final: check the package preview before downloading the ZIP.')}
-            </section>
+            ${projectSection}
+            ${governanceSection}
+            ${controlsSection}
+            ${approvalSection}
 
             <div class="export-bar" id="project-export">
               <div>
@@ -1004,7 +1048,8 @@ export function createProjectBuilderApp(root) {
     lastResult: null,
     lastBlob: null,
     build: null,
-    excludedFiles: new Set()
+    excludedFiles: new Set(),
+    openConfigSections: new Set(DEFAULT_OPEN_CONFIG_SECTION_IDS)
   };
   let buildTimer = null;
 
@@ -1021,7 +1066,7 @@ export function createProjectBuilderApp(root) {
     } else if (state.lastResult) {
       root.innerHTML = successMarkup(state.lastResult);
     } else if (state.started) {
-      root.innerHTML = builderMarkup(state.excludedFiles);
+      root.innerHTML = builderMarkup(state.excludedFiles, state.openConfigSections);
     } else {
       root.innerHTML = landingMarkup();
     }
@@ -1099,11 +1144,63 @@ export function createProjectBuilderApp(root) {
     tooltip.hidden = !shouldOpen;
   }
 
+  function resetOpenConfigSections() {
+    state.openConfigSections = new Set(DEFAULT_OPEN_CONFIG_SECTION_IDS);
+  }
+
+  function setConfigSectionOpen(sectionId, isOpen) {
+    if (!CONFIG_SECTION_IDS.includes(sectionId)) return;
+
+    if (isOpen) {
+      state.openConfigSections.add(sectionId);
+    } else {
+      state.openConfigSections.delete(sectionId);
+    }
+
+    const section = root.querySelector(`#${CSS.escape(sectionId)}`);
+    if (!section) return;
+
+    const title = section.querySelector('[data-section-title]')?.dataset.sectionTitle || 'section';
+    const body = section.querySelector('.config-section-body');
+    const button = section.querySelector('[data-action="toggle-config-section"]');
+
+    section.classList.toggle('is-open', isOpen);
+    section.classList.toggle('is-collapsed', !isOpen);
+    if (body) body.hidden = !isOpen;
+    if (button) {
+      button.setAttribute('aria-expanded', String(isOpen));
+      button.setAttribute('aria-label', `${isOpen ? 'Collapse' : 'Expand'} ${title}`);
+    }
+  }
+
+  function openConfigSectionFromLink(link) {
+    const targetId = decodeURIComponent(link.hash.replace(/^#/, ''));
+    if (!CONFIG_SECTION_IDS.includes(targetId)) return false;
+
+    setConfigSectionOpen(targetId, true);
+    const target = root.querySelector(`#${CSS.escape(targetId)}`);
+    if (target) {
+      window.history.pushState(null, '', `#${targetId}`);
+      if (typeof target.scrollIntoView === 'function') {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      updateWorkspaceNavActive(root);
+    }
+
+    return true;
+  }
+
   function attachEvents() {
     root.addEventListener('click', (event) => {
       const navLink = event.target.closest('.side-nav a[href^="#"]');
       if (navLink) {
         window.requestAnimationFrame(() => updateWorkspaceNavActive(root));
+      }
+
+      const sectionNext = event.target.closest('.section-next[href^="#"]');
+      if (sectionNext && openConfigSectionFromLink(sectionNext)) {
+        event.preventDefault();
+        return;
       }
 
       const tooltipButton = event.target.closest('[data-tooltip-trigger]');
@@ -1138,12 +1235,20 @@ export function createProjectBuilderApp(root) {
       if (!button) return;
 
       const action = button.dataset.action;
+      if (action === 'toggle-config-section') {
+        const sectionId = button.dataset.sectionId;
+        const isOpen = button.getAttribute('aria-expanded') === 'true';
+        setConfigSectionOpen(sectionId, !isOpen);
+        return;
+      }
+
       if (action === 'start') {
         clearBuildTimer();
         state.started = true;
         state.lastResult = null;
         state.build = null;
         state.excludedFiles = new Set();
+        resetOpenConfigSections();
         render({ focusHeading: true });
       }
 
@@ -1154,6 +1259,7 @@ export function createProjectBuilderApp(root) {
         state.lastBlob = null;
         state.build = null;
         state.excludedFiles = new Set();
+        resetOpenConfigSections();
         render({ focusHeading: true });
       }
 
