@@ -1,8 +1,16 @@
-import { PROJECT_TYPES, generateProjectFiles } from './templates.js';
+import {
+  GOVERNANCE_DOC_COUNT,
+  JOB_PROFILES,
+  PROJECT_TYPES,
+  generateProjectFiles,
+  getAgentRoleCount,
+  getEvalCount
+} from './templates.js';
 import { createZipBlob } from './zip.js';
 
 const defaults = {
   projectType: PROJECT_TYPES[0].id,
+  jobProfile: JOB_PROFILES[0].id,
   projectName: 'Governed Agent Project',
   owner: 'Project owner',
   users: 'Developers, reviewers, product owners and AI governance stakeholders.',
@@ -19,11 +27,18 @@ const defaults = {
   neverDo: 'The agent must never use real data, write secrets, deploy, use paid APIs, approve its own work or bypass governance gates.',
   blockedTools: 'Production deployment tools, real databases, secret stores, HR systems, client systems, paid APIs and tools that affect real users.',
   dataOwner: 'Project owner and AI governance reviewer.',
-  releaseOwner: 'Project owner and technical reviewer.'
+  releaseOwner: 'Project owner and technical reviewer.',
+  jobScope: JOB_PROFILES[0].defaultScope,
+  jobQualityRubric: JOB_PROFILES[0].defaultRubric,
+  jobEvidenceRequirements: JOB_PROFILES[0].defaultEvidence,
+  jobEscalationRules: JOB_PROFILES[0].defaultEscalation,
+  jobOutputSchema: JOB_PROFILES[0].defaultOutputSchema,
+  jobStopRules: JOB_PROFILES[0].defaultStopRules
 };
 
 const fieldHelp = {
   projectName: 'Expected: a short, clear project title. This becomes the generated folder and ZIP name, so avoid client names, secrets or personal data.',
+  jobProfile: 'Expected: the job this governed agent is being asked to perform. This personalizes evidence, rubric, escalation and stop rules.',
   owner: 'Expected: the accountable person or team who owns governance decisions and follow-up.',
   purpose: 'Expected: one or two sentences describing exactly what the governed project or agent workflow should do.',
   users: 'Expected: the people who will use, supervise or review the generated project.',
@@ -40,6 +55,12 @@ const fieldHelp = {
   neverDo: 'Expected: forbidden behaviours the generated agents must refuse or stop on.',
   dataOwner: 'Expected: the accountable owner for data access decisions.',
   releaseOwner: 'Expected: the person or team that can approve release separately from implementation.',
+  jobScope: 'Expected: exactly what this job is allowed to inspect, decide or change.',
+  jobQualityRubric: 'Expected: the pass/fail or severity model used to judge output quality.',
+  jobEvidenceRequirements: 'Expected: the proof this job must collect before making a recommendation.',
+  jobEscalationRules: 'Expected: when the agent must stop and ask a human or specialist reviewer.',
+  jobOutputSchema: 'Expected: the required structure for the job output so results are consistent and reviewable.',
+  jobStopRules: 'Expected: role-specific forbidden actions, especially self-approval, unsupported claims and unsafe tool use.',
   riskReviewFrequency: 'Expected: how often risk should be reviewed, such as weekly, monthly or per release.',
   includeApproval: 'Expected: enable only when a real human approval is being recorded. Leave unchecked to keep implementation blocked.',
   approverName: 'Expected: the real name of the human implementation approver. Leave blank if approval is still pending.',
@@ -69,6 +90,38 @@ function escapeHtml(value) {
 
 function selectedType(id) {
   return PROJECT_TYPES.find((type) => type.id === id) || PROJECT_TYPES[0];
+}
+
+function selectedJobProfile(id) {
+  return JOB_PROFILES.find((profile) => profile.id === id) || JOB_PROFILES[0];
+}
+
+const profileFieldDefaults = {
+  jobScope: 'defaultScope',
+  jobQualityRubric: 'defaultRubric',
+  jobEvidenceRequirements: 'defaultEvidence',
+  jobEscalationRules: 'defaultEscalation',
+  jobOutputSchema: 'defaultOutputSchema',
+  jobStopRules: 'defaultStopRules'
+};
+
+function isProfileDefaultValue(fieldName, value) {
+  const profileKey = profileFieldDefaults[fieldName];
+  if (!profileKey) return false;
+
+  return JOB_PROFILES.some((profile) => profile[profileKey] === value);
+}
+
+function applyJobProfileDefaults(form, profile) {
+  for (const [fieldName, profileKey] of Object.entries(profileFieldDefaults)) {
+    const field = form.elements[fieldName];
+    if (!field) continue;
+
+    const currentValue = String(field.value || '').trim();
+    if (!currentValue || isProfileDefaultValue(fieldName, currentValue)) {
+      field.value = profile[profileKey];
+    }
+  }
 }
 
 function fieldId(name) {
@@ -191,9 +244,11 @@ function getFormConfig(form) {
   const data = new FormData(form);
   const includeApproval = data.get('includeApproval') === 'yes';
   const type = selectedType(String(data.get('projectType') || defaults.projectType));
+  const profile = selectedJobProfile(String(data.get('jobProfile') || defaults.jobProfile));
 
   return {
     projectType: type.id,
+    jobProfile: profile.id,
     projectName: String(data.get('projectName') || defaults.projectName).trim(),
     owner: String(data.get('owner') || defaults.owner).trim(),
     purpose: String(data.get('purpose') || type.defaultPurpose).trim(),
@@ -212,6 +267,12 @@ function getFormConfig(form) {
     blockedTools: String(data.get('blockedTools') || defaults.blockedTools).trim(),
     dataOwner: String(data.get('dataOwner') || defaults.dataOwner).trim(),
     releaseOwner: String(data.get('releaseOwner') || defaults.releaseOwner).trim(),
+    jobScope: String(data.get('jobScope') || profile.defaultScope).trim(),
+    jobQualityRubric: String(data.get('jobQualityRubric') || profile.defaultRubric).trim(),
+    jobEvidenceRequirements: String(data.get('jobEvidenceRequirements') || profile.defaultEvidence).trim(),
+    jobEscalationRules: String(data.get('jobEscalationRules') || profile.defaultEscalation).trim(),
+    jobOutputSchema: String(data.get('jobOutputSchema') || profile.defaultOutputSchema).trim(),
+    jobStopRules: String(data.get('jobStopRules') || profile.defaultStopRules).trim(),
     approverName: includeApproval ? String(data.get('approverName') || 'pending').trim() : 'pending',
     approverRole: includeApproval ? String(data.get('approverRole') || 'pending').trim() : 'pending',
     approvalDate: includeApproval ? String(data.get('approvalDate') || new Date().toISOString().slice(0, 10)) : 'pending',
@@ -241,6 +302,25 @@ function typeOptions(activeType) {
       </div>
     `;
   }).join('');
+}
+
+function jobProfileSelect(activeProfile) {
+  const id = fieldId('jobProfile');
+  const tooltipId = `${id}-tooltip`;
+
+  return `
+    <div class="field wide-field">
+      <div class="field-label-row">
+        <label for="${escapeHtml(id)}">Job profile</label>
+        ${infoButton('Job profile', tooltipId)}
+      </div>
+      ${tooltipMarkup(tooltipId, fieldHelp.jobProfile)}
+      <select id="${escapeHtml(id)}" name="jobProfile">
+        ${JOB_PROFILES.map((profile) => `<option value="${profile.id}" ${profile.id === activeProfile ? 'selected' : ''}>${escapeHtml(profile.label)} - ${escapeHtml(profile.description)}</option>`).join('')}
+      </select>
+      <small>Personalizes the generated governance docs, job eval, evidence rules and stop conditions.</small>
+    </div>
+  `;
 }
 
 function field(name, label, value, type = 'text', caption = '') {
@@ -352,7 +432,7 @@ function landingMarkup() {
   `;
 }
 
-function journeyChecklist(config, type, activeFiles, hasImplementationApproval) {
+function journeyChecklist(config, type, profile, activeFiles, hasImplementationApproval) {
   const approvalState = hasImplementationApproval ? 'done' : 'hold';
   const exportState = activeFiles.length ? 'ready' : 'hold';
 
@@ -362,7 +442,7 @@ function journeyChecklist(config, type, activeFiles, hasImplementationApproval) 
         <span>1</span>
         <div>
           <strong>Scope</strong>
-          <small>${escapeHtml(config.projectName)} uses the ${escapeHtml(type.label)} starter.</small>
+          <small>${escapeHtml(config.projectName)} uses ${escapeHtml(type.label)} with ${escapeHtml(profile.label)} governance.</small>
         </div>
       </li>
       <li class="is-done">
@@ -393,13 +473,14 @@ function journeyChecklist(config, type, activeFiles, hasImplementationApproval) 
 function previewMarkup(config, excludedFiles = new Set()) {
   const generated = generateProjectFiles(config);
   const type = selectedType(config.projectType);
+  const profile = selectedJobProfile(config.jobProfile);
   const activeFiles = includedFiles(generated, excludedFiles);
   const inactiveFiles = removedFiles(generated, excludedFiles);
   const inclusionRatio = generated.files.length
     ? Math.max(8, Math.round((activeFiles.length / generated.files.length) * 100))
     : 0;
-  const roleCount = config.projectType === 'governed-agent-team' ? 11 : 6;
-  const evalCount = config.projectType === 'governed-agent-team' ? 12 : 8;
+  const roleCount = getAgentRoleCount(config);
+  const evalCount = getEvalCount(config);
   const hasImplementationApproval =
     Boolean(config.approverName) &&
     Boolean(config.approverRole) &&
@@ -419,13 +500,13 @@ function previewMarkup(config, excludedFiles = new Set()) {
       <p>${escapeHtml(nextActionCopy)}</p>
     </div>
 
-    ${journeyChecklist(config, type, activeFiles, hasImplementationApproval)}
+    ${journeyChecklist(config, type, profile, activeFiles, hasImplementationApproval)}
 
     <div class="output-header">
       <div>
         <p class="eyebrow">Generated package</p>
         <h2>${escapeHtml(generated.fileName)}</h2>
-        <p>${escapeHtml(type.label)} with ${escapeHtml(config.riskLevel)} risk and ${escapeHtml(config.dataClass)} data boundaries.</p>
+        <p>${escapeHtml(type.label)} with ${escapeHtml(profile.label)} job conditions, ${escapeHtml(config.riskLevel)} risk and ${escapeHtml(config.dataClass)} data boundaries.</p>
       </div>
       <span class="status-chip ${hasImplementationApproval ? 'is-open' : 'is-blocked'}">
         ${hasImplementationApproval ? 'implementation open' : 'implementation blocked'}
@@ -434,12 +515,12 @@ function previewMarkup(config, excludedFiles = new Set()) {
 
     <div class="command-line" aria-label="Local build command">
       <span>$</span>
-      <code>agent-sdlc build --type ${escapeHtml(type.id)} --local-only</code>
+      <code>agent-sdlc build --type ${escapeHtml(type.id)} --job ${escapeHtml(profile.id)} --local-only</code>
     </div>
 
     <div class="summary-grid" aria-label="Generated package summary">
       <div><span>Files</span><strong>${activeFiles.length}/${generated.files.length}</strong></div>
-      <div><span>Governance docs</span><strong>16</strong></div>
+      <div><span>Governance docs</span><strong>${GOVERNANCE_DOC_COUNT}</strong></div>
       <div><span>Agent roles</span><strong>${roleCount}</strong></div>
       <div><span>Eval cases</span><strong>${evalCount}</strong></div>
     </div>
@@ -454,6 +535,7 @@ function previewMarkup(config, excludedFiles = new Set()) {
 
     <div class="gate-list" aria-label="Generated readiness checks">
       <div class="gate-row is-pass"><strong>PASS</strong><span>Governance gate, approval record and release gate included.</span></div>
+      <div class="gate-row is-pass"><strong>PASS</strong><span>${escapeHtml(profile.label)} job scope, rubric, evidence, escalation and stop rules included.</span></div>
       <div class="gate-row is-pass"><strong>PASS</strong><span>${roleCount} agent role prompts generated with least-privilege operating rules.</span></div>
       <div class="gate-row is-pass"><strong>PASS</strong><span>${evalCount} eval cases included for scope, injection, tool misuse and audit logging.</span></div>
       <div class="gate-row ${inactiveFiles.length ? 'is-warn' : 'is-pass'}"><strong>${inactiveFiles.length ? 'WARN' : 'PASS'}</strong><span>${inactiveFiles.length} file${inactiveFiles.length === 1 ? '' : 's'} excluded from the ZIP.</span></div>
@@ -493,6 +575,7 @@ function previewMarkup(config, excludedFiles = new Set()) {
 
 function builderMarkup(excludedFiles = new Set()) {
   const type = selectedType(defaults.projectType);
+  const profile = selectedJobProfile(defaults.jobProfile);
 
   return `
     <div class="builder-shell">
@@ -503,9 +586,10 @@ function builderMarkup(excludedFiles = new Set()) {
           <p>Generate a governed AI-agent starter kit. Work left to right: define scope, set guardrails, decide approval, then export the local ZIP.</p>
           <div class="header-metrics" aria-label="Default package contents">
             <span>Public</span>
-            <span><strong>16</strong> governance docs</span>
-            <span><strong>6+</strong> agent roles</span>
-            <span><strong>8+</strong> eval cases</span>
+            <span><strong>${GOVERNANCE_DOC_COUNT}</strong> governance docs</span>
+            <span><strong>${getAgentRoleCount(defaults)}+</strong> agent roles</span>
+            <span><strong>${getEvalCount(defaults)}+</strong> eval cases</span>
+            <span><strong>${escapeHtml(profile.label)}</strong></span>
           </div>
         </div>
         <div class="header-actions">
@@ -554,6 +638,7 @@ function builderMarkup(excludedFiles = new Set()) {
             <div class="field-grid basics-grid">
               ${field('projectName', 'Project name', defaults.projectName, 'text', 'Used for folder, ZIP and governance docs.')}
               ${textArea('purpose', 'Purpose', type.defaultPurpose, 4)}
+              ${jobProfileSelect(profile.id)}
             </div>
             <div class="type-list">
               ${typeOptions(type.id)}
@@ -586,6 +671,12 @@ function builderMarkup(excludedFiles = new Set()) {
             </div>
             <div class="field-grid">
               ${textArea('approvers', 'Approvers', defaults.approvers, 2)}
+              ${textArea('jobScope', 'Job scope', defaults.jobScope, 3)}
+              ${textArea('jobQualityRubric', 'Decision rubric', defaults.jobQualityRubric, 3)}
+              ${textArea('jobEvidenceRequirements', 'Evidence requirements', defaults.jobEvidenceRequirements, 3)}
+              ${textArea('jobEscalationRules', 'Escalation rules', defaults.jobEscalationRules, 3)}
+              ${textArea('jobOutputSchema', 'Output schema', defaults.jobOutputSchema, 3)}
+              ${textArea('jobStopRules', 'Job stop rules', defaults.jobStopRules, 3)}
               ${textArea('riskRationale', 'Risk rationale', defaults.riskRationale, 2)}
               ${textArea('highRiskAreas', 'Risk areas', defaults.highRiskAreas, 2)}
               ${textArea('dataSources', 'Data sources', defaults.dataSources, 2)}
@@ -887,6 +978,10 @@ export function createProjectBuilderApp(root) {
         if (purpose && PROJECT_TYPES.some((item) => item.defaultPurpose === purpose.value)) {
           purpose.value = type.defaultPurpose;
         }
+      }
+
+      if (event.target.name === 'jobProfile') {
+        applyJobProfileDefaults(form, selectedJobProfile(event.target.value));
       }
 
       updatePreview(form);

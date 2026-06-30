@@ -9,6 +9,7 @@ npm run quality:results
 The gate checks:
 
 - every project type generates the expected file set
+- every job profile generates personalized governance and eval evidence
 - generated paths stay inside the project root
 - required governance docs, agent prompts, evals, scripts and app files exist
 - unresolved placeholders do not leak into generated artifacts
@@ -17,6 +18,7 @@ The gate checks:
 - eval files include purpose, expected result and manual execution status
 - safety boundaries mention real data, secrets, governance bypass, approved files and release approval
 - the builder UI exposes the guided journey actions and softened GitHub dimmed palette
+- the builder UI exposes job profile, scope, rubric, evidence, escalation, output schema and stop-rule fields
 
 Run the full project gate before pushing:
 

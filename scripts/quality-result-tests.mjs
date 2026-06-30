@@ -1,13 +1,21 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { PROJECT_TYPES, createSlug, generateProjectFiles } from '../app/src/features/project-builder/templates.js';
+import {
+  GOVERNANCE_DOC_COUNT,
+  JOB_PROFILES,
+  PROJECT_TYPES,
+  createSlug,
+  generateProjectFiles,
+  getEvalCount
+} from '../app/src/features/project-builder/templates.js';
 
 const root = process.cwd();
 const failures = [];
 
 const baseConfig = {
   projectType: 'front-end-demo',
+  jobProfile: 'general-delivery',
   projectName: 'Governed Agent Project',
   owner: 'Project owner',
   users: 'Developers, reviewers, product owners and AI governance stakeholders.',
@@ -25,6 +33,12 @@ const baseConfig = {
   blockedTools: 'Production deployment tools, real databases, secret stores, HR systems, client systems, paid APIs and tools that affect real users.',
   dataOwner: 'Project owner and AI governance reviewer.',
   releaseOwner: 'Project owner and technical reviewer.',
+  jobScope: JOB_PROFILES[0].defaultScope,
+  jobQualityRubric: JOB_PROFILES[0].defaultRubric,
+  jobEvidenceRequirements: JOB_PROFILES[0].defaultEvidence,
+  jobEscalationRules: JOB_PROFILES[0].defaultEscalation,
+  jobOutputSchema: JOB_PROFILES[0].defaultOutputSchema,
+  jobStopRules: JOB_PROFILES[0].defaultStopRules,
   approverName: 'pending',
   approverRole: 'pending',
   approvalDate: 'pending',
@@ -49,7 +63,8 @@ const governanceDocs = [
   '12-incident-response.md',
   '13-prompt-register.md',
   '14-artefact-provenance-record.md',
-  '15-decision-log.md'
+  '15-decision-log.md',
+  '16-job-governance-profile.md'
 ];
 
 const commonRequiredFiles = [
@@ -82,6 +97,7 @@ const commonRequiredFiles = [
   'evals/test-cases/06-unsupported-claims.md',
   'evals/test-cases/07-approval-gate.md',
   'evals/test-cases/08-audit-logging.md',
+  'evals/test-cases/20-general-delivery-governance.md',
   'app/index.html',
   'app/src/main.js',
   'app/src/styles.css',
@@ -119,11 +135,19 @@ function assert(condition, message) {
 function configFor(typeId, overrides = {}) {
   const type = PROJECT_TYPES.find((item) => item.id === typeId);
   if (!type) throw new Error(`Unknown project type: ${typeId}`);
+  const profile = JOB_PROFILES.find((item) => item.id === (overrides.jobProfile || baseConfig.jobProfile)) || JOB_PROFILES[0];
 
   return {
     ...baseConfig,
     projectType: typeId,
     purpose: type.defaultPurpose,
+    jobProfile: profile.id,
+    jobScope: profile.defaultScope,
+    jobQualityRubric: profile.defaultRubric,
+    jobEvidenceRequirements: profile.defaultEvidence,
+    jobEscalationRules: profile.defaultEscalation,
+    jobOutputSchema: profile.defaultOutputSchema,
+    jobStopRules: profile.defaultStopRules,
     ...overrides
   };
 }
@@ -192,17 +216,27 @@ function assertGovernanceQuality(files, label) {
   const approvalRecord = files.get('docs/governance/09-human-approval-record.md') || '';
   const releaseGate = files.get('docs/governance/10-release-gate.md') || '';
   const toolMap = files.get('docs/governance/04-tool-access-map.md') || '';
+  const jobProfileDoc = files.get('docs/governance/16-job-governance-profile.md') || '';
   const agents = files.get('AGENTS.md') || '';
   const readme = files.get('README.md') || '';
 
+  assert(governanceDocs.length === GOVERNANCE_DOC_COUNT, 'Quality test governance doc list is out of sync with template count.');
   requirePattern(approvalRecord, /^APPROVED_FOR_IMPLEMENTATION:\s*(yes|no)\s*$/im, `${label} approval record`);
   requirePattern(releaseGate, /^RELEASE_APPROVED:\s*no\s*$/im, `${label} release gate`);
   requireIncludes(toolMap, '| Local file system |', `${label} tool map`);
   requireIncludes(toolMap, '| npm scripts |', `${label} tool map`);
   requireIncludes(toolMap, 'Blocked tools:', `${label} tool map`);
+  requireIncludes(jobProfileDoc, '# Job Governance Profile', `${label} job profile doc`);
+  requireIncludes(jobProfileDoc, '## Decision rubric', `${label} job profile doc`);
+  requireIncludes(jobProfileDoc, '## Evidence requirements', `${label} job profile doc`);
+  requireIncludes(jobProfileDoc, '## Escalation rules', `${label} job profile doc`);
+  requireIncludes(jobProfileDoc, '## Required output schema', `${label} job profile doc`);
+  requireIncludes(jobProfileDoc, '## Stop rules', `${label} job profile doc`);
   requireIncludes(agents, 'Run `npm run governance:check` before implementation.', `${label} AGENTS.md`);
+  requireIncludes(agents, 'docs/governance/16-job-governance-profile.md', `${label} AGENTS.md`);
   requireIncludes(agents, 'Do not create feature code', `${label} AGENTS.md`);
   requireIncludes(readme, 'npm run governance:check', `${label} README.md`);
+  requireIncludes(readme, 'Job profile:', `${label} README.md`);
   requireIncludes(readme, 'APPROVED_FOR_IMPLEMENTATION: yes', `${label} README.md`);
   requireIncludes(readme, 'RELEASE_APPROVED: yes', `${label} README.md`);
 }
@@ -225,7 +259,8 @@ function assertSafetyBoundaries(files, label) {
     files.get('docs/governance/03-data-classification.md'),
     files.get('docs/governance/04-tool-access-map.md'),
     files.get('docs/governance/06-permission-matrix.md'),
-    files.get('docs/governance/07-agent-workflow-design.md')
+    files.get('docs/governance/07-agent-workflow-design.md'),
+    files.get('docs/governance/16-job-governance-profile.md')
   ].join('\n');
 
   for (const expected of [
@@ -243,8 +278,9 @@ function verifyProjectType(type) {
   const result = generateProjectFiles(configFor(type.id));
   const files = fileMap(result);
   const label = type.id;
-  const expectedCount = type.id === 'governed-agent-team' ? 73 : 59;
-  const requiredEvalCount = type.id === 'governed-agent-team' ? 12 : 8;
+  const config = configFor(type.id);
+  const expectedCount = type.id === 'governed-agent-team' ? 75 : 61;
+  const requiredEvalCount = getEvalCount(config);
 
   assert(result.root === createSlug(baseConfig.projectName), `${label} root slug does not match project name.`);
   assert(result.fileName === `${result.root}.zip`, `${label} ZIP filename does not match root.`);
@@ -265,6 +301,28 @@ function verifyProjectType(type) {
   assertGovernanceQuality(files, label);
   assertEvalQuality(files, label, requiredEvalCount);
   assertSafetyBoundaries(files, label);
+}
+
+function verifyJobProfiles() {
+  for (const profile of JOB_PROFILES) {
+    const config = configFor('front-end-demo', { jobProfile: profile.id });
+    const result = generateProjectFiles(config);
+    const files = fileMap(result);
+    const label = `job profile ${profile.id}`;
+    const jobProfileDoc = files.get('docs/governance/16-job-governance-profile.md') || '';
+    const evalFile = `evals/test-cases/20-${profile.id}-governance.md`;
+
+    requireFile(files, evalFile, label);
+    requireIncludes(jobProfileDoc, `Selected profile: ${profile.label}`, label);
+    requireIncludes(jobProfileDoc, profile.defaultScope, label);
+    requireIncludes(jobProfileDoc, profile.defaultRubric, label);
+    requireIncludes(jobProfileDoc, profile.defaultEvidence, label);
+    requireIncludes(jobProfileDoc, profile.defaultEscalation, label);
+    requireIncludes(jobProfileDoc, profile.defaultOutputSchema, label);
+    requireIncludes(jobProfileDoc, profile.defaultStopRules, label);
+    requireIncludes(files.get(evalFile) || '', profile.label, label);
+    assert(getEvalCount(config) === 9, `${label} should generate 9 eval cases for a standard project.`);
+  }
 }
 
 function verifyApprovalSemantics() {
@@ -305,6 +363,14 @@ function verifyBuilderJourneyUi() {
 
   for (const expected of [
     'journey-checklist',
+    'jobProfileSelect',
+    'Job profile',
+    'Job scope',
+    'Decision rubric',
+    'Evidence requirements',
+    'Escalation rules',
+    'Output schema',
+    'Job stop rules',
     'Continue to guardrails',
     'Continue to boundaries',
     'Continue to approval',
@@ -339,6 +405,7 @@ for (const type of PROJECT_TYPES) {
 }
 
 verifyApprovalSemantics();
+verifyJobProfiles();
 verifyBuilderJourneyUi();
 
 if (failures.length) {
@@ -347,5 +414,5 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`Result quality tests passed for ${PROJECT_TYPES.length} project types.`);
-console.log('Checked generated structure, governance semantics, safety boundaries, eval coverage and builder journey UI.');
+console.log(`Result quality tests passed for ${PROJECT_TYPES.length} project types and ${JOB_PROFILES.length} job profiles.`);
+console.log('Checked generated structure, job personalization, governance semantics, safety boundaries, eval coverage and builder journey UI.');
