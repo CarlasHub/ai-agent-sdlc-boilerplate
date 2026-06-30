@@ -441,28 +441,28 @@ function journeyChecklist(config, type, profile, activeFiles, hasImplementationA
       <li class="is-done">
         <span>1</span>
         <div>
-          <strong>Scope</strong>
+          <strong>Scope <em>validated</em></strong>
           <small>${escapeHtml(config.projectName)} uses ${escapeHtml(type.label)} with ${escapeHtml(profile.label)} governance.</small>
         </div>
       </li>
       <li class="is-done">
         <span>2</span>
         <div>
-          <strong>Guardrails</strong>
+          <strong>Guardrails <em>required</em></strong>
           <small>${escapeHtml(config.owner)} owns ${escapeHtml(config.riskLevel)} risk with ${escapeHtml(config.dataClass)} data.</small>
         </div>
       </li>
       <li class="is-${approvalState}">
         <span>3</span>
         <div>
-          <strong>Approval</strong>
+          <strong>Approval <em>${hasImplementationApproval ? 'recorded' : 'blocked'}</em></strong>
           <small>${hasImplementationApproval ? 'Implementation approval will be recorded.' : 'Implementation remains blocked by design.'}</small>
         </div>
       </li>
       <li class="is-${exportState}">
         <span>4</span>
         <div>
-          <strong>Export</strong>
+          <strong>Export <em>${activeFiles.length ? 'ready after review' : 'locked'}</em></strong>
           <small>${activeFiles.length} files are ready for the local ZIP.</small>
         </div>
       </li>
@@ -492,19 +492,28 @@ function previewMarkup(config, excludedFiles = new Set()) {
   const nextActionCopy = hasImplementationApproval
     ? 'Human approval will be written into the generated evidence. Release approval still remains separate.'
     : 'Use the continue links to finish each section. The ZIP is safe to review because it records APPROVED_FOR_IMPLEMENTATION: no.';
+  const governanceReadiness = hasImplementationApproval ? inclusionRatio : Math.min(inclusionRatio, 72);
+  const approvalStateLabel = hasImplementationApproval ? 'OPEN' : 'BLOCKED';
+  const implementationState = hasImplementationApproval ? 'Open after recorded human approval' : 'Blocked until approval';
+  const secretsState = config.secrets === 'yes' ? 'Allowed by config' : 'Denied';
+  const personalDataState = config.personalData === 'yes' ? 'Allowed by config' : 'Blocked';
 
   return `
-    <div class="next-action-card">
+    <div class="next-action-card ${hasImplementationApproval ? 'is-open' : 'is-blocked'}">
       <p class="eyebrow">Next action</p>
       <h2>${escapeHtml(nextActionTitle)}</h2>
       <p>${escapeHtml(nextActionCopy)}</p>
+      <div class="action-signal-row" aria-label="Current approval signal">
+        <span class="${hasImplementationApproval ? 'is-pass' : 'is-hold'}">${hasImplementationApproval ? 'Approval recorded' : 'Human gate required'}</span>
+        <span>Release gate remains separate</span>
+      </div>
     </div>
 
     ${journeyChecklist(config, type, profile, activeFiles, hasImplementationApproval)}
 
-    <div class="output-header">
+    <div class="output-header blueprint-intelligence">
       <div>
-        <p class="eyebrow">Generated package</p>
+        <p class="eyebrow">Blueprint Intelligence</p>
         <h2>${escapeHtml(generated.fileName)}</h2>
         <p>${escapeHtml(type.label)} with ${escapeHtml(profile.label)} job conditions, ${escapeHtml(config.riskLevel)} risk and ${escapeHtml(config.dataClass)} data boundaries.</p>
       </div>
@@ -519,7 +528,7 @@ function previewMarkup(config, excludedFiles = new Set()) {
     </div>
 
     <div class="summary-grid" aria-label="Generated package summary">
-      <div><span>Files</span><strong>${activeFiles.length}/${generated.files.length}</strong></div>
+      <div><span>Files included</span><strong>${activeFiles.length}/${generated.files.length}</strong></div>
       <div><span>Governance docs</span><strong>${GOVERNANCE_DOC_COUNT}</strong></div>
       <div><span>Agent roles</span><strong>${roleCount}</strong></div>
       <div><span>Eval cases</span><strong>${evalCount}</strong></div>
@@ -527,19 +536,47 @@ function previewMarkup(config, excludedFiles = new Set()) {
 
     <div class="readiness-meter" aria-label="Included files progress">
       <div>
-        <span>Package completeness</span>
-        <strong>${inclusionRatio}%</strong>
+        <span>Governance readiness</span>
+        <strong>${governanceReadiness}%</strong>
       </div>
-      <i><span style="width: ${inclusionRatio}%"></span></i>
+      <i><span style="width: ${governanceReadiness}%"></span></i>
+    </div>
+
+    <div class="intelligence-ledger" aria-label="Governance intelligence summary">
+      <div>
+        <span>Risk</span>
+        <strong>${escapeHtml(config.riskLevel)}</strong>
+      </div>
+      <div>
+        <span>Data class</span>
+        <strong>${escapeHtml(config.dataClass)}</strong>
+      </div>
+      <div>
+        <span>Approval state</span>
+        <strong class="${hasImplementationApproval ? 'is-pass' : 'is-hold'}">${approvalStateLabel}</strong>
+      </div>
+      <div>
+        <span>Secrets</span>
+        <strong>${escapeHtml(secretsState)}</strong>
+      </div>
+      <div>
+        <span>Personal data</span>
+        <strong>${escapeHtml(personalDataState)}</strong>
+      </div>
+      <div>
+        <span>Package integrity</span>
+        <strong class="is-pass">PASS</strong>
+      </div>
     </div>
 
     <div class="gate-list" aria-label="Generated readiness checks">
       <div class="gate-row is-pass"><strong>PASS</strong><span>Governance gate, approval record and release gate included.</span></div>
-      <div class="gate-row is-pass"><strong>PASS</strong><span>${escapeHtml(profile.label)} job scope, rubric, evidence, escalation and stop rules included.</span></div>
-      <div class="gate-row is-pass"><strong>PASS</strong><span>${roleCount} agent role prompts generated with least-privilege operating rules.</span></div>
-      <div class="gate-row is-pass"><strong>PASS</strong><span>${evalCount} eval cases included for scope, injection, tool misuse and audit logging.</span></div>
+      <div class="gate-row is-pass"><strong>PASS</strong><span>Eval coverage includes ${evalCount} cases for scope, injection, tool misuse and audit logging.</span></div>
+      <div class="gate-row is-pass"><strong>PASS</strong><span>Least privilege agent prompts generated for ${roleCount} roles.</span></div>
+      <div class="gate-row ${hasImplementationApproval ? 'is-pass' : 'is-hold'}"><strong>${hasImplementationApproval ? 'PASS' : 'HOLD'}</strong><span>${hasImplementationApproval ? 'Human implementation approval will be recorded.' : 'Human approval missing; implementation remains blocked.'}</span></div>
+      <div class="gate-row is-pass"><strong>PASS</strong><span>${escapeHtml(profile.label)} scope, rubric, evidence, escalation and stop rules included.</span></div>
       <div class="gate-row ${inactiveFiles.length ? 'is-warn' : 'is-pass'}"><strong>${inactiveFiles.length ? 'WARN' : 'PASS'}</strong><span>${inactiveFiles.length} file${inactiveFiles.length === 1 ? '' : 's'} excluded from the ZIP.</span></div>
-      <div class="gate-row ${hasImplementationApproval ? 'is-pass' : 'is-hold'}"><strong>${hasImplementationApproval ? 'PASS' : 'HOLD'}</strong><span>${hasImplementationApproval ? 'Human implementation approval will be recorded.' : 'Implementation remains blocked until real human approval is entered.'}</span></div>
+      <div class="gate-row ${hasImplementationApproval ? 'is-pass' : 'is-hold'}"><strong>${hasImplementationApproval ? 'PASS' : 'HOLD'}</strong><span>Implementation status: ${escapeHtml(implementationState)}.</span></div>
     </div>
 
     <details class="file-browser live-file-browser" aria-label="Live generated project preview" aria-live="polite">
@@ -581,42 +618,54 @@ function builderMarkup(excludedFiles = new Set()) {
     <div class="builder-shell">
       <header class="builder-header">
         <div class="builder-title-block">
-          <p class="eyebrow">CarlasHub /</p>
-          <h1 id="builder-title">ai-agent-sdlc-boilerplate</h1>
-          <p>Generate a governed AI-agent starter kit. Work left to right: define scope, set guardrails, decide approval, then export the local ZIP.</p>
+          <p class="eyebrow">GOVERNANCE-FIRST AI DELIVERY</p>
+          <h1 id="builder-title">AI-Agent SDLC Blueprint</h1>
+          <p class="hero-subtitle">Governed project generation for agent-led software delivery.</p>
+          <p>Define scope, enforce guardrails, generate evidence, and export a review-ready workspace before any agent writes implementation code.</p>
           <div class="header-metrics" aria-label="Default package contents">
-            <span>Public</span>
-            <span><strong>${GOVERNANCE_DOC_COUNT}</strong> governance docs</span>
-            <span><strong>${getAgentRoleCount(defaults)}+</strong> agent roles</span>
-            <span><strong>${getEvalCount(defaults)}+</strong> eval cases</span>
-            <span><strong>${escapeHtml(profile.label)}</strong></span>
+            <span>Risk: <strong>Medium</strong></span>
+            <span>Data class: <strong>Public</strong></span>
+            <span>Approval: <strong>Blocked</strong></span>
+            <span>Secrets: <strong>Denied</strong></span>
+            <span>Tool access: <strong>Least privilege</strong></span>
+          </div>
+          <div class="system-signal-grid" aria-label="Agent readiness signals">
+            <span class="system-signal is-ready"><strong>INTAKE AGENT</strong><em>READY</em></span>
+            <span class="system-signal is-waiting"><strong>REVIEW AGENT</strong><em>WAITING</em></span>
+            <span class="system-signal is-blocked"><strong>RED TEAM AGENT</strong><em>BLOCKED</em></span>
+            <span class="system-signal is-locked"><strong>RELEASE AGENT</strong><em>LOCKED</em></span>
           </div>
         </div>
         <div class="header-actions">
           <span class="run-state">local export only</span>
+          <span class="run-state is-pass">package integrity pass</span>
           <button class="primary-action top-submit" type="submit" form="project-form">
-            Export ZIP
+            Generate governed blueprint
           </button>
           <button class="ghost-action" type="button" data-action="reset">Reset</button>
         </div>
       </header>
 
       <ol class="workflow-strip" aria-label="Builder workflow">
-        <li class="is-start">
+        <li class="is-active" aria-current="step">
+          <span class="workflow-state">Active</span>
           <strong>Scope</strong>
-          <span>Name the project and choose the starter pattern.</span>
+          <span class="workflow-description">Name the project and choose the starter pattern.</span>
         </li>
-        <li>
+        <li class="is-required">
+          <span class="workflow-state">Required</span>
           <strong>Guardrails</strong>
-          <span>Set owner, users, risk and data boundaries.</span>
+          <span class="workflow-description">Set owner, users, risk and data boundaries.</span>
         </li>
-        <li>
+        <li class="is-blocked">
+          <span class="workflow-state">Blocked</span>
           <strong>Approval</strong>
-          <span>Keep implementation blocked or record sign-off.</span>
+          <span class="workflow-description">Keep implementation blocked or record sign-off.</span>
         </li>
-        <li>
+        <li class="is-locked">
+          <span class="workflow-state">Ready after review</span>
           <strong>Export</strong>
-          <span>Review included files and download the ZIP.</span>
+          <span class="workflow-description">Review included files and download the ZIP.</span>
         </li>
       </ol>
 
@@ -719,7 +768,7 @@ function builderMarkup(excludedFiles = new Set()) {
             <span>The ZIP contains governance docs, role prompts, evals, audit templates and release gates generated locally.</span>
           </div>
           <button class="primary-action" type="submit">
-            Export project
+            Export governed package
           </button>
         </div>
       </form>

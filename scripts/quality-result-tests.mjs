@@ -375,17 +375,30 @@ function verifyBuilderJourneyUi() {
     'Continue to boundaries',
     'Continue to approval',
     'Review export',
-    'Export a review ZIP; implementation stays blocked.'
+    'Export a review ZIP; implementation stays blocked.',
+    'GOVERNANCE-FIRST AI DELIVERY',
+    'AI-Agent SDLC Blueprint',
+    'Blueprint Intelligence',
+    'INTAKE AGENT',
+    'REVIEW AGENT',
+    'RED TEAM AGENT',
+    'RELEASE AGENT',
+    'Governance readiness',
+    'Package integrity',
+    'Generate governed blueprint'
   ]) {
     requireIncludes(appSource, expected, 'Builder journey UI');
   }
 
   for (const expected of [
-    '--canvas-default: #22272e',
-    '--fg-default: #adbac7',
+    '--bg-main: #070b14',
+    '--ai-cyan: #49e6ff',
+    '.system-signal-grid',
+    '.blueprint-intelligence',
+    '.intelligence-ledger',
     '.section-next',
     '.journey-checklist',
-    '.workflow-strip li.is-start'
+    '.workflow-strip li.is-active'
   ]) {
     requireIncludes(styleSource, expected, 'Builder journey CSS');
   }
