@@ -116,6 +116,8 @@ const ICONS = {
   'x-circle': '<circle cx="12" cy="12" r="9"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>'
 };
 
+const NAV_TARGET_IDS = ['project-builder-config', 'project-export', 'about-boilerplate'];
+
 function svgIcon(name, className = 'ui-icon') {
   const iconName = ICONS[name] ? name : 'info';
 
@@ -207,6 +209,47 @@ function focusPrimaryHeading(root) {
 
     heading.setAttribute('tabindex', '-1');
     heading.focus({ preventScroll: true });
+  });
+}
+
+function currentNavTargetId(root) {
+  const hashId = decodeURIComponent(window.location.hash.replace(/^#/, ''));
+  if (NAV_TARGET_IDS.includes(hashId) && root.querySelector(`#${CSS.escape(hashId)}`)) {
+    return hashId;
+  }
+
+  const sections = NAV_TARGET_IDS
+    .map((id) => root.querySelector(`#${CSS.escape(id)}`))
+    .filter(Boolean);
+
+  if (!sections.length) return null;
+
+  const activationLine = Math.min(window.innerHeight * 0.38, 260);
+  let activeId = sections[0].id;
+
+  for (const section of sections) {
+    if (section.getBoundingClientRect().top <= activationLine) {
+      activeId = section.id;
+    }
+  }
+
+  return activeId;
+}
+
+function updateWorkspaceNavActive(root) {
+  const activeId = currentNavTargetId(root);
+  const links = root.querySelectorAll('.side-nav a[href^="#"]');
+
+  links.forEach((link) => {
+    const targetId = decodeURIComponent(link.hash.replace(/^#/, ''));
+    const isActive = Boolean(activeId && targetId === activeId);
+
+    link.classList.toggle('is-active', isActive);
+    if (isActive) {
+      link.setAttribute('aria-current', 'page');
+    } else {
+      link.removeAttribute('aria-current');
+    }
   });
 }
 
@@ -983,6 +1026,7 @@ export function createProjectBuilderApp(root) {
       root.innerHTML = landingMarkup();
     }
 
+    updateWorkspaceNavActive(root);
     if (focusHeading) focusPrimaryHeading(root);
   }
 
@@ -1057,6 +1101,11 @@ export function createProjectBuilderApp(root) {
 
   function attachEvents() {
     root.addEventListener('click', (event) => {
+      const navLink = event.target.closest('.side-nav a[href^="#"]');
+      if (navLink) {
+        window.requestAnimationFrame(() => updateWorkspaceNavActive(root));
+      }
+
       const tooltipButton = event.target.closest('[data-tooltip-trigger]');
       if (tooltipButton) {
         event.preventDefault();
@@ -1160,12 +1209,16 @@ export function createProjectBuilderApp(root) {
 
       startAssembly(result, blob);
     });
+
+    window.addEventListener('hashchange', () => updateWorkspaceNavActive(root));
+    window.addEventListener('scroll', () => updateWorkspaceNavActive(root), { passive: true });
   }
 
   return {
     init() {
       render();
       attachEvents();
+      updateWorkspaceNavActive(root);
     }
   };
 }
