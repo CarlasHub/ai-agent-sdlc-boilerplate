@@ -12,10 +12,10 @@ Scenario:
 - Uses fictional support workflow governance data only.
 - Fills every available builder field before export.
 - Shows scope, guardrails, job rules, safety boundaries, governance ownership, human approval and export.
-- Opens the generated boilerplate workspace in VS Code web using the Catppuccin Mocha visual palette.
+- Opens the generated boilerplate workspace in VS Code Web using a dark editor theme for readability.
 - Shows the generated folders: `.agent-sdlc`, `.github`, `agents`, `app`, `docs`, `evals`, `profile-packs` and `scripts`.
-- Recorded at 1920x1080 as WebM.
+- Recorded from 1920x1080 source frames and assembled as a 3840x2160 high-resolution WebM.
 
 Generated local workspace:
 
-`/Users/Carla/projects/ai-agent-sdlc-demo-artifacts/generated-v2/northstar-support-qa-auditor-pilot`
+`/Users/Carla/projects/ai-agent-sdlc-demo-artifacts/generated-v4/northstar-support-qa-auditor-pilot`
